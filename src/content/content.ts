@@ -191,8 +191,21 @@ function ensureControl(): void {
   }
 }
 
+/** Reflect the current state on the toolbar badge (best effort). */
+function notifyBadge(): void {
+  try {
+    const result = api?.runtime?.sendMessage?.({ type: "badge", active: isActive() });
+    if (result && typeof result.catch === "function") result.catch(() => {});
+  } catch {
+    /* ignore */
+  }
+}
+
 function updateControl(): void {
-  if (!controlHost) return;
+  if (!controlHost) {
+    notifyBadge();
+    return;
+  }
   try {
     const show = settings.showFloatingControl && !inFrame();
     controlHost.style.display = show ? "" : "none";
@@ -203,6 +216,7 @@ function updateControl(): void {
       controlLabel.textContent = on ? "Bp on" : "Bp off";
       controlButton.title = on ? "Bionic reading is on (click to turn off)" : "Bionic reading is off (click to turn on)";
     }
+    notifyBadge();
   } catch {
     /* ignore */
   }

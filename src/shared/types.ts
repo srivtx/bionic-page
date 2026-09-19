@@ -123,7 +123,8 @@ export type Message =
   | { type: "remove" }
   | { type: "toggle" }
   | { type: "settings-changed"; settings: Settings }
-  | { type: "refresh" };
+  | { type: "refresh" }
+  | { type: "badge"; active: boolean };
 
 export function clamp(value: number, min: number, max: number): number {
   if (Number.isNaN(value)) return min;

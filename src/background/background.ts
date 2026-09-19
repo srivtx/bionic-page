@@ -44,6 +44,26 @@ function registerInstall(): void {
   });
 }
 
+/** Reflect the per-tab on/off state on the toolbar icon. */
+function registerBadge(): void {
+  const runtime = api?.runtime;
+  if (!runtime?.onMessage?.addListener) return;
+  runtime.onMessage.addListener((message: { type?: string; active?: boolean }, sender: { tab?: { id?: number } }) => {
+    if (message?.type !== "badge" || sender?.tab?.id === undefined) return false;
+    const tabId = sender.tab.id;
+    const action = api?.action;
+    try {
+      action?.setBadgeBackgroundColor?.({ tabId, color: "#4f46e5" });
+      action?.setBadgeTextColor?.({ tabId, color: "#ffffff" });
+      action?.setBadgeText?.({ tabId, text: message.active ? "on" : "" });
+    } catch {
+      /* ignore */
+    }
+    return false;
+  });
+}
+
 registerInstall();
 registerCommands();
+registerBadge();
 void ensureDefaults;
