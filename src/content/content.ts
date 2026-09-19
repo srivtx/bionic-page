@@ -274,8 +274,10 @@ async function init(): Promise<void> {
 
 onMessage(handleMessage);
 onSettingsChanged((next) => {
+  // The popup also broadcasts; skip the duplicate when the values are equal.
+  const unchanged = JSON.stringify(next) === JSON.stringify(settings);
   settings = next;
-  refresh();
+  if (!unchanged) refresh();
 });
 
 if (document.readyState === "loading") {

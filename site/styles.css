@@ -759,6 +759,25 @@ html.js-motion .demo-text b {
   backdrop-filter: saturate(180%) blur(10px);
 }
 
+/* Nav links grow an accent underline from the left on hover or focus. */
+.nav-links a {
+  position: relative;
+}
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: -4px;
+  height: 1.5px;
+  background: var(--bp-accent);
+  transition: right 160ms ease;
+}
+.nav-links a:hover::after,
+.nav-links a:focus-visible::after {
+  right: 0;
+}
+
 @keyframes bp-rise {
   to {
     opacity: 1;
