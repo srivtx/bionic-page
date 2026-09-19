@@ -8,7 +8,7 @@ import {
   type Settings,
   type SiteRule,
 } from "../shared/types";
-import { bionicText, type BionicOptions } from "../core/algorithm";
+import { emphasize, type BionicOptions } from "../core/algorithm";
 
 const SAMPLE_TEXT =
   "Bionic reading emphasizes the leading letters of each word. Your eyes still read every letter; the emphasis simply gives them a place to land.";
@@ -86,10 +86,21 @@ function toBionicOptions(settings: Settings): BionicOptions {
 
 function renderPreview(settings: Settings): void {
   previewEl.style.setProperty("--bp-bold-weight", String(settings.boldWeight));
+  previewEl.textContent = "";
   try {
-    const html =
-      typeof bionicText === "function" ? bionicText(SAMPLE_TEXT, toBionicOptions(settings)) : SAMPLE_TEXT;
-    previewEl.innerHTML = html;
+    const options = toBionicOptions(settings);
+    for (const part of SAMPLE_TEXT.split(/(\s+)/)) {
+      if (part.length === 0) continue;
+      const split = emphasize(part, options);
+      if (split) {
+        const strong = document.createElement("b");
+        strong.textContent = split.head;
+        previewEl.append(strong);
+        if (split.tail) previewEl.append(document.createTextNode(split.tail));
+      } else {
+        previewEl.append(document.createTextNode(part));
+      }
+    }
   } catch {
     previewEl.textContent = SAMPLE_TEXT;
   }

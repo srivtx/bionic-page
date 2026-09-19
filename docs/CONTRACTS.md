@@ -166,10 +166,11 @@ bundles them, so use normal ESM imports.
   - Chrome: `background: { service_worker: "background.js", type: "module" }`,
     `minimum_chrome_version: "116"`, **no** `browser_specific_settings`,
     `action` with default_popup + icons.
-  - Firefox: `background: { scripts: ["background.js"], type: "module" }`,
+  - Firefox: `background: { scripts: ["background.js"] }`,
     `browser_specific_settings: { gecko: { id:
-    "bionic-page@example.com", strict_min_version: "121.0",
-    data_collection_permissions: { required: ["none"] } } }`,
+    "bionic-page@example.com", strict_min_version: "140.0",
+    data_collection_permissions: { required: ["none"] } }, gecko_android: {
+    strict_min_version: "142.0" } }`,
     `action` with default_popup + icons, `options_ui` page.
 - Copies `popup.html`, `options.html`, CSS, and `assets/icons/*` into each
   target; rewrites nothing else.

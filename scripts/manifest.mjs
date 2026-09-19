@@ -62,8 +62,11 @@ export function manifestFor(target, version) {
       browser_specific_settings: {
         gecko: {
           id: "bionic-page@example.com",
-          strict_min_version: "121.0",
+          strict_min_version: "140.0",
           data_collection_permissions: { required: ["none"] },
+        },
+        gecko_android: {
+          strict_min_version: "142.0",
         },
       },
     };

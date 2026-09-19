@@ -42,6 +42,8 @@ describe("generated manifests", () => {
     expect(m.minimum_chrome_version).toBeUndefined();
     expect(m.browser_specific_settings.gecko.id).toContain("@");
     expect(m.browser_specific_settings.gecko.data_collection_permissions.required).toEqual(["none"]);
+    // data_collection_permissions is only understood from Firefox 140 onward.
+    expect(Number.parseFloat(m.browser_specific_settings.gecko.strict_min_version)).toBeGreaterThanOrEqual(140);
   });
 
   test("action, options, icons, and the toggle command are present", () => {
