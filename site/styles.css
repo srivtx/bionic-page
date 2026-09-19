@@ -794,3 +794,23 @@ html.js-motion .demo-text b {
   }
 }
 
+/* Printing must never inherit the reveal hidden state. */
+@media print {
+  html.js-motion .reveal,
+  html.js-motion .hero .eyebrow,
+  html.js-motion .hero h1,
+  html.js-motion .hero .lede,
+  html.js-motion .hero .honest,
+  html.js-motion .hero .cta-row,
+  html.js-motion .hero .store-note {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .scroll-progress,
+  .to-top {
+    display: none !important;
+  }
+}
+

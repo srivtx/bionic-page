@@ -266,10 +266,12 @@
     "main section > .wrap > h2, main .card, main .step, main .grid > article, main .shot",
   );
   if ("IntersectionObserver" in window && targets.length) {
+    var revealed = false;
     var io = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
+            revealed = true;
             entry.target.classList.add("in");
             io.unobserve(entry.target);
           }
@@ -289,6 +291,20 @@
       targets.forEach(function (el) {
         var r = el.getBoundingClientRect();
         if (r.top < window.innerHeight * 0.9) el.classList.add("in");
+      });
+    });
+    // If the observer never fires (old engine, odd embed), never leave content blank.
+    setTimeout(function () {
+      if (!revealed) {
+        targets.forEach(function (el) {
+          el.classList.add("in");
+        });
+      }
+    }, 1800);
+    // Printing or exporting should show everything immediately.
+    window.addEventListener("beforeprint", function () {
+      targets.forEach(function (el) {
+        el.classList.add("in");
       });
     });
   }
