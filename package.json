@@ -1,0 +1,27 @@
+{
+  "name": "bionic-page",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Turn any web page into a bionic (fixation) reading page. Manifest V3 extension for Chrome and Firefox.",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:chrome": "node build.mjs chrome",
+    "build:firefox": "node build.mjs firefox",
+    "build:watch": "node build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "icons": "node scripts/make-icons.mjs",
+    "verify": "node scripts/verify-build.mjs",
+    "e2e": "bun scripts/e2e.mjs",
+    "lint:firefox": "web-ext lint --source-dir dist/firefox",
+    "package": "node scripts/package.mjs"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "@types/chrome": "^0.0.302",
+    "esbuild": "^0.25.0",
+    "linkedom": "^0.18.13",
+    "typescript": "^5.7.2"
+  }
+}

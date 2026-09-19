@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy — Bionic Page</title>
+    <meta
+      name="description"
+      content="Bionic Page privacy policy: no network requests, no analytics, local settings only."
+    />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body id="top">
+    <header class="topnav">
+      <div class="wrap topnav-inner">
+        <a class="wordmark" href="index.html" aria-label="Bionic Page"><b>Bi</b>onic <b>Pa</b>ge</a>
+        <nav class="topnav-links" aria-label="Primary">
+          <a href="index.html#how">How it works</a>
+          <a href="index.html#install">Install</a>
+          <a href="index.html#faq">FAQ</a>
+        </nav>
+        <a class="btn btn-primary" href="index.html#install">Get the extension</a>
+      </div>
+    </header>
+
+    <main class="wrap" style="max-width: 760px; padding: 48px 20px 80px">
+      <h1>Privacy policy</h1>
+      <p>
+        Bionic Page is a local reading aid. It runs entirely in your browser and
+        does not operate any server.
+      </p>
+
+      <h2>What the extension collects</h2>
+      <p>
+        Nothing is transmitted. The extension makes <strong>no network
+        requests</strong>, contains <strong>no analytics</strong> and
+        <strong>no telemetry</strong>, and has no accounts or sign-in.
+      </p>
+
+      <h2>What the extension stores</h2>
+      <p>
+        Only your own settings: the enable switch, the selected mode, intensity,
+        minimum word length, appearance options, and any per-site rules you add.
+        They are stored with your browser's extension storage, which may sync
+        through your browser vendor's own account if you have sync enabled. They
+        never pass through us.
+      </p>
+
+      <h2>Why it asks for access to all sites</h2>
+      <p>
+        The extension has to read the text of the page you are on to emphasize
+        it. The <code>&lt;all_urls&gt;</code> host permission is required
+        because a reading aid is only useful if it works on the pages you
+        choose. The page content is processed in memory and discarded when you
+        leave the page; nothing is uploaded or saved.
+      </p>
+
+      <h2>Permissions in plain words</h2>
+      <ul>
+        <li><code>storage</code> — save your settings.</li>
+        <li><code>activeTab</code> — affect the tab you click the icon on.</li>
+        <li><code>&lt;all_urls&gt;</code> — read and restyle page text locally.</li>
+      </ul>
+
+      <h2>Revoking access</h2>
+      <p>
+        Turning the extension off, disabling it, or removing it stops all
+        processing immediately. Removing the extension deletes its stored
+        settings.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions or a bug? Open an issue on the project's repository (link in
+        the footer of the home page).
+      </p>
+
+      <p class="small" style="color: var(--bp-mute); margin-top: 32px">
+        Last updated 2026-09-19. "Bionic Reading" is a trademark of Bionic
+        Reading GmbH; this project is not affiliated with or endorsed by it.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <div>
+          <a class="wordmark" href="index.html" aria-label="Bionic Page"><b>Bi</b>onic <b>Pa</b>ge</a>
+          <p class="footer-line">MIT licensed. Built from one source tree for Chrome and Firefox.</p>
+        </div>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="index.html">Home</a>
+          <a href="../RESEARCH.md">Research notes</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

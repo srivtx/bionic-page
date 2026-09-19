@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Bionic Page — Options</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="page" aria-label="Bionic Page options">
+      <header class="page__header">
+        <span class="wordmark" role="img" aria-label="Bionic Page">
+          <b class="wordmark__head">Bi</b><span class="wordmark__tail">onic</span>
+          <span class="wordmark__gap" aria-hidden="true"> </span>
+          <b class="wordmark__head">Pa</b><span class="wordmark__tail">ge</span>
+        </span>
+        <p class="page__tagline">Reading aids for any page. Settings are stored on this device and synced when your browser can.</p>
+      </header>
+
+      <p id="formStatus" class="status" role="status" aria-live="polite"></p>
+
+      <form id="settingsForm" class="form" novalidate>
+        <section class="card">
+          <fieldset class="fieldset">
+            <legend class="legend">Reading</legend>
+
+            <div class="field field--row">
+              <label class="field__label" for="enabled">Enable Bionic Page</label>
+              <input type="checkbox" id="enabled" class="checkbox" />
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="mode">Mode</label>
+              <select id="mode" class="control control--select"></select>
+              <p id="modeDescription" class="hint"></p>
+            </div>
+
+            <div class="field">
+              <div class="field__row">
+                <label class="field__label" for="intensity">Intensity</label>
+                <output id="intensityValue" class="value" for="intensity">50%</output>
+              </div>
+              <input type="range" id="intensity" class="control control--range" min="0.2" max="0.9" step="0.05" />
+              <p class="hint">How much of each word is emphasized. Lower values are calmer.</p>
+            </div>
+
+            <div class="field">
+              <div class="field__row">
+                <label class="field__label" for="minWordLength">Minimum word length</label>
+                <input type="number" id="minWordLength" class="control control--number" min="2" max="8" step="1" inputmode="numeric" />
+              </div>
+              <p class="hint">Words shorter than this are left alone.</p>
+            </div>
+
+            <div class="field field--row">
+              <label class="field__label" for="skipCommonWords">Skip common words</label>
+              <input type="checkbox" id="skipCommonWords" class="checkbox" />
+            </div>
+
+            <div class="field field--row">
+              <label class="field__label" for="respectExistingBold">Leave existing bold text alone</label>
+              <input type="checkbox" id="respectExistingBold" class="checkbox" />
+            </div>
+          </fieldset>
+        </section>
+
+        <section class="card">
+          <fieldset class="fieldset">
+            <legend class="legend">Appearance</legend>
+
+            <div class="field">
+              <div class="field__row">
+                <label class="field__label" for="boldWeight">Emphasis weight</label>
+                <output id="boldWeightValue" class="value" for="boldWeight">700</output>
+              </div>
+              <input type="range" id="boldWeight" class="control control--range" min="500" max="900" step="50" />
+            </div>
+
+            <div class="field">
+              <div class="field__row">
+                <label class="field__label" for="restOpacity">Faded remainder opacity</label>
+                <output id="restOpacityValue" class="value" for="restOpacity">72%</output>
+              </div>
+              <input type="range" id="restOpacity" class="control control--range" min="0.4" max="1" step="0.02" />
+              <p class="hint">Applies to low distraction mode.</p>
+            </div>
+
+            <div class="field field--row">
+              <label class="field__label" for="letterSpacing">Add letter spacing after the emphasis</label>
+              <input type="checkbox" id="letterSpacing" class="checkbox" />
+            </div>
+          </fieldset>
+        </section>
+
+        <section class="card">
+          <fieldset class="fieldset">
+            <legend class="legend">Advanced</legend>
+
+            <div class="field">
+              <label class="field__label" for="rule">Custom rule</label>
+              <input type="text" id="rule" class="control" spellcheck="false" autocomplete="off" />
+              <p class="hint">Per-length counts plus a fraction, e.g. "0 1 1 2 0.4". Used by the Custom rule mode.</p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="customVowels">Custom vowels</label>
+              <input type="text" id="customVowels" class="control" spellcheck="false" autocomplete="off" />
+              <p class="hint">Vowel characters for the Vowel anchor mode. Leave empty for the default set.</p>
+            </div>
+
+            <div class="field field--row">
+              <label class="field__label" for="processDynamic">Process new content as it loads</label>
+              <input type="checkbox" id="processDynamic" class="checkbox" />
+            </div>
+
+            <div class="field field--row">
+              <label class="field__label" for="processIframes">Run inside iframes</label>
+              <input type="checkbox" id="processIframes" class="checkbox" />
+            </div>
+
+            <div class="field field--row">
+              <label class="field__label" for="showFloatingControl">Show the floating control</label>
+              <input type="checkbox" id="showFloatingControl" class="checkbox" />
+            </div>
+          </fieldset>
+        </section>
+
+        <section class="card">
+          <fieldset class="fieldset">
+            <legend class="legend">Sites</legend>
+            <p class="hint">Add match patterns to turn Bionic Page on or off per site, e.g. "https://news.ycombinator.com/*". The last matching rule wins.</p>
+
+            <div class="site-add">
+              <label class="sr-only" for="sitePattern">Match pattern</label>
+              <input type="text" id="sitePattern" class="control" placeholder="https://example.com/*" spellcheck="false" autocomplete="off" />
+              <button type="submit" id="addSite" class="button">Add site</button>
+            </div>
+
+            <ul id="siteList" class="site-list" aria-label="Configured sites"></ul>
+          </fieldset>
+        </section>
+
+        <section class="card">
+          <fieldset class="fieldset">
+            <legend class="legend">Preview</legend>
+            <p id="preview" class="preview" aria-live="polite"></p>
+          </fieldset>
+        </section>
+
+        <section class="card">
+          <fieldset class="fieldset">
+            <legend class="legend">Data</legend>
+
+            <div class="actions">
+              <button type="button" id="exportBtn" class="button">Export settings</button>
+              <button type="button" id="resetBtn" class="button button--quiet">Reset to defaults</button>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="importFile">Import settings</label>
+              <input type="file" id="importFile" class="control control--file" accept="application/json,.json" />
+              <p class="hint">Choose a JSON file exported from Bionic Page.</p>
+            </div>
+          </fieldset>
+        </section>
+      </form>
+    </main>
+
+    <script src="options.js" defer></script>
+  </body>
+</html>

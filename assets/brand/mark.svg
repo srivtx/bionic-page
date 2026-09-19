@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Bionic Page" width="128" height="128">
+  <title>Bionic Page</title>
+  <rect width="128" height="128" rx="28" fill="#14161a"/>
+  <text x="64" y="88" text-anchor="middle" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="78" letter-spacing="-3">
+    <tspan font-weight="800" fill="#ffffff">b</tspan><tspan font-weight="400" fill="#8b8cf7">i</tspan>
+  </text>
+  <circle cx="99" cy="97" r="8" fill="#4f46e5"/>
+</svg>

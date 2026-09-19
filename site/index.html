@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bionic Page — turn any page into a bionic reading page</title>
+  <meta name="description" content="Bionic Page is a Chrome and Firefox extension that rewrites any page so the leading part of each word is emphasized. Five modes, per-site control, fully reversible, no network.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <span id="top"></span>
+
+  <!-- 1. Sticky top nav -->
+  <header class="site-nav">
+    <nav class="nav-inner" aria-label="Primary">
+      <a class="wordmark" href="#top" aria-label="Bionic Page"><b>Bi</b>onic <b>Pa</b>ge</a>
+      <ul class="nav-links">
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#modes">Modes</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#privacy">Privacy</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <a class="btn btn-primary btn-sm" href="#install">Get the extension</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- 2. Hero -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="wrap">
+        <p class="eyebrow">Chrome and Firefox extension</p>
+        <h1 id="hero-title">Turn any page into a bionic reading page.</h1>
+        <p class="lede">
+          The extension rewrites the readable text of the page you are on so the
+          leading part of each word carries more weight, giving your eye a fixed
+          anchor per word.
+        </p>
+        <p class="honest">
+          Bionic Page is configurable visual anchoring, not a speed-reading claim.
+          Peer-reviewed results are mixed, so judge it on your own reading.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#" data-store="chrome">Add to Chrome</a>
+          <a class="btn" href="#" data-store="firefox">Add to Firefox</a>
+          <a class="link-arrow" href="../README.md">or load it from source</a>
+        </div>
+        <p class="store-note">Store links go here.</p>
+      </div>
+    </section>
+
+    <!-- 3. Live demo -->
+    <section class="section" aria-labelledby="demo-title">
+      <div class="wrap">
+        <h2 id="demo-title">See it on this paragraph</h2>
+        <p class="section-lede">
+          This demo uses a small copy of the same algorithm the extension ships,
+          running entirely in your browser.
+        </p>
+
+        <div class="demo" id="demo">
+          <div class="demo-controls">
+            <div class="mode-group" role="group" aria-label="Reading mode">
+              <button type="button" class="mode-btn" data-mode="classic">Classic</button>
+              <button type="button" class="mode-btn" data-mode="half">Half</button>
+              <button type="button" class="mode-btn" data-mode="vowel">Vowel anchor</button>
+              <button type="button" class="mode-btn" data-mode="dim">Low distraction</button>
+              <button type="button" class="mode-btn" data-mode="rules">Custom rule</button>
+            </div>
+
+            <div class="intensity">
+              <label for="demo-intensity">Intensity</label>
+              <input type="range" id="demo-intensity" min="0.2" max="0.9" step="0.05" value="0.5">
+              <output id="demo-intensity-value" for="demo-intensity">0.50</output>
+            </div>
+
+            <button type="button" class="mode-btn mode-btn-off" id="demo-toggle" aria-pressed="false">Turn it off</button>
+          </div>
+
+          <p class="demo-text" id="demo-text">A fixation point gives the eye a place to land before it moves on. When the start of a word carries more visual weight, the rest of the word can be recognized with less effort. The effect is personal, and the research is mixed, so the best test is your own reading.</p>
+
+          <p class="demo-hint">Intensity applies to Classic and Low distraction.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. How it works -->
+    <section class="section section-soft" id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <h2 id="how-title">How it works</h2>
+        <ol class="steps">
+          <li class="card step">
+            <span class="step-num" aria-hidden="true">1</span>
+            <h3>Install the extension</h3>
+            <p>Add it from the Chrome Web Store or Firefox Add-ons, or load it from source.</p>
+          </li>
+          <li class="card step">
+            <span class="step-num" aria-hidden="true">2</span>
+            <h3>Open any article and click the icon</h3>
+            <p>The toolbar icon applies bionic reading to the readable text on the page.</p>
+          </li>
+          <li class="card step">
+            <span class="step-num" aria-hidden="true">3</span>
+            <h3>Pick a mode and intensity</h3>
+            <p>Choose one of five modes, then set how much of each word is emphasized.</p>
+          </li>
+          <li class="card step">
+            <span class="step-num" aria-hidden="true">4</span>
+            <h3>Toggle per site</h3>
+            <p>Press <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>Y</kbd> from anywhere, or use the floating control in the corner of the page.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 5. Modes -->
+    <section class="section" id="modes" aria-labelledby="modes-title">
+      <div class="wrap">
+        <h2 id="modes-title">Five modes, one source</h2>
+        <p class="section-lede">Each mode decides a different part of the word to emphasize. The effect is individual, which is why there is more than one.</p>
+        <div class="grid grid-modes">
+          <article class="card">
+            <h3>Classic</h3>
+            <p>Bold a leading share of each word; intensity controls how much.</p>
+          </article>
+          <article class="card">
+            <h3>Half</h3>
+            <p>Bold the first half of each word, the Bionic Reading default.</p>
+          </article>
+          <article class="card">
+            <h3>Vowel anchor</h3>
+            <p>Bold up to the first vowel group; suited to many languages.</p>
+          </article>
+          <article class="card">
+            <h3>Low distraction</h3>
+            <p>Bold the prefix and fade the rest of the word.</p>
+          </article>
+          <article class="card">
+            <h3>Custom rule</h3>
+            <p>Per-length character counts plus a fraction for longer words.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Install -->
+    <section class="section section-soft" id="install" aria-labelledby="install-title">
+      <div class="wrap">
+        <h2 id="install-title">Install</h2>
+        <div class="grid grid-3">
+          <article class="card">
+            <h3>Chrome Web Store</h3>
+            <p>Install in Chrome or another Chromium browser, then pin the toolbar icon. Manifest V3 with a service worker background.</p>
+            <a class="btn btn-primary" href="#" data-store="chrome">Add to Chrome</a>
+            <p class="store-note">Store link goes here.</p>
+          </article>
+          <article class="card">
+            <h3>Firefox Add-ons</h3>
+            <p>Install from addons.mozilla.org. The same source builds a Firefox target with an event-page background.</p>
+            <a class="btn btn-primary" href="#" data-store="firefox">Add to Firefox</a>
+            <p class="store-note">Store link goes here.</p>
+          </article>
+          <article class="card">
+            <h3>Load from source</h3>
+            <p>Build both targets locally and load them as unpacked extensions.</p>
+            <ol class="build-steps">
+              <li><code>bun install</code></li>
+              <li><code>bun run build</code></li>
+              <li>Load <code>dist/chrome</code> unpacked via <code>chrome://extensions</code>.</li>
+              <li>Load <code>dist/firefox</code> temporary via <code>about:debugging</code>.</li>
+            </ol>
+            <p><a href="../README.md">Read the setup guide</a></p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Privacy -->
+    <section class="section privacy" id="privacy" aria-labelledby="privacy-title">
+      <div class="wrap">
+        <h2 id="privacy-title">Privacy</h2>
+        <p>
+          Bionic Page makes no network requests and has no analytics, accounts, or
+          telemetry. Your settings are the only thing stored, and they stay in the
+          browser's own storage. Because the rewrite runs on your machine, the
+          extension requests host access to read page text locally; nothing is sent
+          anywhere. Removing the extension removes the data.
+        </p>
+      </div>
+    </section>
+
+    <!-- 8. Honest science note -->
+    <section class="section" aria-labelledby="science-title">
+      <div class="wrap">
+        <h2 id="science-title">An honest note on the science</h2>
+        <figure class="science">
+          <blockquote>
+            A 2025 study found that bolding the first half of each word slowed
+            reading and increased fixations versus plain text; other eye-tracking
+            work reports mixed, condition-dependent effects.
+          </blockquote>
+        </figure>
+        <p>
+          Bionic Page does not claim a speed-reading benefit. It offers configurable
+          visual anchoring, and you should judge it on your own reading.
+          <a href="../RESEARCH.md">Read the research notes</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- 9. FAQ -->
+    <section class="section section-soft" id="faq" aria-labelledby="faq-title">
+      <div class="wrap">
+        <h2 id="faq-title">FAQ</h2>
+        <div class="faq">
+          <details>
+            <summary>Is it free?</summary>
+            <p>Yes. Bionic Page is open source under the MIT license.</p>
+          </details>
+          <details>
+            <summary>Does it work on PDFs or canvas?</summary>
+            <p>No. Text inside PDFs, canvas, and most specialized viewers is not in the page DOM, so it cannot be rewritten safely. It works on normal HTML text.</p>
+          </details>
+          <details>
+            <summary>Will it break sites?</summary>
+            <p>It skips scripts, code, editors, math, SVG, and anything marked <code>data-bionic="off"</code>. Toggling off restores the original text nodes exactly.</p>
+          </details>
+          <details>
+            <summary>Is it accessible?</summary>
+            <p>Every control is a native, labelled element. Emphasis is visual only, Low distraction changes opacity instead of weight, and the master toggle turns everything off. Screen readers may still announce emphasized text, depending on the reader.</p>
+          </details>
+          <details>
+            <summary>Does it slow pages down?</summary>
+            <p>The rewrite is a local pass over text nodes. Dynamic pages are handled with a batched MutationObserver, so the cost stays small.</p>
+          </details>
+          <details>
+            <summary>Does it work in Chrome and Firefox?</summary>
+            <p>Yes. One TypeScript source tree builds both targets with a generated per-engine manifest.</p>
+          </details>
+          <details>
+            <summary>Can I turn it off per site?</summary>
+            <p>Yes. Per-site overrides are evaluated last match wins, and there is a master toggle on top of them.</p>
+          </details>
+          <details>
+            <summary>Does it read my data?</summary>
+            <p>No data leaves your machine. There are no network requests, no analytics, and no accounts.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 10. Footer -->
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div>
+        <a class="wordmark" href="#top" aria-label="Bionic Page"><b>Bi</b>onic <b>Pa</b>ge</a>
+        <p class="footer-line">MIT licensed. Built from one source tree for Chrome and Firefox.</p>
+        <p class="footer-line small">"Bionic Reading" is a trademark of Bionic Reading GmbH; this project is not affiliated with or endorsed by it.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="#">GitHub</a>
+        <a href="#">Source</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="../RESEARCH.md">Research notes</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
