@@ -66,4 +66,3 @@ function registerBadge(): void {
 registerInstall();
 registerCommands();
 registerBadge();
-void ensureDefaults;

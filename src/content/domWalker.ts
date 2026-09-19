@@ -20,10 +20,28 @@ interface TransformRecord {
 }
 
 const HEAD_CLASS = "bp-head";
-const PROCESSED_ATTR = "data-bp";
-const PROCESSED_VALUE = "on";
 const SHOW_TEXT = 4;
 const TOKEN_RE = /\S+/g;
+
+/**
+ * Text nodes that already carry emphasis (heads) or are already part of a
+ * transformed run (tails and preserved whitespace). Tracking nodes rather than
+ * parents means a site that replaces the text inside an existing paragraph is
+ * still processed, while a re-run over the same run does nothing.
+ */
+const processedText = new WeakSet<Text>();
+
+function markProcessed(nodes: readonly Node[]): void {
+  for (const node of nodes) {
+    if (node.nodeType === 3) processedText.add(node as Text);
+  }
+}
+
+function unmarkProcessed(nodes: readonly Node[]): void {
+  for (const node of nodes) {
+    if (node.nodeType === 3) processedText.delete(node as Text);
+  }
+}
 
 function createHead(doc: Document, text: string): HTMLElement {
   const b = doc.createElement("b");
@@ -80,6 +98,7 @@ function transformTextNode(
     return null;
   }
 
+  markProcessed(inserted);
   stats.words += addedWords;
   stats.textNodes += 1;
   return inserted;
@@ -92,8 +111,6 @@ export function transformRoot(
 ): TransformHandle {
   const stats: TransformStats = { textNodes: 0, words: 0, skipped: 0 };
   const records: TransformRecord[] = [];
-  const processedParents = new Set<Element>();
-  const markedParents: Element[] = [];
   let reverted = false;
 
   const handle: TransformHandle = {
@@ -123,16 +140,12 @@ export function transformRoot(
           for (const n of record.inserted) {
             if (n.parentNode) n.parentNode.removeChild(n);
           }
-        } catch {}
-      }
-      for (const parent of markedParents) {
-        try {
-          parent.removeAttribute(PROCESSED_ATTR);
-        } catch {}
+          unmarkProcessed(record.inserted);
+        } catch {
+          /* keep reverting the rest */
+        }
       }
       records.length = 0;
-      markedParents.length = 0;
-      processedParents.clear();
     },
   };
 
@@ -153,8 +166,8 @@ export function transformRoot(
         if (!parent) {
           stats.skipped += 1;
         } else if (
+          processedText.has(node) ||
           parent.closest("." + HEAD_CLASS) !== null ||
-          parent.hasAttribute(PROCESSED_ATTR) ||
           shouldSkipElement(parent) ||
           shouldSkipText(node.data, parent)
         ) {
@@ -163,7 +176,6 @@ export function transformRoot(
           const inserted = transformTextNode(node, options, ownerDoc, stats);
           if (inserted && inserted.length > 0) {
             records.push({ parent, original: node, inserted });
-            processedParents.add(parent);
           } else {
             stats.skipped += 1;
           }
@@ -173,16 +185,9 @@ export function transformRoot(
       }
       node = next;
     }
-
-    for (const parent of processedParents) {
-      try {
-        if (!parent.hasAttribute(PROCESSED_ATTR)) {
-          parent.setAttribute(PROCESSED_ATTR, PROCESSED_VALUE);
-          markedParents.push(parent);
-        }
-      } catch {}
-    }
-  } catch {}
+  } catch {
+    /* never throw into the page */
+  }
 
   return handle;
 }

@@ -72,6 +72,34 @@ describe("transformRoot", () => {
     expect(doc.querySelectorAll("p b.bp-head").length).toBeGreaterThan(0);
   });
 
+  test("processes text that replaces content in an already-transformed parent", () => {
+    const doc = docFor('<p id="live">original words in this paragraph</p>');
+    transformRoot(doc.body, OPTIONS, doc);
+    expect(doc.querySelectorAll("b.bp-head").length).toBeGreaterThan(0);
+
+    // A framework rewrites the paragraph's text: a brand-new text node under
+    // the same parent, which must be transformed on the next pass.
+    const p = doc.getElementById("live")!;
+    p.textContent = "replacement words arriving later";
+    expect(doc.querySelectorAll("b.bp-head").length).toBe(0);
+
+    transformRoot(doc.body, OPTIONS, doc);
+    expect(doc.querySelectorAll("b.bp-head").length).toBeGreaterThan(0);
+    expect(doc.querySelector("b.bp-head")!.textContent).toBe("replac");
+  });
+
+  test("separate handles each revert their own pass without over-reverting", () => {
+    const doc = docFor('<p id="a">first paragraph words</p><p id="b">second paragraph words</p>');
+    const before = doc.body.innerHTML;
+    const h1 = transformRoot(doc.body, OPTIONS, doc);
+    const h2 = transformRoot(doc.body, OPTIONS, doc);
+    h2.revert();
+    // h1's wrappers are still present until h1 reverts.
+    expect(doc.querySelectorAll("b.bp-head").length).toBeGreaterThan(0);
+    h1.revert();
+    expect(doc.body.innerHTML).toBe(before);
+  });
+
   test("stats report transformed text nodes and words", () => {
     const doc = docFor("<p>Counting words here</p>");
     const handle = transformRoot(doc.body, OPTIONS, doc);

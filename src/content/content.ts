@@ -6,10 +6,12 @@ import { DEFAULT_SETTINGS, sanitizeSettings, type Message, type PageState, type 
 import type { BionicOptions } from "../core/algorithm";
 import { transformRoot, type TransformHandle } from "./domWalker";
 import { observeDynamic } from "./observer";
-import { decorateTails, ensureStyles, removeStyles, undecorateTails, updateStyles } from "./styles";
+import { decorateTails, ensureStyles, removeStyles, undecorateTails } from "./styles";
 
 let settings: Settings = sanitizeSettings(DEFAULT_SETTINGS);
 let handles: TransformHandle[] = [];
+/** Above this many incremental handles, a tab is compacted with a full re-apply. */
+const MAX_HANDLES = 64;
 let disconnect: (() => void) | null = null;
 /** Per-page override for this session; null follows the global + site rules. */
 let sessionOverride: boolean | null = null;
@@ -85,6 +87,11 @@ function applyIncremental(): void {
     if (next.stats.textNodes > 0) handles.push(next);
     if (effective.mode === "dim") decorateTails(document);
     connectObserver();
+    // Compact after many bursts so a long-lived tab cannot accumulate handles.
+    if (handles.length > MAX_HANDLES) {
+      applyFull();
+      return;
+    }
   } catch {
     /* ignore */
   }
@@ -283,5 +290,3 @@ try {
 } catch {
   /* ignore */
 }
-
-void api;
