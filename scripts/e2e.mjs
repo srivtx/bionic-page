@@ -136,6 +136,33 @@ async function main() {
     console.log("screenshot -> /tmp/bp-e2e-result.png");
   }
 
+  // Drive the toggle through the debug handle and verify a full restore.
+  await rpc(sock, "Runtime.evaluate", { expression: "window.__bionic && window.__bionic.remove()" });
+  await sleep(600);
+  const afterRemove = await rpc(sock, "Runtime.evaluate", {
+    expression: `JSON.stringify({
+      heads: document.querySelectorAll('b.bp-head').length,
+      tails: document.querySelectorAll('span.bp-tail').length,
+      style: !!document.getElementById('bionic-page-style'),
+      p1: document.getElementById('p1').textContent.slice(0, 80)
+    })`,
+    returnByValue: true,
+  });
+  let restored = {};
+  try {
+    restored = JSON.parse(afterRemove?.result?.result?.value ?? "{}");
+  } catch {
+    restored = {};
+  }
+
+  // Re-apply to prove it is not one-shot.
+  await rpc(sock, "Runtime.evaluate", { expression: "window.__bionic && window.__bionic.apply()" });
+  await sleep(600);
+  const reApplied = await rpc(sock, "Runtime.evaluate", {
+    expression: "document.querySelectorAll('b.bp-head').length",
+    returnByValue: true,
+  });
+
   const checks = [
     ["style injected", parsed.styleInjected === true],
     ["paragraphs transformed", parsed.heads > 0],
@@ -143,6 +170,10 @@ async function main() {
     ["code untouched", parsed.codeHeads === 0],
     ["contenteditable untouched", parsed.editHeads === 0],
     ["text content preserved", typeof parsed.p1 === "string" && parsed.p1.startsWith("Bionic reading emphasizes")],
+    ["toggle off removes every wrapper", restored.heads === 0 && restored.tails === 0],
+    ["toggle off removes the stylesheet", restored.style === false],
+    ["toggle off restores the original text", typeof restored.p1 === "string" && restored.p1.startsWith("Bionic reading emphasizes the leading")],
+    ["toggle on re-applies", Number(reApplied?.result?.result?.value) > 0],
   ];
   let failed = 0;
   for (const [name, ok] of checks) {

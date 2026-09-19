@@ -33,6 +33,7 @@ const ENTRIES = [
   { in: join(SRC, "content/content.ts"), out: "content.js", format: "iife" },
   { in: join(SRC, "popup/popup.ts"), out: "popup.js", format: "iife" },
   { in: join(SRC, "options/options.ts"), out: "options.js", format: "iife" },
+  { in: join(SRC, "welcome/welcome.ts"), out: "welcome.js", format: "iife" },
   { in: join(SRC, "background/background.ts"), out: "background.js", format: "iife" },
 ];
 
@@ -50,6 +51,8 @@ async function copyStatic(targetDir) {
   await cp(join(SRC, "popup/popup.css"), join(targetDir, "popup.css"));
   await cp(join(SRC, "options/options.html"), join(targetDir, "options.html"));
   await cp(join(SRC, "options/options.css"), join(targetDir, "options.css"));
+  await cp(join(SRC, "welcome/welcome.html"), join(targetDir, "welcome.html"));
+  await cp(join(SRC, "welcome/welcome.css"), join(targetDir, "welcome.css"));
 
   const iconsDir = join(targetDir, "icons");
   await mkdir(iconsDir, { recursive: true });

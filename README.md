@@ -13,7 +13,7 @@ modes, per-site control, a fully reversible transform, and no network.
 [![runtime](https://img.shields.io/badge/runtime-Bun-14151A?logo=bun&logoColor=white)](https://bun.sh)
 [![types](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
 [![manifest](https://img.shields.io/badge/Manifest-V3-4f46e5)](scripts/manifest.mjs)
-[![tests](https://img.shields.io/badge/tests-100-0f766e)](#testing)
+[![tests](https://img.shields.io/badge/tests-127-0f766e)](#testing)
 [![web-ext](https://img.shields.io/badge/web--ext_lint-0_errors_0_warnings-0f766e)](#testing)
 [![Firefox](https://img.shields.io/badge/Firefox-140%2B-FF7139?logo=firefoxbrowser&logoColor=white)](https://www.mozilla.org/firefox/)
 [![Chrome](https://img.shields.io/badge/Chrome-116%2B-4285F4?logo=googlechrome&logoColor=white)](https://www.google.com/chrome/)
@@ -36,12 +36,14 @@ modes, per-site control, a fully reversible transform, and no network.
   emails, and long unbroken runs.
 - **Fully reversible** — turning it off restores the original text nodes
   exactly; verified by tests that compare `innerHTML` before and after.
-- **Dynamic pages** — a `MutationObserver` processes SPA and infinite-scroll
-  content, including text a framework replaces inside an existing paragraph.
+- **Dynamic pages and web components** — a `MutationObserver` processes SPA and
+  infinite-scroll content, text a framework replaces inside an existing
+  paragraph, and text inside open **shadow roots**.
 - **Per-site rules** — match patterns to force a site on or off, with per-site
   mode and intensity.
 - **Toolbar badge, floating control, keyboard toggle** — see and change the
   state without opening anything (`Ctrl/Cmd+Shift+Y`).
+- **Welcome page** — a short first-run guide opens automatically on install.
 - **No network. No analytics. No accounts.** Settings live in the browser's own
   storage.
 - **One source, two engines** — a single manifest generator emits correct
@@ -134,11 +136,11 @@ bun run lint:firefox  # web-ext lint on the Firefox build
 
 | Gate | Result |
 |---|---|
-| `bun test` | 100 tests across 11 files |
-| `bun run typecheck` | clean (strict TypeScript) |
+| `bun test` | 127 tests across 13 files |
+| `bun run typecheck` | clean (strict TypeScript, noUnusedLocals) |
 | `bun run build` + `verify` | both targets, all referenced files present |
 | `web-ext lint` | 0 errors, 0 warnings, 0 notices |
-| `bun run e2e` | 6/6 checks in real Chrome |
+| `bun run e2e` | 10/10 checks in real Chrome, including toggle-off restore |
 
 The suite covers the pure algorithm (fixation rules, unicode, affixes,
 unbreakable tokens), rule parsing, settings clamping, site matching, the DOM

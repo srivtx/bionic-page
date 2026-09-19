@@ -21,6 +21,7 @@ interface TransformRecord {
 
 const HEAD_CLASS = "bp-head";
 const SHOW_TEXT = 4;
+const SHOW_ELEMENT = 1;
 const TOKEN_RE = /\S+/g;
 
 /**
@@ -157,34 +158,67 @@ export function transformRoot(
       (typeof document !== "undefined" ? document : null);
     if (!ownerDoc) return handle;
 
-    const walker = ownerDoc.createTreeWalker(root as Node, SHOW_TEXT);
-    let node = walker.nextNode() as Text | null;
-    while (node) {
-      const next = walker.nextNode() as Text | null;
-      try {
-        const parent = node.parentElement;
-        if (!parent) {
-          stats.skipped += 1;
-        } else if (
-          processedText.has(node) ||
-          parent.closest("." + HEAD_CLASS) !== null ||
-          shouldSkipElement(parent) ||
-          shouldSkipText(node.data, parent)
-        ) {
-          stats.skipped += 1;
-        } else {
-          const inserted = transformTextNode(node, options, ownerDoc, stats);
-          if (inserted && inserted.length > 0) {
-            records.push({ parent, original: node, inserted });
-          } else {
+    const processTextIn = (container: ParentNode): void => {
+      const walker = ownerDoc.createTreeWalker(container as Node, SHOW_TEXT);
+      let node = walker.nextNode() as Text | null;
+      while (node) {
+        const next = walker.nextNode() as Text | null;
+        try {
+          const parent = node.parentElement;
+          if (!parent) {
             stats.skipped += 1;
+          } else if (
+            processedText.has(node) ||
+            parent.closest("." + HEAD_CLASS) !== null ||
+            shouldSkipElement(parent) ||
+            shouldSkipText(node.data, parent)
+          ) {
+            stats.skipped += 1;
+          } else {
+            const inserted = transformTextNode(node, options, ownerDoc, stats);
+            if (inserted && inserted.length > 0) {
+              records.push({ parent, original: node, inserted });
+            } else {
+              stats.skipped += 1;
+            }
           }
+        } catch {
+          stats.skipped += 1;
         }
-      } catch {
-        stats.skipped += 1;
+        node = next;
       }
-      node = next;
-    }
+    };
+
+    /**
+     * Recurse into open shadow roots (web components). createTreeWalker does
+     * not cross shadow boundaries, so each root is walked explicitly. Closed
+     * roots cannot be reached and are left alone.
+     */
+    const processShadowHostsIn = (container: ParentNode): void => {
+      let walker: TreeWalker;
+      try {
+        walker = ownerDoc.createTreeWalker(container as Node, SHOW_ELEMENT);
+      } catch {
+        return;
+      }
+      let el = walker.nextNode() as Element | null;
+      while (el) {
+        const next = walker.nextNode() as Element | null;
+        try {
+          const shadow = (el as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot ?? null;
+          if (shadow && !shouldSkipElement(el)) {
+            processTextIn(shadow);
+            processShadowHostsIn(shadow);
+          }
+        } catch {
+          /* ignore this host */
+        }
+        el = next;
+      }
+    };
+
+    processTextIn(root);
+    processShadowHostsIn(root);
   } catch {
     /* never throw into the page */
   }

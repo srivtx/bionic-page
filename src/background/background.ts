@@ -40,7 +40,14 @@ function registerInstall(): void {
   const runtime = api?.runtime;
   if (!runtime?.onInstalled?.addListener) return;
   runtime.onInstalled.addListener((details: { reason?: string }) => {
-    if (details?.reason === "install") void ensureDefaults();
+    if (details?.reason !== "install") return;
+    void ensureDefaults();
+    try {
+      const url = runtime.getURL?.("welcome.html");
+      if (url) api?.tabs?.create?.({ url });
+    } catch {
+      /* ignore */
+    }
   });
 }
 

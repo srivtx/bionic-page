@@ -18,8 +18,8 @@ function referencedIds(ts: string): Set<string> {
   return ids;
 }
 
-describe("popup and options wiring", () => {
-  for (const page of ["popup", "options"]) {
+describe("popup, options, and welcome wiring", () => {
+  for (const page of ["popup", "options", "welcome"]) {
     test(`${page}: every referenced element id exists in ${page}.html`, () => {
       const ts = readFileSync(join(ROOT, "src", page, `${page}.ts`), "utf8");
       const html = readFileSync(join(ROOT, "src", page, `${page}.html`), "utf8");

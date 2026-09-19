@@ -1,6 +1,6 @@
 {
   "name": "bionic-page",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "Turn any web page into a bionic (fixation) reading page. Manifest V3 extension for Chrome and Firefox.",

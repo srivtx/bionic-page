@@ -286,9 +286,23 @@ if (document.readyState === "loading") {
   void init();
 }
 
-// Expose a tiny handle for debugging in the page console (development only).
+// Small, namespaced debug handle. Harmless in production and used by the
+// browser e2e script (scripts/e2e.mjs) to drive apply/remove without messages.
 try {
-  (globalThis as Record<string, unknown>).__bionicPage = () => getState();
+  (globalThis as Record<string, unknown>).__bionic = {
+    state: getState,
+    apply: (): PageState => {
+      sessionOverride = true;
+      refresh();
+      return getState();
+    },
+    remove: (): PageState => {
+      sessionOverride = false;
+      refresh();
+      return getState();
+    },
+    toggle,
+  };
 } catch {
   /* ignore */
 }

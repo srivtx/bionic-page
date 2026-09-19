@@ -3,6 +3,29 @@
 All notable changes to Bionic Page. Format loosely follows Keep a Changelog;
 versions follow semver.
 
+## [0.3.0] — 2026-09-19
+
+Production-readiness release.
+
+### Added
+
+- **Shadow DOM support**: text inside open shadow roots is transformed and
+  reverted, including nested roots, while skipped hosts are left alone.
+- **First-run welcome page** with quick-start steps, opened on install.
+- **Security gate**: `tests/security.test.ts` fails the build on `eval`,
+  `new Function`, `document.write`, `innerHTML` assignment, `fetch`,
+  `XMLHttpRequest`, `WebSocket`, `sendBeacon`, remote URL literals, string
+  timers, inline scripts, or inline event handlers.
+- **Accessibility gate**: every form control in every extension page must be
+  labelled; buttons need an accessible name; images need alt text.
+- **Release workflow**: tags `v*` run typecheck, tests, build, and publish the
+  packaged zips automatically; the tag must match `package.json`.
+- Store promotional images (440×280 tile, 1400×560 marquee) and
+  `docs/ARCHITECTURE.md`, `SECURITY.md`, `CONTRIBUTING.md`,
+  `CODE_OF_CONDUCT.md`, and issue/PR templates.
+- The browser e2e now drives apply/remove through a debug handle and asserts a
+  full toggle-off restore (10 checks).
+
 ## [0.2.0] — 2026-09-19
 
 Hardening release: the extension is now correct on dynamic pages, safer around

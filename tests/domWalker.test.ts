@@ -120,4 +120,42 @@ describe("transformRoot", () => {
     expect(handle.stats.textNodes).toBe(0);
     handle.revert();
   });
+
+  test("transforms text inside an open shadow root and reverts it", () => {
+    const doc = docFor('<div id="host"></div><p>light words here</p>');
+    const host = doc.getElementById("host") as HTMLElement & { attachShadow(o: { mode: string }): ShadowRoot };
+    const shadow = host.attachShadow({ mode: "open" });
+    shadow.innerHTML = "<span>shadow words inside</span>";
+
+    const handle = transformRoot(doc.body, OPTIONS, doc);
+    expect(shadow.querySelectorAll("b.bp-head").length).toBeGreaterThan(0);
+    expect(doc.querySelectorAll("p b.bp-head").length).toBeGreaterThan(0);
+
+    handle.revert();
+    expect(shadow.querySelectorAll("b.bp-head").length).toBe(0);
+    expect(shadow.querySelector("span")?.textContent).toBe("shadow words inside");
+  });
+
+  test("recurses into nested shadow roots", () => {
+    const doc = docFor('<div id="outer"></div>');
+    const outer = doc.getElementById("outer") as HTMLElement & { attachShadow(o: { mode: string }): ShadowRoot };
+    const outerShadow = outer.attachShadow({ mode: "open" });
+    outerShadow.innerHTML = '<div id="inner"></div>';
+    const inner = outerShadow.getElementById("inner") as HTMLElement & { attachShadow(o: { mode: string }): ShadowRoot };
+    const innerShadow = inner.attachShadow({ mode: "open" });
+    innerShadow.innerHTML = "<p>deep shadow words</p>";
+
+    transformRoot(doc.body, OPTIONS, doc);
+    expect(innerShadow.querySelectorAll("b.bp-head").length).toBeGreaterThan(0);
+  });
+
+  test("does not touch a shadow root hosted by a skipped element", () => {
+    const doc = docFor('<div id="editor" contenteditable="true"></div>');
+    const editor = doc.getElementById("editor") as HTMLElement & { attachShadow(o: { mode: string }): ShadowRoot };
+    const shadow = editor.attachShadow({ mode: "open" });
+    shadow.innerHTML = "<p>editable shadow words</p>";
+
+    transformRoot(doc.body, OPTIONS, doc);
+    expect(shadow.querySelectorAll("b.bp-head").length).toBe(0);
+  });
 });

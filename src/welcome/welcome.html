@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Welcome to Bionic Page</title>
+    <link rel="stylesheet" href="welcome.css" />
+  </head>
+  <body>
+    <main class="card">
+      <p class="wordmark" aria-label="Bionic Page"><b>Bi</b>onic <b>Pa</b>ge</p>
+      <h1>You're set up.</h1>
+      <p class="lede">
+        Bionic Page will emphasize the leading part of each word on the pages you
+        read. It works automatically; you can change everything from the popup.
+      </p>
+
+      <ol class="steps">
+        <li>
+          <span class="num">1</span>
+          <span><strong>Open any article.</strong> Click the toolbar icon to see the status and controls.</span>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <span><strong>Pick a mode.</strong> Start with Half, then try Classic, Vowel anchor, or Low distraction.</span>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <span><strong>Toggle fast.</strong> Press <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Y</kbd> (or <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>Y</kbd>) or use the floating <b>Bp</b> control.</span>
+        </li>
+      </ol>
+
+      <div class="actions">
+        <button id="openOptions" type="button" class="btn primary">Open settings</button>
+        <button id="openShortcuts" type="button" class="btn">Change shortcut</button>
+        <button id="close" type="button" class="btn ghost">Close</button>
+      </div>
+
+      <p class="privacy">
+        No network requests, no analytics, no accounts. Your settings stay in this
+        browser. Code blocks, editors, form fields, and math are never touched,
+        and turning it off restores the page exactly.
+      </p>
+    </main>
+    <script src="welcome.js"></script>
+  </body>
+</html>

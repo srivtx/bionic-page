@@ -62,14 +62,28 @@ Reading GmbH; this project is not affiliated with or endorsed by it.
 - Uses or transfers data to determine creditworthiness or for lending: **No**
 - Single purpose statement: "Apply a configurable bionic reading style to page text, locally."
 
-## Screenshots
+## Screenshots and promotional images
 
 | File | Shows |
 |---|---|
-| `01-landing.png` | Landing page and live demo |
-| `02-transformed-page.png` | A real page transformed, with the floating control |
-| `03-popup.png` | Toolbar popup: mode, intensity, per-site toggle |
-| `04-options.png` | Options page: full settings and live preview |
+| `store/screenshots/01-landing.png` | Landing page and live demo (1280 wide) |
+| `store/screenshots/02-transformed-page.png` | A real page transformed, with the floating control |
+| `store/screenshots/03-popup.png` | Toolbar popup: mode, intensity, per-site toggle |
+| `store/screenshots/04-options.png` | Options page: full settings and live preview |
+| `store/promo/tile-440x280.png` | Chrome small promotional tile (440×280) |
+| `store/promo/marquee-1400x560.png` | Chrome marquee promotional image (1400×560) |
+
+Regenerate the promo images after a brand change:
+
+```bash
+CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+"$CHROME" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 \
+  --screenshot=store/promo/tile-440x280.png --window-size=440,280 \
+  "file://$PWD/store/promo/tile.html"
+"$CHROME" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 \
+  --screenshot=store/promo/marquee-1400x560.png --window-size=1400,560 \
+  "file://$PWD/store/promo/marquee.html"
+```
 
 ## Submission checklist
 
