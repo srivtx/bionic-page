@@ -9,7 +9,7 @@ import { observeDynamic } from "./observer";
 import { decorateTails, ensureStyles, removeStyles, undecorateTails, updateStyles } from "./styles";
 
 let settings: Settings = sanitizeSettings(DEFAULT_SETTINGS);
-let handle: TransformHandle | null = null;
+let handles: TransformHandle[] = [];
 let disconnect: (() => void) | null = null;
 /** Per-page override for this session; null follows the global + site rules. */
 let sessionOverride: boolean | null = null;
@@ -60,32 +60,63 @@ function toOptions(s: Settings): BionicOptions {
   };
 }
 
-function apply(): void {
+function applyFull(): void {
   if (!document.body) return;
   try {
     const effective = resolve();
+    // Revert first so a mode or setting change actually takes effect.
+    revertAll();
     ensureStyles(document, effective);
-    undecorateTails(document);
-    handle = transformRoot(document.body, toOptions(effective));
+    handles = [transformRoot(document.body, toOptions(effective))];
     if (effective.mode === "dim") decorateTails(document);
-    if (effective.processDynamic && !disconnect && document.body) {
-      disconnect = observeDynamic(document.body, () => {
-        if (isActive()) apply();
-      });
-    }
+    connectObserver();
   } catch {
     /* never throw into the page */
   }
   updateControl();
 }
 
-function remove(): void {
+/** Process only content added since the last pass (SPAs, infinite scroll). */
+function applyIncremental(): void {
+  if (!document.body) return;
+  try {
+    const effective = resolve();
+    const next = transformRoot(document.body, toOptions(effective));
+    if (next.stats.textNodes > 0) handles.push(next);
+    if (effective.mode === "dim") decorateTails(document);
+    connectObserver();
+  } catch {
+    /* ignore */
+  }
+  updateControl();
+}
+
+function connectObserver(): void {
+  if (disconnect || !settings.processDynamic || !document.body) return;
+  try {
+    disconnect = observeDynamic(document.body, () => {
+      if (isActive()) applyIncremental();
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
+function revertAll(): void {
   try {
     undecorateTails(document);
-    handle?.revert();
-    handle = null;
+    for (let i = handles.length - 1; i >= 0; i -= 1) handles[i]?.revert();
+    handles = [];
     disconnect?.();
     disconnect = null;
+  } catch {
+    /* ignore */
+  }
+}
+
+function remove(): void {
+  revertAll();
+  try {
     removeStyles(document);
   } catch {
     /* ignore */
@@ -94,16 +125,16 @@ function remove(): void {
 }
 
 function refresh(): void {
-  if (isActive()) apply();
+  if (isActive()) applyFull();
   else remove();
   updateControl();
 }
 
 function getState(): PageState {
   return {
-    active: handle !== null && isActive(),
+    active: handles.length > 0 && isActive(),
     enabledByRules: enabledByRules(),
-    transformedNodes: handle?.stats.textNodes ?? 0,
+    transformedNodes: handles.reduce((total, h) => total + h.stats.textNodes, 0),
     settings: resolve(),
     degraded,
   };
@@ -227,7 +258,7 @@ async function init(): Promise<void> {
     settings = await loadSettings();
     if (inFrame() && !settings.processIframes) return;
     ensureControl();
-    if (isActive()) apply();
+    if (isActive()) applyFull();
     else updateControl();
   } catch {
     /* ignore */

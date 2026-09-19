@@ -16,9 +16,12 @@ TypeScript source tree with a generated per-engine manifest.
 - Skips what must never be touched: scripts, code, `pre`, inputs, editors,
   math, SVG, and anything marked `data-bionic="off"`.
 - Is **fully reversible** — toggling off restores the original text nodes.
-- Per-site overrides, a floating page control, keyboard shortcut, and
-  import/export of settings.
+- Per-site overrides, a floating page control, keyboard shortcut, and a
+  toolbar badge that shows whether the current tab is on.
 - **No network, no analytics, no accounts.** Everything runs locally.
+
+Download the latest packaged build from the
+[releases page](https://github.com/srivtx/bionic-page/releases).
 
 ## Modes
 
