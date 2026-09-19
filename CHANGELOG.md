@@ -3,7 +3,10 @@
 All notable changes to Bionic Page. Format loosely follows Keep a Changelog;
 versions follow semver.
 
-## [Unreleased]
+## [0.2.0] — 2026-09-19
+
+Hardening release: the extension is now correct on dynamic pages, safer around
+non-prose text, and the landing site has motion and full documentation.
 
 ### Fixed
 
