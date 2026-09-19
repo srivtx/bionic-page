@@ -28,6 +28,14 @@ export const SKIP_SELECTORS: readonly string[] = [
   ".math",
   '[data-bionic="off"]',
   '[aria-hidden="true"]',
+  "nav",
+  "button",
+  '[role="button"]',
+  '[role="navigation"]',
+  '[role="menu"]',
+  '[role="menubar"]',
+  '[role="tablist"]',
+  '[role="toolbar"]',
 ];
 
 const SKIP_SELECTOR = SKIP_SELECTORS.join(", ");

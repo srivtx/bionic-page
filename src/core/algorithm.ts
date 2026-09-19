@@ -77,6 +77,23 @@ function ruleLength(letters: number, spec: RuleSpec): number {
 }
 
 /**
+ * Tokens that must never be emphasized: URLs, email addresses, and very long
+ * unbroken runs (a CJK sentence with no spaces, a hash, a base64 blob). Half-
+ * bolding a whole sentence is worse than leaving it alone.
+ */
+export const MAX_TOKEN_LETTERS = 40;
+const URL_RE = /^[a-z][a-z0-9+.-]*:\/\//i;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function isUnbreakableToken(word: string, letters: number): boolean {
+  if (letters > MAX_TOKEN_LETTERS) return true;
+  const trimmed = word.trim();
+  if (URL_RE.test(trimmed)) return true;
+  if (trimmed.startsWith("www.")) return true;
+  return EMAIL_RE.test(trimmed);
+}
+
+/**
  * Number of leading letters to emphasize (0 = leave the word untouched).
  * Never exceeds the core letter count.
  */
@@ -84,6 +101,7 @@ export function boldLength(word: string, options: BionicOptions): number {
   const { core } = splitAffixes(word);
   const letters = letterCount(core);
   if (letters === 0) return 0;
+  if (isUnbreakableToken(core, letters)) return 0;
 
   const spec = options.mode === "rules" ? parseRule(options.rule) : null;
   if (COMMON_WORDS.has(core.toLowerCase()) && options.skipCommonWords) {

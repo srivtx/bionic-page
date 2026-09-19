@@ -62,6 +62,16 @@ describe("transformRoot", () => {
     expect(doc.querySelectorAll("b.bp-head").length).toBe(0);
   });
 
+  test("skips navigation and button regions", () => {
+    const doc = docFor(
+      '<nav><a href="#">Home page link</a></nav><button type="button">Save changes now</button><p>Readable words here</p>',
+    );
+    transformRoot(doc.body, OPTIONS, doc);
+    expect(doc.querySelectorAll("nav b.bp-head").length).toBe(0);
+    expect(doc.querySelectorAll("button b.bp-head").length).toBe(0);
+    expect(doc.querySelectorAll("p b.bp-head").length).toBeGreaterThan(0);
+  });
+
   test("stats report transformed text nodes and words", () => {
     const doc = docFor("<p>Counting words here</p>");
     const handle = transformRoot(doc.body, OPTIONS, doc);
