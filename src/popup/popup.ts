@@ -1,5 +1,6 @@
 import { api, call } from "../shared/browser";
-import { sendToActiveTab } from "../shared/messaging";
+import { broadcast, sendToActiveTab } from "../shared/messaging";
+import { resolveSiteRule } from "../shared/site";
 import { loadSettings, saveSettings } from "../shared/storage";
 import {
   DEFAULT_SETTINGS,
@@ -8,7 +9,6 @@ import {
   type ModeId,
   type PageState,
   type Settings,
-  type SiteRule,
 } from "../shared/types";
 
 function el<T extends HTMLElement>(id: string): T {
@@ -54,42 +54,6 @@ function sitePattern(url: string | undefined): string | undefined {
   } catch {
     return undefined;
   }
-}
-
-/** Minimal Chrome/Firefox match-pattern matcher (scheme/host/path globs). */
-function matchesPattern(pattern: string, url: string): boolean {
-  const parts = /^(\*|https?):\/\/([^/]*)(\/.*)$/.exec(pattern);
-  if (!parts) return false;
-  let parsed: URL;
-  try {
-    parsed = new URL(url);
-  } catch {
-    return false;
-  }
-  const scheme = parts[1] ?? "";
-  const host = parts[2] ?? "";
-  const path = parts[3] ?? "/*";
-  if (scheme !== "*" && scheme !== parsed.protocol.replace(":", "")) return false;
-  if (host !== "*") {
-    const target = host.startsWith("*.") ? host.slice(2) : host;
-    const wildcard = host.startsWith("*.");
-    const hostOk = wildcard
-      ? parsed.hostname === target || parsed.hostname.endsWith(`.${target}`)
-      : parsed.host === host || parsed.hostname === host;
-    if (!hostOk) return false;
-  }
-  const escaped = path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\\\*/g, ".*");
-  return new RegExp(`^${escaped}$`).test(`${parsed.pathname}${parsed.search}`);
-}
-
-/** Last matching rule wins, mirroring the content script. */
-function findSiteRule(sites: SiteRule[], url: string | undefined): SiteRule | undefined {
-  if (!url) return undefined;
-  for (let i = sites.length - 1; i >= 0; i -= 1) {
-    const site = sites[i];
-    if (site && matchesPattern(site.pattern, url)) return site;
-  }
-  return undefined;
 }
 
 function applySettingsToForm(settings: Settings): void {
@@ -152,8 +116,8 @@ function readForm(): Settings {
 async function persist(): Promise<void> {
   current = readForm();
   await saveSettings(current);
-  await sendToActiveTab({ type: "settings-changed", settings: current });
-  await sendToActiveTab({ type: "refresh" });
+  // Broadcast so every open tab updates its transform and its badge.
+  await broadcast({ type: "settings-changed", settings: current });
 }
 
 enabledEl.addEventListener("change", () => {
@@ -192,8 +156,7 @@ siteEnabledEl.addEventListener("change", () => {
   }
   current = sanitizeSettings({ ...current, sites });
   void saveSettings(current);
-  void sendToActiveTab({ type: "settings-changed", settings: current });
-  void sendToActiveTab({ type: "refresh" });
+  void broadcast({ type: "settings-changed", settings: current });
 });
 
 openOptionsEl.addEventListener("click", () => {
@@ -223,7 +186,7 @@ async function init(): Promise<void> {
 
   pageUrl = await activeTabUrl();
   const pattern = sitePattern(pageUrl);
-  const siteRule = findSiteRule(current.sites, pageUrl);
+  const siteRule = resolveSiteRule(pageUrl ?? "", current.sites);
   siteEnabledEl.checked = siteRule ? siteRule.enabled : current.enabled;
   siteEnabledEl.disabled = !pattern;
 
