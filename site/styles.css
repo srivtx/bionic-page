@@ -607,10 +607,16 @@ kbd {
   .nav-links {
     order: 3;
     width: 100%;
+    flex-wrap: nowrap;
+    white-space: nowrap;
     overflow-x: auto;
     padding-bottom: 0.15rem;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+  }
+
+  .nav-links a {
+    white-space: nowrap;
   }
 
   .nav-links::-webkit-scrollbar {
@@ -646,3 +652,126 @@ kbd {
     animation: none !important;
   }
 }
+
+/* ---------- Motion (progressive; only active when JS adds .js-motion) ---------- */
+
+html.js-motion {
+  scroll-behavior: smooth;
+}
+
+/* Entrance for the hero, one element after another. */
+html.js-motion .hero .eyebrow,
+html.js-motion .hero h1,
+html.js-motion .hero .lede,
+html.js-motion .hero .honest,
+html.js-motion .hero .cta-row,
+html.js-motion .hero .store-note {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: bp-rise 620ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+html.js-motion .hero h1 { animation-delay: 60ms; }
+html.js-motion .hero .lede { animation-delay: 130ms; }
+html.js-motion .hero .honest { animation-delay: 190ms; }
+html.js-motion .hero .cta-row { animation-delay: 250ms; }
+html.js-motion .hero .store-note { animation-delay: 310ms; }
+
+/* Scroll reveal: JS adds .reveal, then .in when the element enters view. */
+html.js-motion .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 520ms ease,
+    transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+html.js-motion .reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Cards get a gentle lift and an accent border on hover. */
+html.js-motion .card {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+html.js-motion .card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--bp-accent) 45%, var(--bp-hairline));
+}
+html.js-motion .mode-card:hover,
+html.js-motion .step:hover {
+  transform: translateY(-3px);
+}
+
+/* The demo paragraph inks its emphasis in, staggered left to right. */
+html.js-motion .demo-text b {
+  animation: bp-ink 420ms ease both;
+  animation-delay: calc(var(--bp-i, 0) * 18ms);
+}
+
+/* Reading-progress bar and back-to-top control. */
+.scroll-progress {
+  position: fixed;
+  inset: 0 auto auto 0;
+  height: 2px;
+  width: 0;
+  background: var(--bp-accent);
+  z-index: 60;
+  transition: width 80ms linear;
+}
+
+.to-top {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 60;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--bp-hairline);
+  border-radius: 999px;
+  background: var(--bp-canvas);
+  color: var(--bp-ink);
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: var(--bp-shadow);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 180ms;
+}
+.to-top.show {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+/* Sticky nav gains a hairline and a soft backdrop once scrolled. */
+.site-nav.scrolled {
+  border-bottom-color: var(--bp-hairline);
+  background: color-mix(in srgb, var(--bp-canvas) 86%, transparent);
+  backdrop-filter: saturate(180%) blur(10px);
+}
+
+@keyframes bp-rise {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes bp-ink {
+  from {
+    opacity: 0.15;
+  }
+  to {
+    opacity: 1;
+  }
+}
+

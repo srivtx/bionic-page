@@ -209,3 +209,101 @@
   apply();
   syncControls();
 })();
+
+/* ------------------------------------------------------------------ */
+/* Motion: scroll reveal, reading progress, sticky nav, back-to-top.   */
+/* Progressive enhancement: everything below is opt-in via JS classes, */
+/* and is disabled entirely under prefers-reduced-motion.              */
+/* ------------------------------------------------------------------ */
+(function () {
+  var doc = document;
+  var root = doc.documentElement;
+  if (!root || !doc.body) return;
+
+  var reduce = false;
+  try {
+    reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch (err) {
+    reduce = false;
+  }
+  if (reduce) return;
+
+  root.classList.add("js-motion");
+
+  // Reading progress bar.
+  var progress = doc.createElement("div");
+  progress.className = "scroll-progress";
+  progress.setAttribute("aria-hidden", "true");
+  doc.body.appendChild(progress);
+
+  // Back-to-top control.
+  var toTop = doc.createElement("button");
+  toTop.type = "button";
+  toTop.className = "to-top";
+  toTop.setAttribute("aria-label", "Back to top");
+  toTop.textContent = "\u2191";
+  toTop.addEventListener("click", function () {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  doc.body.appendChild(toTop);
+
+  var header = doc.querySelector(".site-nav");
+
+  function onScroll() {
+    var max = doc.documentElement.scrollHeight - window.innerHeight;
+    var y = window.scrollY || window.pageYOffset || 0;
+    var pct = max > 0 ? Math.min(100, (y / max) * 100) : 0;
+    progress.style.width = pct + "%";
+    if (header) header.classList.toggle("scrolled", y > 8);
+    toTop.classList.toggle("show", y > 640);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll, { passive: true });
+  onScroll();
+
+  // Scroll reveal for the main landmarks.
+  var targets = doc.querySelectorAll(
+    "main section > .wrap > h2, main .card, main .step, main .grid > article, main .shot",
+  );
+  if ("IntersectionObserver" in window && targets.length) {
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
+    );
+    var index = 0;
+    targets.forEach(function (el) {
+      el.classList.add("reveal");
+      el.style.transitionDelay = (index % 4) * 45 + "ms";
+      index += 1;
+      io.observe(el);
+    });
+    // Anything still above the fold should never wait.
+    requestAnimationFrame(function () {
+      targets.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight * 0.9) el.classList.add("in");
+      });
+    });
+  }
+
+  // Stagger the demo emphasis each time it re-renders.
+  var demo = doc.getElementById("demo-text");
+  if (demo && "MutationObserver" in window) {
+    var stamp = function () {
+      var heads = demo.querySelectorAll("b");
+      for (var i = 0; i < heads.length; i += 1) {
+        heads[i].style.setProperty("--bp-i", String(i % 24));
+      }
+    };
+    new MutationObserver(stamp).observe(demo, { childList: true, subtree: true });
+    stamp();
+  }
+})();
+

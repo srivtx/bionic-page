@@ -3,6 +3,34 @@
 All notable changes to Bionic Page. Format loosely follows Keep a Changelog;
 versions follow semver.
 
+## [Unreleased]
+
+### Fixed
+
+- Text that a framework replaces inside an already-transformed paragraph is now
+  transformed (the walker tracks processed text nodes instead of marking
+  parents), while re-runs stay idempotent.
+- Changing mode or a setting while active now takes effect: the previous pass is
+  reverted before re-applying. Before this, the change was silently skipped and
+  a later toggle-off could leave wrappers behind.
+- Incremental passes are compacted after 64 handles so a long-lived tab cannot
+  accumulate unbounded records.
+- The options live preview no longer assigns `innerHTML` (`web-ext` unsafe
+  assignment warning).
+- Firefox minimum is 140 (and Android 142) so `data_collection_permissions` is
+  understood; `web-ext lint` is now 0/0/0.
+- URLs, email addresses, and very long unbroken runs (for example a CJK sentence
+  with no spaces) are left alone instead of being half-bolded.
+
+### Added
+
+- Toolbar badge for per-tab state; nav and button regions are skipped.
+- Landing-site motion: hero entrance, scroll reveal, reading progress bar,
+  sticky-nav state, back-to-top control, and a staggered demo ink-in, all
+  disabled under `prefers-reduced-motion`.
+- A dedicated how-to page, a privacy policy page, and a store listing kit.
+- Benchmark script and loose performance tests.
+
 ## [0.1.0] — 2026-09-19
 
 First working release.
