@@ -1,0 +1,19 @@
+# bionic-page
+
+> Turn any web page into a bionic reading page. Five configurable modes, per-site rules, a fully reversible transform, and no network.
+
+A Manifest V3 extension for Chrome and Firefox. The readable text of the page you are on is rewritten so the leading part of each word carries more weight, giving the eye a fixed anchor. Every pass is reversible, nothing is uploaded, and settings live in your own browser.
+
+## Pages
+
+- [bionic-page](https://srivtx.github.io/bionic-page/): Turn any web page into a bionic reading page. Five configurable modes, per-site rules, a fully reversible transform, and no network.
+- [FAQ](https://srivtx.github.io/bionic-page/faq.html): Frequently asked questions about bionic-page: licensing, PDFs and canvas, whether it breaks sites, performance, privacy, iframes, shadow DOM, and browser support.
+- [How to use bionic-page](https://srivtx.github.io/bionic-page/how-to.html): Install bionic-page unpacked in Chrome, Edge, or Firefox, then use the popup, per-site rules, options, the floating control, and the keyboard toggle. Includes how to switch it off again.
+- [Reading modes](https://srivtx.github.io/bionic-page/modes.html): The five bionic-page reading modes compared: Classic, Half, Vowel anchor, Low distraction, and Custom rule. How each decides what to emphasize, and how the custom rule string 0 1 1 2 0.4 is parsed.
+- [Privacy](https://srivtx.github.io/bionic-page/privacy.html): bionic-page privacy policy: no network requests, no analytics, no accounts. Settings live only in the browser's own storage, and page text is read locally to emphasize it.
+
+## Source
+
+- Repository: https://github.com/srivtx/bionic-page
+- License: MIT. Not affiliated with Bionic Reading GmbH.
+- By svx.

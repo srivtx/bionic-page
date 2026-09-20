@@ -1,16 +1,45 @@
-# Bionic Page — landing site
+# bionic-page — landing site
 
-Static marketing and how-to site for the Bionic Page extension. No build step,
-no framework, no external network requests. Everything is plain HTML, CSS, and
-a small vanilla JS file.
+Static site for the bionic-page extension. No build step for the pages, no
+framework, and no external network requests. Everything is plain HTML, the
+shared Lens suite stylesheets, and two small classic scripts.
 
 ```
 site/
-├── index.html
-├── styles.css
-├── app.js
-└── assets/favicon.svg
+├── index.html          landing page with the live demo
+├── how-to.html         install and usage walkthrough
+├── modes.html          the five modes and the custom rule format
+├── privacy.html        privacy policy
+├── faq.html            questions and honest limits
+├── robots.txt
+└── assets/
+    ├── lens.css        shared suite design system (do not diverge)
+    ├── theme.css       bionic accent and components
+    ├── core.js         compiled from src/core/*.ts by scripts/build-demo.mjs
+    ├── demo.js         page behaviour: demo, samples, compare, theme, nav
+    ├── fonts/*.woff2   self-hosted Geist (SIL OFL 1.1)
+    ├── transformed.png
+    ├── popup.png
+    └── options.png
 ```
+
+## How it works
+
+- `assets/lens.css` is the shared design system copied byte-identical across
+  the Lenses suite. Per-tool changes live in `assets/theme.css`.
+- `assets/core.js` is the **real** fixation algorithm, bundled from
+  `src/core/*.ts` and exposed as the global `BionicCore`. The demo renders
+  exactly what the extension injects, so there is no second implementation to
+  drift out of sync.
+- `assets/demo.js` is the only site script. It builds the mode chips from
+  `BionicCore.MODES`, wires the textarea, intensity slider, and chips to
+  repaint the output, renders the hero and every `data-bionic-sample` element,
+  drives the compare divider with pointer and keyboard input, and runs the
+  shared theme and navigation toggles. If `BionicCore` is missing it hides the
+  demo controls and leaves the plain text in place.
+- The theme bootstrap inline in each `<head>` applies a stored `data-theme`
+  before first paint; `assets/demo.js` handles the toggle and the
+  `bionic-page-theme` localStorage key.
 
 ## Preview locally
 
@@ -26,9 +55,17 @@ or, with no dependencies at all:
 python3 -m http.server 8000 --directory site
 ```
 
-Then open the printed URL (for example `http://localhost:8000`). You can also
-open `site/index.html` directly in a browser, but a local server is recommended
-so the `../README.md` and `../RESEARCH.md` links resolve.
+Then open the printed URL (for example `http://localhost:8000`). A local server
+is recommended over opening the files directly, but there are no absolute URLs,
+so the site also works from any host root or subpath.
+
+## Regenerate the demo bundle
+
+After a change in `src/core/`:
+
+```bash
+node scripts/build-demo.mjs
+```
 
 ## Deploy
 
@@ -39,16 +76,11 @@ so the `../README.md` and `../RESEARCH.md` links resolve.
   directory to `site`. Framework preset: "Other". No build command, no install
   command.
 
-Because there are no absolute URLs, the site works from any host root or
-subpath.
-
 ## Notes
 
-- The live demo in `app.js` is a small copy of the extension's core algorithm
-  (`half`, `classic`, `vowel`, `dim`, and the `"0 1 1 2 0.4"` rule). It renders
-  into `#demo-text` and restores the original paragraph exactly when toggled
-  off.
-- All color, type, radius, and motion values are `--bp-*` custom properties
-  defined in `styles.css` (see `docs/BRAND.md`).
-- Light and dark themes follow `prefers-color-scheme`; motion follows
-  `prefers-reduced-motion`.
+- No page makes an external request: no CDN, no remote fonts, no remote images.
+- All color, type, radius, and motion values are custom properties defined in
+  `assets/lens.css`, with the accent and bionic components in
+  `assets/theme.css`.
+- Light and dark themes follow `prefers-color-scheme` until a visitor picks one
+  with the header toggle; motion follows `prefers-reduced-motion`.

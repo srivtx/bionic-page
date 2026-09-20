@@ -1,269 +1,225 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>How to use Bionic Page</title>
-    <meta
-      name="description"
-      content="Install Bionic Page on Chrome or Firefox, pick a mode, adjust intensity, and control it per site. Full walkthrough with screenshots."
-    />
-    <meta property="og:type" content="article" />
-    <meta property="og:title" content="How to use Bionic Page" />
-    <meta
-      property="og:description"
-      content="Install, pick a mode, adjust intensity, control it per site. A short walkthrough."
-    />
-    <meta property="og:image" content="assets/transformed.png" />
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css" />
-    <style>
-      .shot {
-        display: block;
-        width: 100%;
-        height: auto;
-        margin: 14px 0 0;
-        border: 1px solid var(--bp-hairline);
-        border-radius: var(--bp-radius-card);
-        background: var(--bp-canvas-soft);
-      }
-      .shot-narrow {
-        max-width: 340px;
-      }
-      .kbd {
-        display: inline-block;
-        padding: 1px 7px;
-        border: 1px solid var(--bp-hairline);
-        border-bottom-width: 2px;
-        border-radius: 7px;
-        background: var(--bp-canvas-soft);
-        font: 600 0.85em/1.6 var(--bp-sans);
-        color: var(--bp-ink);
-      }
-      .howto-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        gap: 28px;
-        align-items: start;
-      }
-      @media (max-width: 720px) {
-        .howto-grid {
-          grid-template-columns: minmax(0, 1fr);
-        }
-      }
-      .trouble dt {
-        font-weight: 650;
-        color: var(--bp-ink);
-        margin-top: 16px;
-      }
-      .trouble dd {
-        margin: 4px 0 0;
-      }
-    </style>
-  </head>
-  <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <span id="top"></span>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to use bionic-page</title>
+<meta name="description" content="Install bionic-page unpacked in Chrome, Edge, or Firefox, then use the popup, per-site rules, options, the floating control, and the keyboard toggle. Includes how to switch it off again.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="How to use bionic-page">
+<meta property="og:description" content="Install it unpacked, use the popup, set per-site rules, and toggle it with the keyboard. A short walkthrough with screenshots.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://srivtx.github.io/bionic-page/how-to.html">
+<meta property="og:image" content="https://srivtx.github.io/bionic-page/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="bionic-page — a word with a solid head and a faded tail">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How to use bionic-page">
+<meta name="twitter:description" content="Install it unpacked, use the popup, set per-site rules, and toggle it with the keyboard.">
+<meta name="twitter:image" content="https://srivtx.github.io/bionic-page/assets/og.png">
+<link rel="canonical" href="https://srivtx.github.io/bionic-page/how-to.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%234f46e5%27%2F%3E%3Cg%20transform%3D%27translate(4%204)%27%20fill%3D%27none%27%20stroke%3D%27%23ffffff%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20x%3D%223.2%22%20y%3D%223.2%22%20width%3D%2217.6%22%20height%3D%2217.6%22%20rx%3D%223.6%22%3E%3C%2Frect%3E%20%3Cpath%20d%3D%22M7.4%2012h4.6%22%3E%3C%2Fpath%3E%20%3Cpath%20d%3D%22M12%2012h4.6%22%20stroke-opacity%3D%22.4%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="stylesheet" href="assets/lens.css">
+<link rel="stylesheet" href="assets/theme.css">
+<script>
+(function () {
+  try {
+    var stored = window.localStorage.getItem("bionic-page-theme");
+    if (stored === "dark" || stored === "light") {
+      document.documentElement.setAttribute("data-theme", stored);
+    }
+  } catch (err) {}
+  if (
+    "IntersectionObserver" in window &&
+    !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+  ) {
+    document.documentElement.classList.add("js");
+  }
+})();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
 
-    <header class="site-nav">
-      <nav class="nav-inner" aria-label="Primary">
-        <a class="wordmark" href="index.html" aria-label="Bionic Page"><b>Bi</b>onic <b>Pa</b>ge</a>
-        <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="#install">Install</a></li>
-          <li><a href="#use">Use it</a></li>
-          <li><a href="#modes">Modes</a></li>
-          <li><a href="#trouble">Troubleshooting</a></li>
+<header class="nav" id="top">
+  <div class="container nav__inner">
+    <a class="brand" href="index.html" aria-label="bionic-page home">
+      <span class="brand__mark" aria-hidden="true">
+        <svg class="icon" viewBox="0 0 24 24" focusable="false"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect> <path d="M7.4 12h4.6"></path> <path d="M12 12h4.6" stroke-opacity=".4"></path></svg>
+      </span>
+      <span class="brand__name">bionic-page</span>
+      <span class="brand__tag">by svx</span>
+    </a>
+    <nav class="nav__links" id="site-nav" aria-label="Sections">
+      <a href="index.html">Home</a>
+      <a href="how-to.html" aria-current="page">How to use</a>
+      <a href="modes.html">Modes</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="faq.html">FAQ</a>
+      <a href="https://github.com/srivtx/bionic-page">GitHub</a>
+    </nav>
+    <div class="nav__actions">
+      <button type="button" class="nav__toggle btn btn--ghost btn--sm" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+      </button>
+      <button type="button" class="btn btn--ghost btn--sm" id="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        <span id="theme-toggle-text">Theme</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="container">
+    <div class="docs">
+      <nav class="docs__nav" aria-label="Docs">
+        <h2>bionic-page</h2>
+        <ul>
+          <li><a href="index.html">Overview</a></li>
+          <li><a href="how-to.html" aria-current="page">How to use</a></li>
+          <li><a href="modes.html">Modes</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="faq.html">FAQ</a></li>
         </ul>
-        <a class="btn btn-primary btn-sm" href="index.html#install">Get the extension</a>
       </nav>
-    </header>
 
-    <main id="main">
-      <section class="hero">
-        <div class="wrap">
+      <article class="docs__body">
+        <div class="docs__head">
           <p class="eyebrow">Walkthrough</p>
-          <h1>How to use Bionic Page</h1>
-          <p class="lede">
-            Install it once, then read any page normally. It takes about a
-            minute to set up and one click to turn on or off.
-          </p>
+          <h1>How to use bionic-page</h1>
+          <p>Install it once, then read any page normally. It takes about a minute to set up, and one action to turn it on or off. The store listings are not published yet, so this covers building both targets from source.</p>
         </div>
-      </section>
 
-      <section class="section" id="install" aria-labelledby="install-title">
-        <div class="wrap">
-          <h2 id="install-title">1. Install</h2>
-          <p class="section-lede">Pick your browser, or run it from source.</p>
-          <div class="grid grid-3">
-            <article class="card">
-              <h3>Chrome or Edge</h3>
-              <p>Open the Chrome Web Store listing and choose “Add to Chrome”, then pin the toolbar icon.</p>
-              <p><a class="btn btn-primary" href="#" data-store="chrome">Add to Chrome</a></p>
-            </article>
-            <article class="card">
-              <h3>Firefox</h3>
-              <p>Open the Firefox Add-ons listing and choose “Add to Firefox”, then pin it to the toolbar.</p>
-              <p><a class="btn btn-primary" href="#" data-store="firefox">Add to Firefox</a></p>
-            </article>
-            <article class="card">
-              <h3>From source</h3>
-              <ol class="build-steps">
-                <li><code>bun install &amp;&amp; bun run build</code></li>
-                <li>Chrome: <code>chrome://extensions</code> → Developer mode → Load unpacked → <code>dist/chrome</code></li>
-                <li>Firefox: <code>about:debugging</code> → This Firefox → Load Temporary Add-on → <code>dist/firefox/manifest.json</code></li>
-              </ol>
-            </article>
+        <h2>1. Install from source</h2>
+        <p>Build once; the same source tree emits a correct Chrome manifest and Firefox manifest.</p>
+        <div class="install">
+          <code class="install__cmd">git clone https://github.com/srivtx/bionic-page</code>
+        </div>
+        <div class="install">
+          <code class="install__cmd">cd bionic-page &amp;&amp; bun install</code>
+        </div>
+        <div class="install">
+          <code class="install__cmd">bun run build</code>
+        </div>
+        <div class="grid grid--2">
+          <article class="card stack">
+            <h3>Chrome or Edge</h3>
+            <p class="muted">Open <code>chrome://extensions</code>, enable <strong>Developer mode</strong>, choose <strong>Load unpacked</strong>, and select the <code>dist/chrome</code> folder. Requires Chrome 116 or newer.</p>
+          </article>
+          <article class="card stack">
+            <h3>Firefox</h3>
+            <p class="muted">Open <code>about:debugging</code>, choose <strong>This Firefox</strong>, then <strong>Load Temporary Add-on</strong>, and select <code>dist/firefox/manifest.json</code>. Requires Firefox 140 or newer.</p>
+          </article>
+        </div>
+
+        <h2>2. First run</h2>
+        <p>On a fresh install the extension writes the default settings and opens a short welcome page in a new tab. The defaults are the Half mode, intensity 0.5, and the floating control on. Nothing else is created and nothing is sent anywhere.</p>
+
+        <h2>3. The popup</h2>
+        <div class="duo">
+          <div class="stack">
+            <p>Click the bionic-page toolbar icon. The popup shows a master switch, a mode selector with a one-line description, an intensity slider from 0.2 to 0.9, a <strong>This site</strong> switch, a minimum word length field, and an <strong>Options</strong> button.</p>
+            <p>If the status line reports no readable text, the page keeps its text outside the DOM, as a PDF viewer or a canvas app does. There is nothing to transform, which is expected.</p>
+          </div>
+          <div class="card">
+            <img src="assets/popup.png" alt="The bionic-page popup: a master switch, a mode selector with its description, an intensity slider, a This site switch, a minimum word length field, and an Options button." width="340">
           </div>
         </div>
-      </section>
 
-      <section class="section section-soft" id="use" aria-labelledby="use-title">
-        <div class="wrap">
-          <h2 id="use-title">2. Use it</h2>
-
-          <div class="howto-grid" style="margin-top: 24px">
-            <div>
-              <h3>Open the popup</h3>
-              <p>
-                Click the Bionic Page icon in the toolbar. The popup shows the
-                master switch, the mode, an intensity slider, and a “This site”
-                switch for the page you are on.
-              </p>
-              <p>
-                If the status line says “Not available on this page”, the page
-                has no readable DOM text (a PDF viewer or a canvas app), which is
-                expected.
-              </p>
-            </div>
-            <div>
-              <img class="shot shot-narrow" src="assets/popup.png" alt="The Bionic Page popup: master switch, mode select, intensity slider, per-site switch, and options button." width="340" />
-            </div>
+        <h2>4. Per-site rules</h2>
+        <p>The <strong>This site</strong> switch in the popup keeps the current site on or off. For anything broader, open <strong>Options</strong> and use the <strong>Sites</strong> section to add match patterns such as <code>https://news.ycombinator.com/*</code>. The last matching rule wins, and a rule can carry its own mode and intensity.</p>
+        <div class="duo">
+          <div class="card">
+            <img src="assets/options.png" alt="The bionic-page options page with Reading, Appearance, Advanced, Sites, Preview, and Data sections." width="520">
           </div>
-
-          <div class="howto-grid" style="margin-top: 36px">
-            <div>
-              <h3>Pick a mode and intensity</h3>
-              <p>
-                Choose how the leading part of each word is emphasized. Start
-                with <strong>Half</strong>, then try <strong>Classic</strong> and
-                move the intensity slider if you want more or less emphasis.
-              </p>
-              <p>
-                <strong>Low distraction</strong> bolds the prefix and fades the
-                rest, which some readers prefer on busy pages.
-              </p>
-            </div>
-            <div>
-              <h3>The page transforms</h3>
-              <p>
-                The text is rewritten in place. Code blocks, form fields, editors,
-                and math are left alone, and turning it off restores the original
-                text exactly.
-              </p>
-            </div>
-          </div>
-
-          <img class="shot" src="assets/transformed.png" alt="A page with bionic emphasis applied: the leading letters of each word are bold, and a small 'Bp on' floating control sits in the bottom-right corner." width="820" />
-
-          <div class="grid grid-3" style="margin-top: 24px">
-            <article class="card">
-              <h3>Toggle per site</h3>
-              <p>Use the “This site” switch, or add a match pattern in options, to keep a site on or off.</p>
-            </article>
-            <article class="card">
-              <h3>Keyboard shortcut</h3>
-              <p>Press <span class="kbd">Ctrl</span> <span class="kbd">Shift</span> <span class="kbd">Y</span> (or <span class="kbd">⌘</span> <span class="kbd">Shift</span> <span class="kbd">Y</span>) to toggle on the current page.</p>
-            </article>
-            <article class="card">
-              <h3>Floating control</h3>
-              <p>The small “Bp” button in the corner toggles the page without opening the popup. Turn it off in options if you prefer.</p>
-            </article>
-          </div>
-
-          <div class="howto-grid" style="margin-top: 36px">
-            <div>
-              <h3>Fine-tune in options</h3>
-              <p>
-                The options page holds every setting: emphasis weight, faded
-                remainder opacity, letter spacing, minimum word length, custom
-                vowel sets, dynamic-content handling, iframes, and per-site rules.
-              </p>
-              <p>
-                The live preview at the bottom of the options page shows the
-                result as you change values, and you can export or import your
-                settings as JSON.
-              </p>
-            </div>
-            <div>
-              <img class="shot" src="assets/options.png" alt="The options page: Reading, Appearance, Advanced, Sites, Preview, and Data sections." width="550" />
-            </div>
+          <div class="stack">
+            <p>The options page holds every setting, grouped into six sections:</p>
+            <ul>
+              <li><strong>Reading</strong>: enable, mode, intensity, minimum word length, skip common words, and leave existing bold text alone.</li>
+              <li><strong>Appearance</strong>: emphasis weight from 500 to 900, faded remainder opacity from 0.4 to 1, and optional letter spacing after the emphasis.</li>
+              <li><strong>Advanced</strong>: the custom rule, a custom vowel set, processing of new content, running inside iframes, and the floating control.</li>
+              <li><strong>Sites</strong>: the match-pattern list described above.</li>
+              <li><strong>Preview</strong>: a live sample that updates as you change values.</li>
+              <li><strong>Data</strong>: export your settings to JSON, import a file, or reset to defaults.</li>
+            </ul>
           </div>
         </div>
-      </section>
 
-      <section class="section" id="modes" aria-labelledby="modes-title">
-        <div class="wrap">
-          <h2 id="modes-title">3. The five modes</h2>
-          <p class="section-lede">Each mode emphasizes a different part of the word.</p>
-          <table class="card" style="width: 100%; border-collapse: collapse">
-            <thead>
-              <tr>
-                <th style="text-align: left; padding: 10px 12px">Mode</th>
-                <th style="text-align: left; padding: 10px 12px">What it does</th>
-                <th style="text-align: left; padding: 10px 12px">Best for</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td style="padding: 10px 12px"><strong>Half</strong></td><td style="padding: 10px 12px">Bold the first half of each word.</td><td style="padding: 10px 12px">A first try; the familiar default.</td></tr>
-              <tr><td style="padding: 10px 12px"><strong>Classic</strong></td><td style="padding: 10px 12px">Bold a share of each word; intensity controls how much.</td><td style="padding: 10px 12px">Dialing the effect up or down.</td></tr>
-              <tr><td style="padding: 10px 12px"><strong>Vowel anchor</strong></td><td style="padding: 10px 12px">Bold up to the first vowel group.</td><td style="padding: 10px 12px">Non-English text and long words.</td></tr>
-              <tr><td style="padding: 10px 12px"><strong>Low distraction</strong></td><td style="padding: 10px 12px">Bold the prefix, fade the rest of the word.</td><td style="padding: 10px 12px">Busy pages; less visual noise.</td></tr>
-              <tr><td style="padding: 10px 12px"><strong>Custom rule</strong></td><td style="padding: 10px 12px">Per-length counts plus a fraction, e.g. <code>0 1 1 2 0.4</code>.</td><td style="padding: 10px 12px">Exact control; reproducing another tool.</td></tr>
-            </tbody>
-          </table>
+        <h2>5. The floating control and the shortcut</h2>
+        <p>The floating <strong>Bp</strong> button in the bottom-right corner toggles the page without opening anything; its dot and label show whether reading is on. It is hidden inside iframes and can be turned off in options. The keyboard shortcut <kbd class="keycap">Ctrl/Cmd + Shift + Y</kbd> toggles the page you are on from anywhere.</p>
+
+        <h2>6. A page transformed</h2>
+        <div class="card">
+          <img src="assets/transformed.png" alt="A web page with bionic emphasis applied: the leading letters of each word are bold, and a small floating control labelled Bp on sits in the bottom-right corner." width="756">
         </div>
-      </section>
+        <p>Text is rewritten in place. Code blocks, form fields, editors, math, SVG, and navigation are left alone, and the transform runs once, then only over new content.</p>
 
-      <section class="section section-soft" id="trouble" aria-labelledby="trouble-title">
-        <div class="wrap">
-          <h2 id="trouble-title">4. Troubleshooting</h2>
-          <dl class="trouble">
-            <dt>A page looks wrong after turning it on.</dt>
-            <dd>Toggle it off, then add that site to the off-list in options. The transform is fully reversible, so a reload is not required.</dd>
+        <h2>7. Turning it off again</h2>
+        <p>Turning the effect off restores the original text nodes exactly, so no reload is needed. There are several ways to stop it:</p>
+        <ul>
+          <li>Press the shortcut or the floating control to toggle the current page for this session.</li>
+          <li>Use the <strong>This site</strong> switch, or a match pattern, to keep a site off.</li>
+          <li>Turn the master switch off to disable it everywhere.</li>
+          <li>Remove the extension to delete its stored settings.</li>
+        </ul>
+        <p>A page author can also opt an element out with <code>data-bionic="off"</code>, and the walker skips anything marked <code>aria-hidden="true"</code>.</p>
 
-            <dt>Nothing happens on a page.</dt>
-            <dd>PDFs, canvas apps, and some chat editors keep their text outside the DOM, so there is nothing to rewrite. The extension skips editors and code on purpose.</dd>
-
-            <dt>It feels slower than I expected.</dt>
-            <dd>Try <strong>Low distraction</strong> or reduce intensity. Peer-reviewed results on bionic emphasis are mixed; the effect is individual.</dd>
-
-            <dt>New content is not styled.</dt>
-            <dd>Check “Process new content as it loads” in options. It is on by default and uses a MutationObserver.</dd>
-
-            <dt>I want it gone completely.</dt>
-            <dd>Turn the master switch off to disable it everywhere, or remove the extension. No data leaves your browser either way.</dd>
-          </dl>
-          <p style="margin-top: 24px">
-            <a class="link-arrow" href="index.html#faq">More questions in the FAQ</a>
-          </p>
+        <div class="docs__foot">
+          <a href="index.html">← Overview</a>
+          <a href="modes.html">Modes →</a>
         </div>
-      </section>
-    </main>
+      </article>
+    </div>
+  </div>
+</main>
 
-    <footer class="site-footer">
-      <div class="wrap footer-inner">
+<footer class="footer">
+  <div class="container">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <span class="brand__mark" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 24 24" focusable="false"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect> <path d="M7.4 12h4.6"></path> <path d="M12 12h4.6" stroke-opacity=".4"></path></svg>
+        </span>
         <div>
-          <a class="wordmark" href="index.html" aria-label="Bionic Page"><b>Bi</b>onic <b>Pa</b>ge</a>
-          <p class="footer-line">MIT licensed. Built from one source tree for Chrome and Firefox.</p>
-          <p class="footer-line small">"Bionic Reading" is a trademark of Bionic Reading GmbH; this project is not affiliated with or endorsed by it.</p>
+          <p>bionic-page</p>
+          <p class="muted">Turn any web page into a bionic reading page.</p>
         </div>
-        <nav class="footer-links" aria-label="Footer">
-          <a href="index.html">Home</a>
-          <a href="privacy.html">Privacy</a>
-          <a href="../RESEARCH.md">Research notes</a>
-        </nav>
       </div>
-    </footer>
-  </body>
+
+      <nav aria-label="Pages">
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="how-to.html">How to use</a></li>
+          <li><a href="modes.html">Modes</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-label="Project">
+        <h2>Project</h2>
+        <ul>
+          <li><a href="https://github.com/srivtx/bionic-page">Repository</a></li>
+          <li><a href="https://github.com/srivtx/bionic-page/blob/main/LICENSE">MIT license</a></li>
+          <li><a href="https://github.com/srivtx/bionic-page/issues">Issues</a></li>
+          <li><a href="https://srivtx.github.io/lenses">Lenses suite</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer__meta">
+      <p>by svx · MIT licensed.</p>
+      <p>© 2026 bionic-page</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/core.js"></script>
+<script src="assets/demo.js"></script>
+</body>
 </html>

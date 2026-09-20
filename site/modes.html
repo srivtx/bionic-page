@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading modes — bionic-page</title>
+<meta name="description" content="The five bionic-page reading modes compared: Classic, Half, Vowel anchor, Low distraction, and Custom rule. How each decides what to emphasize, and how the custom rule string 0 1 1 2 0.4 is parsed.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Reading modes — bionic-page">
+<meta property="og:description" content="Classic, Half, Vowel anchor, Low distraction, and Custom rule: what each mode emphasizes and how the rule string is parsed.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://srivtx.github.io/bionic-page/modes.html">
+<meta property="og:image" content="https://srivtx.github.io/bionic-page/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="bionic-page — a word with a solid head and a faded tail">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reading modes — bionic-page">
+<meta name="twitter:description" content="Classic, Half, Vowel anchor, Low distraction, and Custom rule: what each mode emphasizes and how the rule string is parsed.">
+<meta name="twitter:image" content="https://srivtx.github.io/bionic-page/assets/og.png">
+<link rel="canonical" href="https://srivtx.github.io/bionic-page/modes.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%234f46e5%27%2F%3E%3Cg%20transform%3D%27translate(4%204)%27%20fill%3D%27none%27%20stroke%3D%27%23ffffff%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20x%3D%223.2%22%20y%3D%223.2%22%20width%3D%2217.6%22%20height%3D%2217.6%22%20rx%3D%223.6%22%3E%3C%2Frect%3E%20%3Cpath%20d%3D%22M7.4%2012h4.6%22%3E%3C%2Fpath%3E%20%3Cpath%20d%3D%22M12%2012h4.6%22%20stroke-opacity%3D%22.4%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="stylesheet" href="assets/lens.css">
+<link rel="stylesheet" href="assets/theme.css">
+<script>
+(function () {
+  try {
+    var stored = window.localStorage.getItem("bionic-page-theme");
+    if (stored === "dark" || stored === "light") {
+      document.documentElement.setAttribute("data-theme", stored);
+    }
+  } catch (err) {}
+  if (
+    "IntersectionObserver" in window &&
+    !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+  ) {
+    document.documentElement.classList.add("js");
+  }
+})();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav" id="top">
+  <div class="container nav__inner">
+    <a class="brand" href="index.html" aria-label="bionic-page home">
+      <span class="brand__mark" aria-hidden="true">
+        <svg class="icon" viewBox="0 0 24 24" focusable="false"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect> <path d="M7.4 12h4.6"></path> <path d="M12 12h4.6" stroke-opacity=".4"></path></svg>
+      </span>
+      <span class="brand__name">bionic-page</span>
+      <span class="brand__tag">by svx</span>
+    </a>
+    <nav class="nav__links" id="site-nav" aria-label="Sections">
+      <a href="index.html">Home</a>
+      <a href="how-to.html">How to use</a>
+      <a href="modes.html" aria-current="page">Modes</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="faq.html">FAQ</a>
+      <a href="https://github.com/srivtx/bionic-page">GitHub</a>
+    </nav>
+    <div class="nav__actions">
+      <button type="button" class="nav__toggle btn btn--ghost btn--sm" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+      </button>
+      <button type="button" class="btn btn--ghost btn--sm" id="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        <span id="theme-toggle-text">Theme</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="container">
+    <div class="docs">
+      <nav class="docs__nav" aria-label="Docs">
+        <h2>bionic-page</h2>
+        <ul>
+          <li><a href="index.html">Overview</a></li>
+          <li><a href="how-to.html">How to use</a></li>
+          <li><a href="modes.html" aria-current="page">Modes</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <article class="docs__body">
+        <div class="docs__head">
+          <p class="eyebrow">Reference</p>
+          <h1>Reading modes</h1>
+          <p>Five modes decide which part of each word is emphasized. They all run through the same pure function, so the demo on the home page and the extension agree word for word.</p>
+        </div>
+
+        <h2>At a glance</h2>
+        <div class="table-wrap">
+          <table>
+            <caption>The five modes, what each emphasizes, and when it tends to help.</caption>
+            <thead>
+              <tr><th scope="col">Mode</th><th scope="col">Emphasizes</th><th scope="col">Best for</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Half</strong></td><td>The first half of each word</td><td>The familiar default</td></tr>
+              <tr><td><strong>Classic</strong></td><td>A share of each word, set by intensity</td><td>Tuning the effect up or down</td></tr>
+              <tr><td><strong>Vowel anchor</strong></td><td>Up to the first vowel group</td><td>Non-English text, long words</td></tr>
+              <tr><td><strong>Low distraction</strong></td><td>Prefix bold, remainder faded</td><td>Busy pages</td></tr>
+              <tr><td><strong>Custom rule</strong></td><td>Per-length counts plus a fraction</td><td>Exact control</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Each mode</h2>
+        <div class="grid grid--2">
+          <article class="card stack">
+            <h3>Half</h3>
+            <p class="bdemo__out bionic" data-bionic-sample="half">Fixation anchors the eye at the start of each word.</p>
+            <p class="muted">Bolds the first half of each word, rounded up, and nothing shorter than two letters. This is the Bionic Reading default and the shipped default mode.</p>
+          </article>
+          <article class="card stack">
+            <h3>Classic</h3>
+            <p class="bdemo__out bionic" data-bionic-sample="classic">Fixation anchors the eye at the start of each word.</p>
+            <p class="muted">Bolds <code>ceil(letters × intensity)</code> characters, with a minimum of one. The intensity slider, from 0.2 to 0.9, only changes this mode and Low distraction.</p>
+          </article>
+          <article class="card stack">
+            <h3>Vowel anchor</h3>
+            <p class="bdemo__out bionic" data-bionic-sample="vowel">Fixation anchors the eye at the start of each word.</p>
+            <p class="muted">Bolds up to and including the first vowel group, capped at half the word plus one. A custom vowel set can be supplied for other languages; empty uses the built-in set.</p>
+          </article>
+          <article class="card stack">
+            <h3>Low distraction</h3>
+            <p class="bdemo__out bionic" data-bionic-sample="dim">Fixation anchors the eye at the start of each word.</p>
+            <p class="muted">Bolds the prefix and fades the remainder to the configured opacity, 72% by default. The faded part is wrapped in a span and removed exactly on revert.</p>
+          </article>
+          <article class="card stack">
+            <h3>Custom rule</h3>
+            <p class="bdemo__out bionic" data-bionic-sample="rules">Fixation anchors the eye at the start of each word.</p>
+            <p class="muted">Emphasizes a fixed character count per word length, then a fraction for longer words, using the rule string below. It bypasses the minimum word length.</p>
+          </article>
+        </div>
+
+        <h2>The custom rule string</h2>
+        <p>The default rule is <code>0 1 1 2 0.4</code>. It is parsed left to right: an optional sign, up to four whole numbers, then one decimal fraction. Invalid input falls back to this default without throwing.</p>
+        <div class="deflist">
+          <div class="defrow">
+            <dt class="defrow__term">Optional sign</dt>
+            <dd class="defrow__def">A leading <code>+</code> or <code>-</code> controls common-word handling. <code>+</code> allows the small built-in common-word list to be emphasized; no sign, or <code>-</code>, leaves it out.</dd>
+          </div>
+          <div class="defrow">
+            <dt class="defrow__term">Four whole numbers</dt>
+            <dd class="defrow__def">The emphasized character counts for words of length 1, 2, 3, and 4. In <code>0 1 1 2</code>: a one-letter word is left alone, a two-letter word emphasizes one character, three letters emphasize one, and four letters emphasize two.</dd>
+          </div>
+          <div class="defrow">
+            <dt class="defrow__term">One fraction</dt>
+            <dd class="defrow__def">Applies to words of five letters or more. <code>0.4</code> emphasizes <code>ceil(0.4 × letters)</code> characters, so a ten-letter word emphasizes four.</dd>
+          </div>
+        </div>
+        <div class="code code--wrap"><pre><code>0 1 1 2 0.4</code></pre></div>
+        <p>Intensity defaults to <strong>0.5</strong> and is clamped to 0.2–0.9. The minimum word length defaults to 3 and is clamped to 2–8; the Half and Custom rule modes ignore it because they set the count directly.</p>
+
+        <div class="docs__foot">
+          <a href="how-to.html">← How to use</a>
+          <a href="privacy.html">Privacy →</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <span class="brand__mark" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 24 24" focusable="false"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect> <path d="M7.4 12h4.6"></path> <path d="M12 12h4.6" stroke-opacity=".4"></path></svg>
+        </span>
+        <div>
+          <p>bionic-page</p>
+          <p class="muted">Turn any web page into a bionic reading page.</p>
+        </div>
+      </div>
+
+      <nav aria-label="Pages">
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="how-to.html">How to use</a></li>
+          <li><a href="modes.html">Modes</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-label="Project">
+        <h2>Project</h2>
+        <ul>
+          <li><a href="https://github.com/srivtx/bionic-page">Repository</a></li>
+          <li><a href="https://github.com/srivtx/bionic-page/blob/main/LICENSE">MIT license</a></li>
+          <li><a href="https://github.com/srivtx/bionic-page/issues">Issues</a></li>
+          <li><a href="https://srivtx.github.io/lenses">Lenses suite</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer__meta">
+      <p>by svx · MIT licensed.</p>
+      <p>© 2026 bionic-page</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/core.js"></script>
+<script src="assets/demo.js"></script>
+</body>
+</html>

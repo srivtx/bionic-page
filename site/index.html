@@ -1,284 +1,328 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bionic Page — turn any page into a bionic reading page</title>
-  <meta name="description" content="Bionic Page is a Chrome and Firefox extension that rewrites any page so the leading part of each word is emphasized. Five modes, per-site control, fully reversible, no network.">
-  <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0e1013" media="(prefers-color-scheme: dark)">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Bionic Page — turn any page into a bionic reading page">
-  <meta property="og:description" content="A Chrome and Firefox extension that emphasizes the leading part of each word. Five modes, per-site control, fully reversible, no network.">
-  <meta property="og:image" content="assets/transformed.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bionic-page — turn any web page into a bionic reading page</title>
+<meta name="description" content="bionic-page is a Manifest V3 extension for Chrome and Firefox that rewrites the readable text of a page so the leading part of each word carries more weight. Five modes, per-site control, fully reversible, no network.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="bionic-page — turn any web page into a bionic reading page">
+<meta property="og:description" content="A Chrome and Firefox extension that emphasizes the leading part of each word. Five modes, per-site control, fully reversible, no network.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://srivtx.github.io/bionic-page/index.html">
+<meta property="og:image" content="https://srivtx.github.io/bionic-page/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="bionic-page — a word with a solid head and a faded tail">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="bionic-page — turn any web page into a bionic reading page">
+<meta name="twitter:description" content="A Chrome and Firefox extension that emphasizes the leading part of each word. Five modes, per-site control, fully reversible, no network.">
+<meta name="twitter:image" content="https://srivtx.github.io/bionic-page/assets/og.png">
+<link rel="canonical" href="https://srivtx.github.io/bionic-page/index.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%234f46e5%27%2F%3E%3Cg%20transform%3D%27translate(4%204)%27%20fill%3D%27none%27%20stroke%3D%27%23ffffff%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20x%3D%223.2%22%20y%3D%223.2%22%20width%3D%2217.6%22%20height%3D%2217.6%22%20rx%3D%223.6%22%3E%3C%2Frect%3E%20%3Cpath%20d%3D%22M7.4%2012h4.6%22%3E%3C%2Fpath%3E%20%3Cpath%20d%3D%22M12%2012h4.6%22%20stroke-opacity%3D%22.4%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="stylesheet" href="assets/lens.css">
+<link rel="stylesheet" href="assets/theme.css">
+<script>
+(function () {
+  try {
+    var stored = window.localStorage.getItem("bionic-page-theme");
+    if (stored === "dark" || stored === "light") {
+      document.documentElement.setAttribute("data-theme", stored);
+    }
+  } catch (err) {}
+  if (
+    "IntersectionObserver" in window &&
+    !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+  ) {
+    document.documentElement.classList.add("js");
+  }
+})();
+</script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
+<a class="skip-link" href="#main">Skip to content</a>
 
-  <span id="top"></span>
-
-  <!-- 1. Sticky top nav -->
-  <header class="site-nav">
-    <nav class="nav-inner" aria-label="Primary">
-      <a class="wordmark" href="#top" aria-label="Bionic Page"><b>Bi</b>onic <b>Pa</b>ge</a>
-      <ul class="nav-links">
-        <li><a href="#how">How it works</a></li>
-        <li><a href="how-to.html">How to use</a></li>
-        <li><a href="#modes">Modes</a></li>
-        <li><a href="#install">Install</a></li>
-        <li><a href="#privacy">Privacy</a></li>
-        <li><a href="#faq">FAQ</a></li>
-      </ul>
-      <a class="btn btn-primary btn-sm" href="#install">Get the extension</a>
+<header class="nav" id="top">
+  <div class="container nav__inner">
+    <a class="brand" href="index.html" aria-label="bionic-page home">
+      <span class="brand__mark" aria-hidden="true">
+        <svg class="icon" viewBox="0 0 24 24" focusable="false"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect> <path d="M7.4 12h4.6"></path> <path d="M12 12h4.6" stroke-opacity=".4"></path></svg>
+      </span>
+      <span class="brand__name">bionic-page</span>
+      <span class="brand__tag">by svx</span>
+    </a>
+    <nav class="nav__links" id="site-nav" aria-label="Sections">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="how-to.html">How to use</a>
+      <a href="modes.html">Modes</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="faq.html">FAQ</a>
+      <a href="https://github.com/srivtx/bionic-page">GitHub</a>
     </nav>
-  </header>
+    <div class="nav__actions">
+      <button type="button" class="nav__toggle btn btn--ghost btn--sm" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+      </button>
+      <button type="button" class="btn btn--ghost btn--sm" id="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+        </svg>
+        <span id="theme-toggle-text">Theme</span>
+      </button>
+    </div>
+  </div>
+</header>
 
-  <main id="main">
-    <!-- 2. Hero -->
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="wrap">
-        <p class="eyebrow">Chrome and Firefox extension</p>
-        <h1 id="hero-title">Turn any page into a bionic reading page.</h1>
-        <p class="lede">
-          The extension rewrites the readable text of the page you are on so the
-          leading part of each word carries more weight, giving your eye a fixed
-          anchor per word.
-        </p>
-        <p class="honest">
-          Bionic Page is configurable visual anchoring, not a speed-reading claim.
-          Peer-reviewed results are mixed, so judge it on your own reading.
-        </p>
-        <div class="cta-row">
-          <a class="btn btn-primary" href="#" data-store="chrome">Add to Chrome</a>
-          <a class="btn" href="#" data-store="firefox">Add to Firefox</a>          <a class="link-arrow" href="../README.md">or load it from source</a>
+<main id="main">
+
+  <section class="hero hero--bionic" aria-labelledby="hero-title">
+    <span class="hero__glow" aria-hidden="true"></span>
+    <span class="beam" aria-hidden="true"></span>
+    <p class="ghost" aria-hidden="true">bi</p>
+    <div class="container">
+      <div class="hero__inner">
+        <p class="eyebrow">Manifest V3 · Chrome + Firefox</p>
+        <h1 id="hero-title" class="bionic bionic--xl">Turn any web page into a bionic reading page.</h1>
+        <p class="hero__lede">The extension rewrites the readable text of the page you are on so the leading part of each word carries more weight, giving the eye a fixed anchor per word. This is configurable visual anchoring, not a speed-reading claim; peer-reviewed results on bionic emphasis are mixed.</p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="how-to.html">
+            How to use it
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h13M13 6l6 6-6 6"></path></svg>
+          </a>
+          <a class="btn btn--outline" href="modes.html">Compare the modes</a>
         </div>
-        <p class="store-note">Store links go here.</p>
+        <ul class="flagline">
+          <li class="chip">No network</li>
+          <li class="chip">No account</li>
+          <li class="chip">Fully reversible</li>
+          <li class="chip">127 tests</li>
+          <li class="chip">10/10 e2e</li>
+        </ul>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- 3. Live demo -->
-    <section class="section" aria-labelledby="demo-title">
-      <div class="wrap">
-        <h2 id="demo-title">See it on this paragraph</h2>
-        <p class="section-lede">
-          This demo uses a small copy of the same algorithm the extension ships,
-          running entirely in your browser.
-        </p>
-
-        <div class="demo" id="demo">
-          <div class="demo-controls">
-            <div class="mode-group" role="group" aria-label="Reading mode">
-              <button type="button" class="mode-btn" data-mode="classic">Classic</button>
-              <button type="button" class="mode-btn" data-mode="half">Half</button>
-              <button type="button" class="mode-btn" data-mode="vowel">Vowel anchor</button>
-              <button type="button" class="mode-btn" data-mode="dim">Low distraction</button>
-              <button type="button" class="mode-btn" data-mode="rules">Custom rule</button>
-            </div>
-
-            <div class="intensity">
-              <label for="demo-intensity">Intensity</label>
-              <input type="range" id="demo-intensity" min="0.2" max="0.9" step="0.05" value="0.5">
-              <output id="demo-intensity-value" for="demo-intensity">0.50</output>
-            </div>
-
-            <button type="button" class="mode-btn mode-btn-off" id="demo-toggle" aria-pressed="false">Turn it off</button>
+  <section class="section section--tight" id="demo" aria-labelledby="demo-title">
+    <div class="container">
+      <h2 id="demo-title" hidden>Live demo</h2>
+      <div class="bdemo">
+        <div class="bdemo__head">
+          <p class="bdemo__title">live · runs the extension's own algorithm</p>
+          <div class="bdemo__tools">
+            <ul class="mchips" id="demo-modes" aria-label="Reading mode"></ul>
+            <label class="rx">
+              <span class="rx__name">intensity</span>
+              <input type="range" id="intensity" min="20" max="90" value="50">
+              <output for="intensity">0.5</output>
+            </label>
           </div>
-
-          <p class="demo-text" id="demo-text">A fixation point gives the eye a place to land before it moves on. When the start of a word carries more visual weight, the rest of the word can be recognized with less effort. The effect is personal, and the research is mixed, so the best test is your own reading.</p>
-
-          <p class="demo-hint">Intensity applies to Classic and Low distraction.</p>
+        </div>
+        <div class="bdemo__body">
+          <div class="bdemo__pane">
+            <label class="bdemo__label" for="demo-src">Source</label>
+            <textarea class="input" id="demo-src" spellcheck="false">Reading is a sequence of small jumps. The eye lands on a word, takes in enough to recognise it, then moves on. A fixation point at the start of a word gives that landing a predictable place. When the leading letters carry more weight, the rest of the word is easier to infer, and the line keeps its rhythm.</textarea>
+          </div>
+          <div class="bdemo__pane">
+            <p class="bdemo__label">Bionic</p>
+            <p class="bdemo__out bionic" id="demo-out"></p>
+          </div>
+        </div>
+        <div class="bdemo__foot">
+          <span class="bdemo__stat" id="stat-words">0 words</span>
+          <span class="bdemo__stat" id="stat-chars">0 characters emphasized</span>
+          <span class="bdemo__stat" id="stat-mode">mode: half</span>
+          <span class="bdemo__stat">runs offline — nothing is sent anywhere</span>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- 4. How it works -->
-    <section class="section section-soft" id="how" aria-labelledby="how-title">
-      <div class="wrap">
-        <h2 id="how-title">How it works</h2>
-        <ol class="steps">
-          <li class="card step">
-            <span class="step-num" aria-hidden="true">1</span>
-            <h3>Install the extension</h3>
-            <p>Add it from the Chrome Web Store or Firefox Add-ons, or load it from source.</p>
-          </li>
-          <li class="card step">
-            <span class="step-num" aria-hidden="true">2</span>
-            <h3>Open any article and click the icon</h3>
-            <p>The toolbar icon applies bionic reading to the readable text on the page.</p>
-          </li>
-          <li class="card step">
-            <span class="step-num" aria-hidden="true">3</span>
-            <h3>Pick a mode and intensity</h3>
-            <p>Choose one of five modes, then set how much of each word is emphasized.</p>
-          </li>
-          <li class="card step">
-            <span class="step-num" aria-hidden="true">4</span>
-            <h3>Toggle per site</h3>
-            <p>Press <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>Y</kbd> from anywhere, or use the floating control in the corner of the page.</p>
-          </li>
-        </ol>
+  <section class="section section--tight" id="compare-section" aria-labelledby="compare-title">
+    <div class="container">
+      <div class="section__head">
+        <h2 id="compare-title">The same paragraph, switched on</h2>
+        <p>Drag the divider, or focus it and use the arrow keys, to reveal the bionic version.</p>
       </div>
-    </section>
-
-    <!-- 5. Modes -->
-    <section class="section" id="modes" aria-labelledby="modes-title">
-      <div class="wrap">
-        <h2 id="modes-title">Five modes, one source</h2>
-        <p class="section-lede">Each mode decides a different part of the word to emphasize. The effect is individual, which is why there is more than one.</p>
-        <div class="grid grid-modes">
-          <article class="card">
-            <h3>Classic</h3>
-            <p>Bold a leading share of each word; intensity controls how much.</p>
-          </article>
-          <article class="card">
-            <h3>Half</h3>
-            <p>Bold the first half of each word, the Bionic Reading default.</p>
-          </article>
-          <article class="card">
-            <h3>Vowel anchor</h3>
-            <p>Bold up to the first vowel group; suited to many languages.</p>
-          </article>
-          <article class="card">
-            <h3>Low distraction</h3>
-            <p>Bold the prefix and fade the rest of the word.</p>
-          </article>
-          <article class="card">
-            <h3>Custom rule</h3>
-            <p>Per-length character counts plus a fraction for longer words.</p>
-          </article>
+      <div class="compare" id="compare" role="slider" tabindex="0" aria-label="Reveal the bionic version of the paragraph" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+        <p class="compare__text">The eye lands on a word, takes in enough to recognise it, then moves on to the next one in the line.</p>
+        <div class="compare__top">
+          <p class="compare__text bionic" id="compare-bionic" data-bionic-sample="half">The eye lands on a word, takes in enough to recognise it, then moves on to the next one in the line.</p>
         </div>
+        <span class="compare__knob" aria-hidden="true"></span>
+        <span class="compare__grip" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 24 24" focusable="false"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"></path></svg>
+        </span>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- 6. Install -->
-    <section class="section section-soft" id="install" aria-labelledby="install-title">
-      <div class="wrap">
-        <h2 id="install-title">Install</h2>
-        <div class="grid grid-3">
-          <article class="card">
-            <h3>Chrome Web Store</h3>
-            <p>Install in Chrome or another Chromium browser, then pin the toolbar icon. Manifest V3 with a service worker background.</p>
-            <a class="btn btn-primary" href="#" data-store="chrome">Add to Chrome</a>
-            <p class="store-note">Store link goes here.</p>
-          </article>
-          <article class="card">
-            <h3>Firefox Add-ons</h3>
-            <p>Install from addons.mozilla.org. The same source builds a Firefox target with an event-page background.</p>
-            <a class="btn btn-primary" href="#" data-store="firefox">Add to Firefox</a>
-            <p class="store-note">Store link goes here.</p>
-          </article>
-          <article class="card">
-            <h3>Load from source</h3>
-            <p>Build both targets locally and load them as unpacked extensions.</p>
-            <ol class="build-steps">
-              <li><code>bun install</code></li>
-              <li><code>bun run build</code></li>
-              <li>Load <code>dist/chrome</code> unpacked via <code>chrome://extensions</code>.</li>
-              <li>Load <code>dist/firefox</code> temporary via <code>about:debugging</code>.</li>
-            </ol>
-            <p><a href="../README.md">Read the setup guide</a></p>
-          </article>
-        </div>
+  <div class="container"><hr class="fxrule"></div>
+
+  <section class="section" id="modes" aria-labelledby="modes-title">
+    <div class="container">
+      <div class="section__head">
+        <h2 id="modes-title">Five reading modes</h2>
+        <p>Each mode decides a different part of the word to emphasize. The effect is individual, which is why there is more than one.</p>
       </div>
-    </section>
+      <ul class="tiles">
+        <li class="tile">
+          <p class="tile__name"><span class="tile__dot" aria-hidden="true"></span>Classic</p>
+          <p class="tile__sample bionic" data-bionic-sample="classic">Fixation anchors the eye at the start of each word.</p>
+          <p class="tile__note">Bold a leading share of each word; intensity controls how much.</p>
+        </li>
+        <li class="tile">
+          <p class="tile__name"><span class="tile__dot" aria-hidden="true"></span>Half</p>
+          <p class="tile__sample bionic" data-bionic-sample="half">Fixation anchors the eye at the start of each word.</p>
+          <p class="tile__note">Bold the first half of each word, the Bionic Reading default.</p>
+        </li>
+        <li class="tile">
+          <p class="tile__name"><span class="tile__dot" aria-hidden="true"></span>Vowel anchor</p>
+          <p class="tile__sample bionic" data-bionic-sample="vowel">Fixation anchors the eye at the start of each word.</p>
+          <p class="tile__note">Bold up to the first vowel group; suited to many languages.</p>
+        </li>
+        <li class="tile">
+          <p class="tile__name"><span class="tile__dot" aria-hidden="true"></span>Low distraction</p>
+          <p class="tile__sample bionic" data-bionic-sample="dim">Fixation anchors the eye at the start of each word.</p>
+          <p class="tile__note">Bold the prefix and fade the rest of the word.</p>
+        </li>
+        <li class="tile">
+          <p class="tile__name"><span class="tile__dot" aria-hidden="true"></span>Custom rule</p>
+          <p class="tile__sample bionic" data-bionic-sample="rules">Fixation anchors the eye at the start of each word.</p>
+          <p class="tile__note">Per-length character counts plus a fraction for longer words.</p>
+        </li>
+      </ul>
+      <p><a href="modes.html">Read what each mode emphasizes</a></p>
+    </div>
+  </section>
 
-    <!-- 7. Privacy -->
-    <section class="section privacy" id="privacy" aria-labelledby="privacy-title">
-      <div class="wrap">
+  <section class="section" id="safe" aria-labelledby="safe-title">
+    <div class="container">
+      <div class="section__head">
+        <h2 id="safe-title">Safe by construction</h2>
+        <p>The rewrite is a local pass over text nodes. It is gated so it cannot touch the parts of a page that must not change.</p>
+      </div>
+      <div class="grid grid--2">
+        <article class="card">
+          <h3>What it never touches</h3>
+          <ul>
+            <li><code>script</code>, <code>style</code>, <code>code</code>, and <code>pre</code></li>
+            <li>Form fields, <code>contenteditable</code>, and math</li>
+            <li>SVG, navigation, buttons, and toolbar or menu roles</li>
+            <li>Anything marked <code>data-bionic="off"</code> or <code>aria-hidden="true"</code></li>
+          </ul>
+          <p>It also skips URLs, email addresses, and long unbroken runs.</p>
+        </article>
+        <article class="card">
+          <h3>What it does handle</h3>
+          <ul>
+            <li>Single-page apps and infinite scroll, through a <code>MutationObserver</code></li>
+            <li>Text a framework replaces inside an existing paragraph</li>
+            <li>Text inside open shadow roots (web components)</li>
+          </ul>
+          <p>Turning it off restores the original text nodes exactly; a test compares <code>innerHTML</code> before and after.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="numbers" aria-labelledby="numbers-title">
+    <div class="container">
+      <div class="section__head">
+        <h2 id="numbers-title">Numbers from the repository</h2>
+        <p>Everything here is measured or counted in the project, not estimated for the page.</p>
+      </div>
+      <ul class="metrics">
+        <li class="metric"><span class="metric__n">127</span><span class="metric__k">tests across 13 files</span></li>
+        <li class="metric"><span class="metric__n">10/10</span><span class="metric__k">e2e checks in real Chrome</span></li>
+        <li class="metric"><span class="metric__n">0</span><span class="metric__k">web-ext lint errors and warnings</span></li>
+        <li class="metric"><span class="metric__n">180k–230k</span><span class="metric__k">words per second, measured throughput</span></li>
+        <li class="metric"><span class="metric__n">5</span><span class="metric__k">reading modes</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="privacy" aria-labelledby="privacy-title">
+    <div class="container">
+      <div class="section__head">
         <h2 id="privacy-title">Privacy</h2>
-        <p>
-          Bionic Page makes no network requests and has no analytics, accounts, or
-          telemetry. Your settings are the only thing stored, and they stay in the
-          browser's own storage. Because the rewrite runs on your machine, the
-          extension requests host access to read page text locally; nothing is sent
-          anywhere. Removing the extension removes the data.
-        </p>
       </div>
-    </section>
-
-    <!-- 8. Honest science note -->
-    <section class="section" aria-labelledby="science-title">
-      <div class="wrap">
-        <h2 id="science-title">An honest note on the science</h2>
-        <figure class="science">
-          <blockquote>
-            A 2025 study found that bolding the first half of each word slowed
-            reading and increased fixations versus plain text; other eye-tracking
-            work reports mixed, condition-dependent effects.
-          </blockquote>
-        </figure>
-        <p>
-          Bionic Page does not claim a speed-reading benefit. It offers configurable
-          visual anchoring, and you should judge it on your own reading.
-          <a href="../RESEARCH.md">Read the research notes</a>.
-        </p>
+      <div class="prose">
+        <p>bionic-page makes no network requests and has no analytics, accounts, or telemetry. Your settings are the only thing stored, and they stay in the browser's own storage. Because the rewrite runs on your machine, the extension requests host access to read page text locally; nothing is sent anywhere, and removing the extension removes the settings.</p>
+        <p><a href="privacy.html">Read the full privacy page</a>, including why <code>&lt;all_urls&gt;</code> is required and which source files you can read to verify it.</p>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- 9. FAQ -->
-    <section class="section section-soft" id="faq" aria-labelledby="faq-title">
-      <div class="wrap">
-        <h2 id="faq-title">FAQ</h2>
-        <div class="faq">
-          <details>
-            <summary>Is it free?</summary>
-            <p>Yes. Bionic Page is open source under the MIT license.</p>
-          </details>
-          <details>
-            <summary>Does it work on PDFs or canvas?</summary>
-            <p>No. Text inside PDFs, canvas, and most specialized viewers is not in the page DOM, so it cannot be rewritten safely. It works on normal HTML text.</p>
-          </details>
-          <details>
-            <summary>Will it break sites?</summary>
-            <p>It skips scripts, code, editors, math, SVG, and anything marked <code>data-bionic="off"</code>. Toggling off restores the original text nodes exactly.</p>
-          </details>
-          <details>
-            <summary>Is it accessible?</summary>
-            <p>Every control is a native, labelled element. Emphasis is visual only, Low distraction changes opacity instead of weight, and the master toggle turns everything off. Screen readers may still announce emphasized text, depending on the reader.</p>
-          </details>
-          <details>
-            <summary>Does it slow pages down?</summary>
-            <p>The rewrite is a local pass over text nodes. Dynamic pages are handled with a batched MutationObserver, so the cost stays small.</p>
-          </details>
-          <details>
-            <summary>Does it work in Chrome and Firefox?</summary>
-            <p>Yes. One TypeScript source tree builds both targets with a generated per-engine manifest.</p>
-          </details>
-          <details>
-            <summary>Can I turn it off per site?</summary>
-            <p>Yes. Per-site overrides are evaluated last match wins, and there is a master toggle on top of them.</p>
-          </details>
-          <details>
-            <summary>Does it read my data?</summary>
-            <p>No data leaves your machine. There are no network requests, no analytics, and no accounts.</p>
-          </details>
+  <section class="section" id="install" aria-labelledby="install-title">
+    <div class="container">
+      <div class="section__head">
+        <h2 id="install-title">Build it from source</h2>
+        <p>Store listings are not published yet. Both targets build from one source tree.</p>
+      </div>
+      <div class="install">
+        <code class="install__cmd">git clone https://github.com/srivtx/bionic-page</code>
+      </div>
+      <div class="install">
+        <code class="install__cmd">cd bionic-page &amp;&amp; bun install</code>
+      </div>
+      <div class="install">
+        <code class="install__cmd">bun run build</code>
+      </div>
+      <p class="install__note">Chrome or Edge: <code>chrome://extensions</code> → enable Developer mode → Load unpacked → select <code>dist/chrome</code>. Firefox: <code>about:debugging</code> → This Firefox → Load Temporary Add-on → select <code>dist/firefox/manifest.json</code>.</p>
+      <p class="install__note">Toggle the page you are on with <kbd class="keycap">Ctrl/Cmd + Shift + Y</kbd>, the popup, or the floating control.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <span class="brand__mark" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 24 24" focusable="false"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect> <path d="M7.4 12h4.6"></path> <path d="M12 12h4.6" stroke-opacity=".4"></path></svg>
+        </span>
+        <div>
+          <p>bionic-page</p>
+          <p class="muted">Turn any web page into a bionic reading page.</p>
         </div>
       </div>
-    </section>
-  </main>
 
-  <!-- 10. Footer -->
-  <footer class="site-footer">
-    <div class="wrap footer-inner">
-      <div>
-        <a class="wordmark" href="#top" aria-label="Bionic Page"><b>Bi</b>onic <b>Pa</b>ge</a>
-        <p class="footer-line">MIT licensed. Built from one source tree for Chrome and Firefox.</p>
-        <p class="footer-line small">"Bionic Reading" is a trademark of Bionic Reading GmbH; this project is not affiliated with or endorsed by it.</p>
-      </div>
-      <nav class="footer-links" aria-label="Footer">
-        <a href="#">GitHub</a>
-        <a href="#">Source</a>
-        <a href="how-to.html">How to use</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="../RESEARCH.md">Research notes</a>
+      <nav aria-label="Pages">
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="how-to.html">How to use</a></li>
+          <li><a href="modes.html">Modes</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-label="Project">
+        <h2>Project</h2>
+        <ul>
+          <li><a href="https://github.com/srivtx/bionic-page">Repository</a></li>
+          <li><a href="https://github.com/srivtx/bionic-page/blob/main/LICENSE">MIT license</a></li>
+          <li><a href="https://github.com/srivtx/bionic-page/issues">Issues</a></li>
+          <li><a href="https://srivtx.github.io/lenses">Lenses suite</a></li>
+        </ul>
       </nav>
     </div>
-  </footer>
 
-  <script src="app.js"></script>
+    <div class="footer__meta">
+      <p>by svx · MIT licensed.</p>
+      <p>© 2026 bionic-page</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/core.js"></script>
+<script src="assets/demo.js"></script>
 </body>
 </html>

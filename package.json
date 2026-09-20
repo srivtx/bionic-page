@@ -16,7 +16,11 @@
     "e2e": "bun scripts/e2e.mjs",
     "bench": "bun scripts/bench.ts",
     "lint:firefox": "web-ext lint --source-dir dist/firefox",
-    "package": "node scripts/package.mjs"
+    "package": "node scripts/package.mjs",
+    "demo": "node scripts/build-demo.mjs",
+    "og": "node scripts/make-og.mjs",
+    "check-site": "node scripts/check-site.mjs",
+    "site": "node scripts/build-demo.mjs && node scripts/make-og.mjs && node scripts/check-site.mjs"
   },
   "devDependencies": {
     "@types/bun": "^1.4.2",

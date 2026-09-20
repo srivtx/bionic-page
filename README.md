@@ -19,7 +19,7 @@ modes, per-site control, a fully reversible transform, and no network.
 [![Chrome](https://img.shields.io/badge/Chrome-116%2B-4285F4?logo=googlechrome&logoColor=white)](https://www.google.com/chrome/)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-4f46e5)](#contributing)
 
-[Features](#features) · [Modes](#modes) · [Install](#install) · [Usage](#usage) ·
+[Website](https://srivtx.github.io/bionic-page) · [Features](#features) · [Modes](#modes) · [Install](#install) · [Usage](#usage) ·
 [Architecture](#architecture) · [Development](#development) · [Testing](#testing) ·
 [Privacy](#privacy) · [FAQ](#faq)
 
