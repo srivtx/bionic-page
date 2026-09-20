@@ -305,13 +305,21 @@ html[data-fixation="off"] span.bp-tail {
 
 /* ── Terminal state of the wipe ───────────────────────────────────────────
    The retract animation only lives while .is-writing, so the moment it is
-   replaced by .is-written the plain layer loses its clip and comes back at
-   full opacity underneath the fixation layer. Every faded tail then sits on
-   an opaque copy of the same glyph, which reads as a shadow behind the text.
-   Hold the clip in the finished state; clip-path keeps the layout box, so
-   the headline still occupies its height. */
+   replaced by .is-written the plain layer would come back at full opacity
+   underneath the fixation layer, putting every faded tail on an opaque copy
+   of its own glyph. Worse, both copies stayed in the document, so the
+   sentence was in the DOM twice.
+
+   So the finished state promotes the fixation layer to be the real, in-flow
+   text and drops the "before" copy entirely. No shadow, no duplicate text,
+   and the headline still occupies its height. */
+.hero__title.is-written .hero__title-fix {
+  position: static;
+  clip-path: none;
+}
+
 .hero__title.is-written .hero__title-plain {
-  clip-path: inset(0 0 0 100%);
+  display: none;
 }
 
 /* ── Footer art: the word, split ──────────────────────────────────────────
