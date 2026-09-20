@@ -100,7 +100,7 @@
   });
 
   /* ---- Hero ------------------------------------------------------------- */
-  var hero = $("hero-title");
+  var hero = $("hero-title-fix");
   if (hero) {
     /* "dim" is the mode that wraps the remainder in span.bp-tail, so the
        fixation head and the faded tail are both visible at poster size.

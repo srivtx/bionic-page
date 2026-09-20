@@ -1,0 +1,311 @@
+/* bionic-page — identity.
+   The shared bionic system (fixation text, demo panel, reader, tiles) lives in
+   theme.css. This file is what makes *this* site itself and not its sibling:
+   an indigo accent, a headline that is written into place by a caret, a field
+   of emphasis breathing behind it, and a floating control that really does
+   switch the effect off. bionic-docs uses teal, a descending highlight and
+   paper — no element is shared between the two identities. */
+
+:root {
+  --accent: #4f46e5;
+  --accent-ink: #ffffff;
+  /* Used only by .swash, so the pair never reads as the same tool. */
+  --swash: #c026d3;
+}
+
+[data-theme="dark"] {
+  --accent: #818cf8;
+  --accent-ink: #0a0a0a;
+  --swash: #e879f9;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --accent: #818cf8;
+    --accent-ink: #0a0a0a;
+    --swash: #e879f9;
+  }
+}
+
+/* ── Hero: the headline is written, then it is fixed ──────────────────────
+   Two stacked copies of the same sentence. The lower one is the page before
+   the extension runs (muted, no emphasis). The upper one is the painted
+   fixation layer, revealed left to right by a wipe with a caret riding its
+   edge — the effect happening rather than described. */
+.hero--page .hero__glow {
+  background:
+    radial-gradient(52% 62% at 6% 4%, var(--accent-soft), transparent 66%),
+    radial-gradient(40% 40% at 88% 76%, color-mix(in srgb, var(--swash) 9%, transparent), transparent 70%);
+}
+
+.hero__title {
+  position: relative;
+  display: block;
+}
+
+.hero__title-plain {
+  display: block;
+  color: var(--mute);
+}
+
+.hero__title-fix {
+  position: absolute;
+  inset: 0;
+  display: block;
+  clip-path: inset(0 100% 0 0);
+}
+
+.hero__title.is-writing .hero__title-fix {
+  animation: bp-write 2.4s var(--ease) 120ms both;
+}
+
+.hero__title.is-written .hero__title-fix {
+  clip-path: none;
+}
+
+@keyframes bp-write {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Rides the wipe edge. Travel distance is measured in JS (--caret-w) so the
+   caret and the clip edge use one timing function and stay locked. */
+.hero__caret {
+  position: absolute;
+  top: 0.08em;
+  bottom: 0.08em;
+  left: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--swash);
+  opacity: 0;
+}
+
+.hero__title.is-writing .hero__caret {
+  animation: bp-caret 2.4s var(--ease) 120ms both, bp-blink 0.9s steps(1) 120ms 4;
+}
+
+.hero__title.is-written .hero__caret {
+  display: none;
+}
+
+@keyframes bp-caret {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(var(--caret-w, 100%));
+    opacity: 1;
+  }
+}
+
+@keyframes bp-blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+
+/* ── Generative art ───────────────────────────────────────────────────────
+   Canvas layers drawn by assets/art.js. The hero field is a dense grid of
+   split dashes under a travelling emphasis wave; the footer is one endless
+   paragraph with a caret reading it. */
+.art {
+  display: block;
+  width: 100%;
+}
+
+.art--hero {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  height: 100%;
+}
+
+.art--footer {
+  height: clamp(132px, 17vw, 188px);
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+/* ── Swash ────────────────────────────────────────────────────────────────
+   A half-height highlight behind a phrase, the way a reader marks a line. */
+.swash {
+  background-image: linear-gradient(
+    transparent 62%,
+    color-mix(in srgb, var(--swash) 26%, transparent) 62%
+  );
+  padding-inline: 0.08em;
+}
+
+/* ── Floating control ─────────────────────────────────────────────────────
+   The extension's own floating control, made real: it drags, it remembers
+   where you put it, and pressing it turns fixation off across the page —
+   which is the reversibility claim, demonstrated. */
+.bpfloat {
+  position: fixed;
+  right: var(--s-4);
+  bottom: var(--s-4);
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  background: var(--canvas);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  cursor: grab;
+  touch-action: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.bpfloat:hover {
+  border-color: var(--ink);
+}
+
+.bpfloat:active {
+  cursor: grabbing;
+}
+
+.bpfloat__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: background var(--dur) var(--ease);
+}
+
+.bpfloat[aria-pressed="false"] .bpfloat__dot {
+  background: var(--hairline-strong);
+}
+
+/* Off means off: the emphasis is removed, the text is what it always was. */
+html[data-fixation="off"] .bionic b,
+html[data-fixation="off"] b.bp-head {
+  font-weight: 400;
+}
+
+html[data-fixation="off"] .bionic i,
+html[data-fixation="off"] span.bp-tail {
+  opacity: 1;
+}
+
+@media (max-width: 520px) {
+  .bpfloat {
+    right: var(--s-3);
+    bottom: var(--s-3);
+    padding: 8px 12px;
+  }
+
+  .art--footer {
+    height: 112px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__title-fix {
+    clip-path: none;
+  }
+
+  .hero__title.is-writing .hero__title-fix,
+  .hero__title.is-writing .hero__caret {
+    animation: none;
+  }
+
+  .hero__caret {
+    display: none;
+  }
+}
+
+/* The floating control's parts (built in JS, styled here so check-site sees
+   them) and its dragged state. */
+.bpfloat__label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.bpfloat--placed {
+  right: auto;
+  bottom: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bpfloat {
+    transition: none;
+  }
+}
+
+/* The field is loudest in the top-right and cleared away from the copy, so
+   it reads as texture rather than competing with the headline. */
+.art--hero {
+  -webkit-mask-image: radial-gradient(
+    122% 104% at 86% 8%,
+    #000 0%,
+    rgba(0, 0, 0, 0.42) 44%,
+    transparent 76%
+  );
+  mask-image: radial-gradient(
+    122% 104% at 86% 8%,
+    #000 0%,
+    rgba(0, 0, 0, 0.42) 44%,
+    transparent 76%
+  );
+}
+
+/* The plain layer retracts as the fixation layer advances, so the two never
+   stack. It also keeps its layout box (clip-path does not affect layout),
+   which is what gives the headline its height. */
+.hero__title.is-writing .hero__title-plain {
+  animation: bp-unwrite 2.4s var(--ease) 120ms both;
+}
+
+@keyframes bp-unwrite {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No wipe: show the fixed layer, keep the plain one as an invisible
+     spacer so the headline still occupies its height. */
+  .hero__title-plain {
+    opacity: 0;
+  }
+
+  .hero__title.is-writing .hero__title-plain {
+    animation: none;
+  }
+}
+
+/* ── Hero headline: one metric, two states ────────────────────────────────
+   The two stacked copies must lay out identically or they ghost against each
+   other while the wipe runs. So both keep the same weight, and the fixation
+   head is expressed with a stroke instead of a weight change — stroke does
+   not affect advance widths. The plain layer stays a uniform muted copy. */
+.hero__title b,
+.hero__title .bp-head {
+  font-weight: inherit;
+  -webkit-text-stroke: 1.05px currentColor;
+  paint-order: stroke fill;
+}
+
+.hero__title .bp-tail,
+.hero__title i {
+  opacity: 0.45;
+  -webkit-text-stroke: 0;
+}

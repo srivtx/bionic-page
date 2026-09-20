@@ -1,0 +1,417 @@
+/*
+ * bionic-page — art and interaction.
+ *
+ * Two canvas pieces and one real control, all offline and all cheap:
+ *
+ *   .art--hero    a dense field of split dashes (a page of words) with an
+ *                 emphasis wave travelling through it.
+ *   .art--footer  one endless paragraph with a caret reading across it; the
+ *                 words behind the caret are fixed, the words ahead are not.
+ *   .bpfloat      the extension's floating control, made real. Drag it, press
+ *                 it, and fixation turns off across the whole page.
+ *
+ * Everything is colour-read from the design tokens, so light and dark both
+ * work, and every animation is disabled under prefers-reduced-motion.
+ */
+(function () {
+  "use strict";
+
+  var reduce = false;
+  try {
+    reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch (err) {
+    /* matchMedia is always present in supported browsers; ignore if not. */
+  }
+
+  /* ---- colour ---------------------------------------------------------- */
+
+  function parseColor(value) {
+    var v = String(value || "").trim();
+    var hex = v.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (hex) {
+      var h = hex[1];
+      if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+      return [
+        parseInt(h.slice(0, 2), 16),
+        parseInt(h.slice(2, 4), 16),
+        parseInt(h.slice(4, 6), 16),
+      ];
+    }
+    var rgb = v.match(/^rgba?\(([^)]+)\)$/i);
+    if (rgb) {
+      var parts = rgb[1].split(/[,\s/]+/).filter(Boolean);
+      return [Number(parts[0]) || 0, Number(parts[1]) || 0, Number(parts[2]) || 0];
+    }
+    return null;
+  }
+
+  function rgba(value, alpha) {
+    var c = parseColor(value);
+    if (!c) return "rgba(0,0,0," + alpha + ")";
+    return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + alpha + ")";
+  }
+
+  function tokens() {
+    var cs = getComputedStyle(document.documentElement);
+    function read(name, fallback) {
+      var v = cs.getPropertyValue(name).trim();
+      return v || fallback;
+    }
+    return {
+      accent: read("--accent", "#4f46e5"),
+      swash: read("--swash", "#c026d3"),
+      ink: read("--ink", "#0a0a0a"),
+      mute: read("--mute", "#71717a"),
+    };
+  }
+
+  /* ---- deterministic noise --------------------------------------------
+     A tiny integer hash, so every reload draws the same field instead of
+     flickering into a different one. */
+
+  function hash(n) {
+    var x = Math.imul(n ^ 0x9e3779b9, 0x85ebca6b);
+    x ^= x >>> 13;
+    x = Math.imul(x, 0xc2b2ae35);
+    x ^= x >>> 16;
+    return (x >>> 0) / 4294967296;
+  }
+
+  /* ---- canvas harness --------------------------------------------------- */
+
+  function mint(canvas, paint) {
+    var ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = 0;
+    var h = 0;
+    var palette = tokens();
+    var t = 0;
+    var raf = 0;
+    var last = 0;
+    var visible = true;
+    var alive = true;
+
+    function resize() {
+      var rect = canvas.getBoundingClientRect();
+      w = Math.max(1, Math.round(rect.width));
+      h = Math.max(1, Math.round(rect.height));
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      palette = tokens();
+      if (reduce) paint(ctx, w, h, 6, palette);
+    }
+
+    function step(now) {
+      if (!alive) return;
+      if (visible && !document.hidden) {
+        /* ~30fps is plenty for a slow wave and leaves the main thread free. */
+        if (now - last >= 32) {
+          last = now;
+          t += 1 / 30;
+          paint(ctx, w, h, t, palette);
+        }
+      }
+      raf = window.requestAnimationFrame(step);
+    }
+
+    resize();
+
+    if (reduce) {
+      window.addEventListener("resize", resize, { passive: true });
+      return;
+    }
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(
+        function (entries) {
+          visible = entries[0] ? entries[0].isIntersecting : true;
+        },
+        { rootMargin: "120px" },
+      ).observe(canvas);
+    }
+
+    window.addEventListener("resize", resize, { passive: true });
+    window.addEventListener(
+      "themechange",
+      function () {
+        palette = tokens();
+      },
+      { passive: true },
+    );
+    raf = window.requestAnimationFrame(step);
+  }
+
+  /* ---- hero: a page of words, under an emphasis wave -------------------- */
+
+  function field(ctx, w, h, t, p) {
+    ctx.clearRect(0, 0, w, h);
+
+    var cellW = 30;
+    var cellH = 18;
+    var cols = Math.ceil(w / cellW) + 1;
+    var rows = Math.ceil(h / cellH) + 1;
+    var cx = w * 0.3;
+    var cy = h * 0.42;
+    var cx2 = w * 0.86 - Math.cos(t * 0.32) * w * 0.1;
+    var cy2 = h * 0.7 + Math.sin(t * 0.27) * h * 0.14;
+
+    for (var row = 0; row < rows; row++) {
+      for (var col = 0; col < cols; col++) {
+        var i = row * cols + col;
+        var r1 = hash(i * 2 + 1);
+        var r2 = hash(i * 2 + 977);
+        var x = col * cellW + 6;
+        var y = row * cellH + 6;
+        var full = cellW - 12;
+        var len = full * (0.45 + r1 * 0.55);
+        var head = len * (0.3 + r2 * 0.34);
+
+        /* Two wave sources, so the field never repeats in an obvious way. */
+        var d1 = Math.hypot(x - cx, y - cy);
+        var d2 = Math.hypot(x - cx2, y - cy2);
+        var pulse =
+          0.5 +
+          0.5 * Math.sin(d1 / 46 - t * 1.15) * (0.62 + 0.38 * Math.sin(d2 / 61 - t * 0.7));
+
+        /* Deliberately quiet: this sits behind a headline, so it reads as
+           paper texture with a pulse in it, never as content to look at. */
+        var accent = pulse > 0.93 && r2 > 0.78;
+        var headAlpha = 0.05 + 0.2 * Math.max(0, pulse);
+        var tailAlpha = 0.022 + 0.05 * (1 - pulse);
+
+        ctx.fillStyle = rgba(accent ? p.swash : p.ink, tailAlpha);
+        ctx.fillRect(x + head, y, Math.max(1, len - head), 2);
+
+        ctx.fillStyle = rgba(accent ? p.swash : p.ink, headAlpha);
+        ctx.fillRect(x, y, Math.max(1, head), 2);
+      }
+    }
+  }
+
+  /* ---- footer: one endless paragraph, read by a caret ------------------ */
+
+  function prose(ctx, w, h, t, p) {
+    ctx.clearRect(0, 0, w, h);
+
+    var pad = 18;
+    var lineH = 17;
+    var gap = 7;
+    var rows = Math.max(1, Math.floor((h - pad * 2) / lineH));
+    var maxW = w - pad * 2;
+
+    /* One pass of the caret takes about six seconds. */
+    var cycle = 6.4;
+    var phase = (t % cycle) / cycle;
+    var sweep = pad + maxW * phase;
+
+    for (var row = 0; row < rows; row++) {
+      var y = pad + row * lineH;
+      var x = pad + (row % 3 === 1 ? 10 : 0);
+      var n = 0;
+      while (x < pad + maxW) {
+        var i = row * 131 + n;
+        var r = hash(i * 3 + 7);
+        var wordW = 10 + r * 26;
+        if (x + wordW > pad + maxW) break;
+
+        var mid = x + wordW / 2;
+        var fixed = mid < sweep;
+        var head = wordW * (0.34 + hash(i * 5 + 11) * 0.26);
+
+        if (fixed) {
+          ctx.fillStyle = rgba(p.ink, 0.5);
+          ctx.fillRect(x + head, y, Math.max(1, wordW - head), 2);
+          ctx.fillStyle = rgba(p.ink, 0.92);
+          ctx.fillRect(x, y, Math.max(1, head), 2);
+        } else {
+          ctx.fillStyle = rgba(p.mute, 0.2);
+          ctx.fillRect(x, y, wordW, 2);
+        }
+
+        x += wordW + gap;
+        n++;
+      }
+    }
+
+    /* The caret itself, fading at the turn of each pass. */
+    var edge = Math.min(1, Math.min(phase, 1 - phase) * 14);
+    ctx.fillStyle = rgba(p.accent, 0.85 * edge);
+    ctx.fillRect(Math.round(sweep), pad - 6, 2, h - pad * 2 + 12);
+  }
+
+  /* ---- the floating control -------------------------------------------- */
+
+  var KEY_FIX = "bionic-page-fixation";
+  var KEY_POS = "bionic-page-float";
+
+  function store(key, value) {
+    try {
+      if (value === undefined) return window.localStorage.getItem(key);
+      if (value === null) window.localStorage.removeItem(key);
+      else window.localStorage.setItem(key, value);
+    } catch (err) {
+      /* private mode: the control still works, it just will not remember. */
+    }
+    return null;
+  }
+
+  function setFixation(on) {
+    document.documentElement.setAttribute("data-fixation", on ? "on" : "off");
+    store(KEY_FIX, on ? null : "off");
+    var btn = document.querySelector(".bpfloat");
+    if (btn) {
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.setAttribute(
+        "aria-label",
+        on ? "Turn bionic emphasis off on this page" : "Turn bionic emphasis on",
+      );
+    }
+  }
+
+  function floatingControl() {
+    if (document.querySelector(".bpfloat")) return;
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "bpfloat";
+    btn.setAttribute("aria-pressed", "true");
+    btn.setAttribute("aria-label", "Turn bionic emphasis off on this page");
+
+    var dot = document.createElement("span");
+    dot.className = "bpfloat__dot";
+    dot.setAttribute("aria-hidden", "true");
+
+    var label = document.createElement("span");
+    label.className = "bpfloat__label";
+    label.textContent = "Bp";
+
+    btn.appendChild(dot);
+    btn.appendChild(label);
+    document.body.appendChild(btn);
+
+    var saved = store(KEY_POS);
+    if (saved) {
+      try {
+        var pos = JSON.parse(saved);
+        if (typeof pos.x === "number" && typeof pos.y === "number") {
+          btn.classList.add("bpfloat--placed");
+          btn.style.left = pos.x + "px";
+          btn.style.top = pos.y + "px";
+        }
+      } catch (err) {
+        /* a corrupt entry is not worth anything but a reset. */
+      }
+    }
+
+    var down = null;
+    var moved = false;
+
+    function clamp() {
+      var r = btn.getBoundingClientRect();
+      return {
+        maxX: Math.max(8, window.innerWidth - r.width - 8),
+        maxY: Math.max(8, window.innerHeight - r.height - 8),
+      };
+    }
+
+    btn.addEventListener("pointerdown", function (event) {
+      var rect = btn.getBoundingClientRect();
+      down = { dx: event.clientX - rect.left, dy: event.clientY - rect.top, x: event.clientX, y: event.clientY };
+      moved = false;
+      btn.setPointerCapture(event.pointerId);
+    });
+
+    btn.addEventListener("pointermove", function (event) {
+      if (!down) return;
+      if (Math.abs(event.clientX - down.x) + Math.abs(event.clientY - down.y) > 4) moved = true;
+      if (!moved) return;
+      var limit = clamp();
+      var x = Math.min(limit.maxX, Math.max(8, event.clientX - down.dx));
+      var y = Math.min(limit.maxY, Math.max(8, event.clientY - down.dy));
+      btn.classList.add("bpfloat--placed");
+      btn.style.left = x + "px";
+      btn.style.top = y + "px";
+    });
+
+    function release(event) {
+      if (!down) return;
+      down = null;
+      try {
+        btn.releasePointerCapture(event.pointerId);
+      } catch (err) {
+        /* pointer already released */
+      }
+      if (moved) {
+        var rect = btn.getBoundingClientRect();
+        store(KEY_POS, JSON.stringify({ x: Math.round(rect.left), y: Math.round(rect.top) }));
+      }
+    }
+
+    btn.addEventListener("pointerup", release);
+    btn.addEventListener("pointercancel", release);
+
+    btn.addEventListener("click", function (event) {
+      if (moved) {
+        event.preventDefault();
+        return;
+      }
+      setFixation(document.documentElement.getAttribute("data-fixation") === "off");
+    });
+
+    if (store(KEY_FIX) === "off") setFixation(false);
+  }
+
+  /* ---- boot ------------------------------------------------------------- */
+
+  function headline() {
+    var title = document.querySelector(".hero__title");
+    if (!title) return;
+    var fix = title.querySelector(".hero__title-fix");
+    if (!fix) return;
+
+    function measure() {
+      title.style.setProperty("--caret-w", title.clientWidth + "px");
+    }
+    measure();
+    window.addEventListener("resize", measure, { passive: true });
+
+    if (reduce) {
+      title.classList.add("is-written");
+      return;
+    }
+
+    title.classList.add("is-writing");
+    fix.addEventListener("animationend", function () {
+      title.classList.remove("is-writing");
+      title.classList.add("is-written");
+    });
+  }
+
+  function boot() {
+    var hero = document.querySelector(".art--hero");
+    if (hero) mint(hero, field);
+    var footer = document.querySelector(".art--footer");
+    if (footer) mint(footer, prose);
+    headline();
+    floatingControl();
+  }
+
+  /* The theme toggle is a plain attribute flip, so mirror it as an event the
+     canvases can listen for instead of polling the computed style. */
+  var themeButton = document.getElementById("theme-toggle");
+  if (themeButton) {
+    themeButton.addEventListener("click", function () {
+      window.setTimeout(function () {
+        window.dispatchEvent(new Event("themechange"));
+      }, 0);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
