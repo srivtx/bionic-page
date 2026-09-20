@@ -215,6 +215,41 @@ test("rule 6: classic mode follows intensity, always at least 1", () => {
   expect(boldLength("at", opt({ mode: "classic", intensity: 0.2, minWordLength: 2 }))).toBe(1);
 });
 
+// Rule 6b: intensity is a universal multiplier, neutral at the default 0.5.
+// It used to be read only by classic and dim, so dragging the slider in the
+// default (half) mode changed nothing at all.
+test("rule 6b: intensity scales every mode, not only classic", () => {
+  for (const mode of ALL_MODES) {
+    const low = boldLength("strength", opt({ mode, intensity: 0.25 }));
+    const mid = boldLength("strength", opt({ mode, intensity: 0.5 }));
+    const high = boldLength("strength", opt({ mode, intensity: 0.9 }));
+    expect(high).toBeGreaterThanOrEqual(mid);
+    expect(low).toBeLessThanOrEqual(mid);
+    // At least one end must actually move, or the control is doing nothing.
+    expect(low < mid || high > mid).toBe(true);
+  }
+  // And the default is a no-op multiplier: 0.5 leaves each mode untouched.
+  expect(boldLength("abcdefgh", opt({ mode: "half", intensity: 0.5 }))).toBe(4);
+  expect(boldLength("abcdefgh", opt({ mode: "half", intensity: 0.25 }))).toBe(2);
+  expect(boldLength("abcdefgh", opt({ mode: "half", intensity: 0.9 }))).toBe(7);
+  // Integer floor, never zero once the mode asked for something, never past
+  // the end of the word.
+  for (const mode of ALL_MODES) {
+    for (const intensity of [0.2, 0.3, 0.5, 0.7, 0.9]) {
+      const n = boldLength("strength", opt({ mode, intensity }));
+      expect(Number.isInteger(n)).toBe(true);
+      expect(n).toBeLessThanOrEqual(8);
+    }
+  }
+});
+
+// Rule 6c: a mode that legitimately emphasises nothing still may.
+test("rule 6c: intensity never invents emphasis a rule did not ask for", () => {
+  const o = opt({ mode: "rules", rule: "0 1 1 2 0.4", minWordLength: 2 });
+  expect(boldLength("a", o)).toBe(0);
+  expect(boldLength("a", { ...o, intensity: 0.9 })).toBe(0);
+});
+
 // Rule 7: vowel anchors on the first vowel group, >= 1 and <= half + 1.
 test("rule 7: vowel mode emphasizes through the first vowel group", () => {
   expect(boldLength("strength", opt({ mode: "vowel", minWordLength: 2 }))).toBe(4);

@@ -6,7 +6,7 @@
 
 /** Reading modes. Each mode is a different way of deciding what to emphasize. */
 export type ModeId =
-  /** Bold the first `ceil(length * intensity)` characters, min 1. */
+  /** Bold a leading share of each word; the share is `intensity`. */
   | "classic"
   /** Bold exactly the first half of the word (Bionic-Reading default). */
   | "half"
@@ -52,7 +52,12 @@ export interface Settings {
   /** Master switch. When false, nothing is transformed anywhere. */
   enabled: boolean;
   mode: ModeId;
-  /** Fraction of a word to emphasize in [0.2, 0.9]; clamped by core. */
+  /**
+   * Multiplier on how much of each word is emphasized, in [0.2, 0.9].
+   * Neutral at the default 0.5: below it tightens every mode, above it
+   * loosens. Classic and Low distraction read it as `ceil(letters *
+   * intensity)`; every other mode scales its own natural length.
+   */
   intensity: number;
   /** Words shorter than this are never transformed (2..8). */
   minWordLength: number;

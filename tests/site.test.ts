@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { join } from "node:path";
+import { assetVersion, stalePages } from "../scripts/stamp-assets.mjs";
 import {
   describePattern,
   effectiveSettings,
@@ -270,5 +272,31 @@ describe("upsertSiteRule", () => {
     const twice = upsertSiteRule(once, "*://a.example/*", false);
     expect(twice).toEqual(once);
     expect(before).toEqual([{ pattern: "*://a.example/*", enabled: true }]);
+  });
+});
+
+/*
+ * The asset version in the site's query strings has to match the assets it
+ * names. It was hand-maintained once and never moved while the CSS and JS kept
+ * changing, so browsers and the Pages CDN served the old files at the same URL
+ * and a round of fixes was invisible to anyone with a warm cache. This is the
+ * gate that keeps that from happening again.
+ */
+describe("site asset stamp", () => {
+  const site = join(import.meta.dir, "..", "site");
+  const assets = join(site, "assets");
+
+  test("every page references the current assets", () => {
+    expect(stalePages(site, assetVersion(assets))).toEqual([]);
+  });
+
+  test("the stamp is a content hash, not a hand-written number", () => {
+    expect(assetVersion(assets)).toMatch(/^[0-9a-f]{10}$/);
+  });
+
+  test("the stamp changes when an asset changes", () => {
+    const first = assetVersion(assets);
+    expect(first).toBe(assetVersion(assets));
+    expect(first).not.toBe("0000000000");
   });
 });

@@ -333,8 +333,7 @@
     var title = document.querySelector(".hero__title");
     if (!title) return;
     var fix = title.querySelector(".hero__title-fix");
-    var plain = title.querySelector(".hero__title-plain");
-    if (!fix || !plain) return;
+    if (!fix) return;
 
     function measure() {
       title.style.setProperty("--caret-w", title.clientWidth + "px");
@@ -346,20 +345,40 @@
     measure();
     window.addEventListener("resize", measure, { passive: true });
 
-    if (reduce) {
+    if (window.__bionicHeadlineTimer) {
+      clearTimeout(window.__bionicHeadlineTimer);
+      window.__bionicHeadlineTimer = 0;
+    }
+    title.classList.remove("is-writing", "is-written");
+
+    var heads = fix.querySelectorAll("b.bp-head");
+    if (reduce || heads.length === 0) {
       title.classList.add("is-written");
-      plain.remove();
       return;
     }
 
+    /* The wave: the heads thicken in reading order, so the emphasis is a real
+       weight change you can watch arrive rather than a static reveal. The
+       heads are already at the heavy weight here, so the headline is measured
+       in its finished state and that height is reserved — the finished state
+       is the wider one, and without the reservation the page below would jump
+       a line as the emphasis lands. */
+    var span = 420;
+    var step = 55;
+    var total = span + step * Math.max(0, heads.length - 1);
+    var finished = title.getBoundingClientRect().height;
+    if (finished > 0) title.style.minHeight = finished + "px";
+
+    for (var i = 0; i < heads.length; i++) {
+      heads[i].style.setProperty("--i", String(i));
+    }
+    title.style.setProperty("--write", total + "ms");
     title.classList.add("is-writing");
-    fix.addEventListener("animationend", function () {
+    window.__bionicHeadlineTimer = setTimeout(function () {
       title.classList.remove("is-writing");
       title.classList.add("is-written");
-      /* The fixation layer is the real text now, so the "before" copy is
-         removed instead of left in the document saying the same sentence. */
-      plain.remove();
-    });
+      window.__bionicHeadlineTimer = 0;
+    }, total + 120);
   }
 
   function boot() {

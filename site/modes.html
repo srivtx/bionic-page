@@ -22,9 +22,9 @@
 <meta name="twitter:image" content="https://srivtx.github.io/bionic-page/assets/og.png">
 <link rel="canonical" href="https://srivtx.github.io/bionic-page/modes.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%234f46e5%27%2F%3E%3Cg%20transform%3D%27translate(4%204)%27%20fill%3D%27none%27%20stroke%3D%27%23ffffff%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20x%3D%223.2%22%20y%3D%223.2%22%20width%3D%2217.6%22%20height%3D%2217.6%22%20rx%3D%223.6%22%3E%3C%2Frect%3E%20%3Cpath%20d%3D%22M7.4%2012h4.6%22%3E%3C%2Fpath%3E%20%3Cpath%20d%3D%22M12%2012h4.6%22%20stroke-opacity%3D%22.4%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fsvg%3E">
-<link rel="stylesheet" href="assets/lens.css?v=0.3.0">
-<link rel="stylesheet" href="assets/theme.css?v=0.3.0">
-<link rel="stylesheet" href="assets/identity.css?v=0.3.0">
+<link rel="stylesheet" href="assets/lens.css?v=1ef38cc1a3">
+<link rel="stylesheet" href="assets/theme.css?v=1ef38cc1a3">
+<link rel="stylesheet" href="assets/identity.css?v=1ef38cc1a3">
 <script>
 (function () {
   try {
@@ -119,7 +119,7 @@
             </thead>
             <tbody>
               <tr><td><strong>Half</strong></td><td>The first half of each word</td><td>The familiar default</td></tr>
-              <tr><td><strong>Classic</strong></td><td>A share of each word, set by intensity</td><td>Tuning the effect up or down</td></tr>
+              <tr><td><strong>Classic</strong></td><td>A share of each word, set by intensity</td><td>Tuning the effect across every mode</td></tr>
               <tr><td><strong>Vowel anchor</strong></td><td>Up to the first vowel group</td><td>Non-English text, long words</td></tr>
               <tr><td><strong>Low distraction</strong></td><td>Prefix bold, remainder faded</td><td>Busy pages</td></tr>
               <tr><td><strong>Custom rule</strong></td><td>Per-length counts plus a fraction</td><td>Exact control</td></tr>
@@ -132,17 +132,17 @@
           <article class="card stack">
             <h3>Half</h3>
             <p class="bdemo__out bionic" data-bionic-sample="half">Fixation anchors the eye at the start of each word.</p>
-            <p class="muted">Bolds the first half of each word, rounded up, and nothing shorter than two letters. This is the Bionic Reading default and the shipped default mode.</p>
+            <p class="muted">Bolds the first half of each word, rounded up, and nothing shorter than two letters. This is the Bionic Reading default and the shipped default mode; intensity scales the half.</p>
           </article>
           <article class="card stack">
             <h3>Classic</h3>
             <p class="bdemo__out bionic" data-bionic-sample="classic">Fixation anchors the eye at the start of each word.</p>
-            <p class="muted">Bolds <code>ceil(letters × intensity)</code> characters, with a minimum of one. The intensity slider, from 0.2 to 0.9, only changes this mode and Low distraction.</p>
+            <p class="muted">Bolds <code>ceil(letters × intensity)</code> characters, with a minimum of one. Intensity is a multiplier on every mode, not just this one: 0.5 is the neutral default, below it tightens the emphasis, above it loosens it.</p>
           </article>
           <article class="card stack">
             <h3>Vowel anchor</h3>
             <p class="bdemo__out bionic" data-bionic-sample="vowel">Fixation anchors the eye at the start of each word.</p>
-            <p class="muted">Bolds up to and including the first vowel group, capped at half the word plus one. A custom vowel set can be supplied for other languages; empty uses the built-in set.</p>
+            <p class="muted">Bolds up to and including the first vowel group, capped at half the word plus one; intensity scales it. A custom vowel set can be supplied for other languages; empty uses the built-in set.</p>
           </article>
           <article class="card stack">
             <h3>Low distraction</h3>
@@ -152,7 +152,7 @@
           <article class="card stack">
             <h3>Custom rule</h3>
             <p class="bdemo__out bionic" data-bionic-sample="rules">Fixation anchors the eye at the start of each word.</p>
-            <p class="muted">Emphasizes a fixed character count per word length, then a fraction for longer words, using the rule string below. It bypasses the minimum word length.</p>
+            <p class="muted">Emphasizes a fixed character count per word length, then a fraction for longer words, using the rule string below; intensity scales the result. It bypasses the minimum word length.</p>
           </article>
         </div>
 
@@ -230,7 +230,7 @@
         <h2>Build</h2>
         <ul>
           <li>v0.3.0 · MIT</li>
-          <li>167 tests · 10/10 e2e</li>
+          <li>172 tests · 10/10 e2e</li>
           <li>Chrome 116+</li>
           <li>Firefox 140+</li>
           <li>No network requests</li>
@@ -245,9 +245,9 @@
   </div>
 </footer>
 
-<script src="assets/core.js?v=0.3.0"></script>
-<script src="assets/demo.js?v=0.3.0"></script>
-<script src="assets/art.js?v=0.3.0"></script>
-<script src="assets/router.js?v=0.3.0"></script>
+<script src="assets/core.js?v=1ef38cc1a3"></script>
+<script src="assets/demo.js?v=1ef38cc1a3"></script>
+<script src="assets/art.js?v=1ef38cc1a3"></script>
+<script src="assets/router.js?v=1ef38cc1a3"></script>
 </body>
 </html>

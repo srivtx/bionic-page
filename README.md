@@ -13,7 +13,7 @@ modes, per-site control, a fully reversible transform, and no network.
 [![runtime](https://img.shields.io/badge/runtime-Bun-14151A?logo=bun&logoColor=white)](https://bun.sh)
 [![types](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
 [![manifest](https://img.shields.io/badge/Manifest-V3-4f46e5)](scripts/manifest.mjs)
-[![tests](https://img.shields.io/badge/tests-167-0f766e)](#testing)
+[![tests](https://img.shields.io/badge/tests-172-0f766e)](#testing)
 [![web-ext](https://img.shields.io/badge/web--ext_lint-0_errors_0_warnings-0f766e)](#testing)
 [![Firefox](https://img.shields.io/badge/Firefox-140%2B-FF7139?logo=firefoxbrowser&logoColor=white)](https://www.mozilla.org/firefox/)
 [![Chrome](https://img.shields.io/badge/Chrome-116%2B-4285F4?logo=googlechrome&logoColor=white)](https://www.google.com/chrome/)
@@ -139,7 +139,7 @@ bun run lint:firefox  # web-ext lint on the Firefox build
 
 | Gate | Result |
 |---|---|
-| `bun test` | 167 tests across 14 files |
+| `bun test` | 172 tests across 14 files |
 | `bun run typecheck` | clean (strict TypeScript, noUnusedLocals) |
 | `bun run build` + `verify` | both targets, all referenced files present |
 | `web-ext lint` | 0 errors, 0 warnings, 0 notices |

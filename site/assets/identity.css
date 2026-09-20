@@ -38,42 +38,49 @@
     radial-gradient(40% 40% at 88% 76%, color-mix(in srgb, var(--swash) 9%, transparent), transparent 70%);
 }
 
+/* ── Hero headline: the emphasis is written in ────────────────────────────
+   This used to be two stacked copies revealed by a clip, which forced them to
+   share metrics — and the only way to emphasise a head without changing its
+   advance width is an outline. A 1px outline at headline size is invisible, so
+   the animation read as a colour sweep and you could not see the emphasis
+   arrive at all.
+
+   There is one copy now. The head is genuinely heavier, so the shape changes
+   as the wave passes and the line takes its final measure as it goes. */
 .hero__title {
   position: relative;
   display: block;
 }
 
-.hero__title-plain {
-  display: block;
-  color: var(--mute);
-}
-
 .hero__title-fix {
-  position: absolute;
-  inset: 0;
   display: block;
-  clip-path: inset(0 100% 0 0);
 }
 
-.hero__title.is-writing .hero__title-fix {
-  animation: bp-write 2.4s var(--ease) 120ms both;
+.hero__title .bp-head {
+  font-weight: var(--fx-weight);
 }
 
-.hero__title.is-written .hero__title-fix {
-  clip-path: none;
+/* The head starts thin and thickens in reading order, one step per head. */
+.hero__title.is-writing .bp-head {
+  animation: bp-weight 420ms var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
 }
 
-@keyframes bp-write {
+@keyframes bp-weight {
   from {
-    clip-path: inset(0 100% 0 0);
+    font-weight: 400;
   }
   to {
-    clip-path: inset(0 0 0 0);
+    font-weight: var(--fx-weight);
   }
 }
 
-/* Rides the wipe edge. Travel distance is measured in JS (--caret-w) so the
-   caret and the clip edge use one timing function and stay locked. */
+.hero__title.is-written .bp-head {
+  font-weight: var(--fx-weight);
+}
+
+/* Rides the wave. Travel distance is measured in JS (--caret-w) and the
+   duration is set by JS to exactly cover the last head's delay. */
 .hero__caret {
   position: absolute;
   top: 0.08em;
@@ -86,7 +93,8 @@
 }
 
 .hero__title.is-writing .hero__caret {
-  animation: bp-caret 2.4s var(--ease) 120ms both, bp-blink 0.9s steps(1) 120ms 4;
+  animation: bp-caret var(--write, 2.4s) var(--ease) both,
+    bp-blink 0.9s steps(1) 4;
 }
 
 .hero__title.is-written .hero__caret {
@@ -257,70 +265,20 @@ html[data-fixation="off"] span.bp-tail {
   );
 }
 
-/* The plain layer retracts as the fixation layer advances, so the two never
-   stack. It also keeps its layout box (clip-path does not affect layout),
-   which is what gives the headline its height. */
-.hero__title.is-writing .hero__title-plain {
-  animation: bp-unwrite 2.4s var(--ease) 120ms both;
-}
-
-@keyframes bp-unwrite {
-  from {
-    clip-path: inset(0 0 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 100%);
-  }
+/* The faded remainder is what makes the emphasis legible as emphasis, rather
+   than as an ordinary bold sentence. */
+.hero__title .bp-tail,
+.hero__title i {
+  opacity: 0.45;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* No wipe: show the fixed layer, keep the plain one as an invisible
-     spacer so the headline still occupies its height. */
-  .hero__title-plain {
-    opacity: 0;
-  }
-
-  .hero__title.is-writing .hero__title-plain {
+  /* No wave: the heads are simply already heavy. */
+  .hero__title.is-writing .bp-head {
     animation: none;
   }
 }
 
-/* ── Hero headline: one metric, two states ────────────────────────────────
-   The two stacked copies must lay out identically or they ghost against each
-   other while the wipe runs. So both keep the same weight, and the fixation
-   head is expressed with a stroke instead of a weight change — stroke does
-   not affect advance widths. The plain layer stays a uniform muted copy. */
-.hero__title b,
-.hero__title .bp-head {
-  font-weight: inherit;
-  -webkit-text-stroke: 1.05px currentColor;
-  paint-order: stroke fill;
-}
-
-.hero__title .bp-tail,
-.hero__title i {
-  opacity: 0.45;
-  -webkit-text-stroke: 0;
-}
-
-/* ── Terminal state of the wipe ───────────────────────────────────────────
-   The retract animation only lives while .is-writing, so the moment it is
-   replaced by .is-written the plain layer would come back at full opacity
-   underneath the fixation layer, putting every faded tail on an opaque copy
-   of its own glyph. Worse, both copies stayed in the document, so the
-   sentence was in the DOM twice.
-
-   So the finished state promotes the fixation layer to be the real, in-flow
-   text and drops the "before" copy entirely. No shadow, no duplicate text,
-   and the headline still occupies its height. */
-.hero__title.is-written .hero__title-fix {
-  position: static;
-  clip-path: none;
-}
-
-.hero__title.is-written .hero__title-plain {
-  display: none;
-}
 
 /* ── Footer art: the word, split ──────────────────────────────────────────
    The product as one image. The wordmark is drawn twice — a muted copy and a
@@ -393,15 +351,16 @@ html[data-fixation="off"] span.bp-tail {
   }
 }
 
-/* ── The hero, once the transition is over ────────────────────────────────
-   During the wipe the headline exists twice, so both copies have to lay out
-   identically — that is why the fixation head is drawn with a stroke and an
-   inherited weight. Afterwards only the fixation layer is left, so it can use
-   the real thing: the same weight the extension applies to a page. Measured
-   identical in height at every width from 390px to 1920px, so nothing
-   re-wraps when this takes effect. */
-.hero__title.is-written b,
-.hero__title.is-written .bp-head {
-  font-weight: var(--fx-weight);
-  -webkit-text-stroke: 0;
+/* ── With emphasis off, the headline is a headline ────────────────────────
+   The floating control can switch the emphasis off, and that has to include
+   the wave: an animation outranks a plain declaration, so it is cancelled
+   rather than countered. */
+html[data-fixation="off"] .hero__title.is-writing .bp-head,
+html[data-fixation="off"] .hero__title .bp-head {
+  animation: none;
+  font-weight: 400;
+}
+
+html[data-fixation="off"] .hero__title .bp-tail {
+  opacity: 1;
 }
