@@ -153,13 +153,13 @@
         <h2 id="compare-title">The same paragraph, switched on</h2>
         <p>Drag the divider, or focus it and use the arrow keys, to reveal the bionic version.</p>
       </div>
-      <div class="compare" id="compare" role="slider" tabindex="0" aria-label="Reveal the bionic version of the paragraph" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+      <div class="compare" id="compare" role="slider" tabindex="0" aria-label="Reveal the bionic version of the paragraph" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50% bionic, 50% as written" aria-orientation="horizontal">
         <p class="compare__text">The eye lands on a word, takes in enough to recognise it, then moves on to the next one in the line.</p>
         <div class="compare__top">
           <p class="compare__text bionic" id="compare-bionic" data-bionic-sample="half">The eye lands on a word, takes in enough to recognise it, then moves on to the next one in the line.</p>
         </div>
-        <span class="compare__tag compare__tag--on">bionic</span>
-        <span class="compare__tag compare__tag--off">as written</span>
+        <span class="compare__tag compare__tag--on" aria-hidden="true">bionic</span>
+        <span class="compare__tag compare__tag--off" aria-hidden="true">as written</span>
         <span class="compare__knob" aria-hidden="true"></span>
         <span class="compare__grip" aria-hidden="true">
           <svg class="icon" viewBox="0 0 24 24" focusable="false"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"></path></svg>

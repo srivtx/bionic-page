@@ -176,8 +176,11 @@
     var dragging = false;
     var split = 0.5;
     function paintSplit() {
-      compare.style.setProperty("--p", split * 100 + "%");
-      compare.setAttribute("aria-valuenow", String(Math.round(split * 100)));
+      var pct = Math.round(split * 100);
+      compare.style.setProperty("--p", pct + "%");
+      compare.setAttribute("aria-valuenow", String(pct));
+      /* Screen readers get the same reading the labels give the eye. */
+      compare.setAttribute("aria-valuetext", pct + "% bionic, " + (100 - pct) + "% as written");
     }
     function fromClientX(clientX) {
       var rect = compare.getBoundingClientRect();
@@ -187,6 +190,7 @@
     }
     compare.addEventListener("pointerdown", function (event) {
       dragging = true;
+      compare.classList.add("is-dragging");
       if (compare.setPointerCapture) {
         try {
           compare.setPointerCapture(event.pointerId);
@@ -199,12 +203,12 @@
     compare.addEventListener("pointermove", function (event) {
       if (dragging) fromClientX(event.clientX);
     });
-    compare.addEventListener("pointerup", function () {
+    function endDrag() {
       dragging = false;
-    });
-    compare.addEventListener("pointercancel", function () {
-      dragging = false;
-    });
+      compare.classList.remove("is-dragging");
+    }
+    compare.addEventListener("pointerup", endDrag);
+    compare.addEventListener("pointercancel", endDrag);
     compare.addEventListener("keydown", function (event) {
       var step = event.shiftKey ? 0.1 : 0.02;
       if (event.key === "ArrowLeft") split -= step;
