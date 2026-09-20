@@ -57,7 +57,7 @@
 }
 
 .hero__title .bp-head {
-  font-weight: var(--fx-weight);
+  font-weight: var(--fx-hero);
 }
 
 /* The head starts thin and thickens in reading order, one step per head. */
@@ -71,12 +71,12 @@
     font-weight: 400;
   }
   to {
-    font-weight: var(--fx-weight);
+    font-weight: var(--fx-hero);
   }
 }
 
 .hero__title.is-written .bp-head {
-  font-weight: var(--fx-weight);
+  font-weight: var(--fx-hero);
 }
 
 /* Rides the wave. Travel distance is measured in JS (--caret-w) and the
@@ -146,107 +146,7 @@
   padding-inline: 0.08em;
 }
 
-/* ── Floating control ─────────────────────────────────────────────────────
-   The extension's own floating control, made real: it drags, it remembers
-   where you put it, and pressing it turns fixation off across the page —
-   which is the reversibility claim, demonstrated. */
-.bpfloat {
-  position: fixed;
-  right: var(--s-4);
-  bottom: var(--s-4);
-  z-index: 30;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 14px;
-  border: 1px solid var(--hairline-strong);
-  border-radius: 999px;
-  background: var(--canvas);
-  color: var(--ink);
-  font: inherit;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: -0.005em;
-  cursor: grab;
-  touch-action: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
-  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
-}
 
-.bpfloat:hover {
-  border-color: var(--ink);
-}
-
-.bpfloat:active {
-  cursor: grabbing;
-}
-
-.bpfloat__dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  background: var(--accent);
-  transition: background var(--dur) var(--ease);
-}
-
-.bpfloat[aria-pressed="false"] .bpfloat__dot {
-  background: var(--hairline-strong);
-}
-
-/* Off means off: the emphasis is removed, the text is what it always was. */
-html[data-fixation="off"] .bionic b,
-html[data-fixation="off"] b.bp-head {
-  font-weight: 400;
-}
-
-html[data-fixation="off"] .bionic i,
-html[data-fixation="off"] span.bp-tail {
-  opacity: 1;
-}
-
-@media (max-width: 520px) {
-  .bpfloat {
-    right: var(--s-3);
-    bottom: var(--s-3);
-    padding: 8px 12px;
-  }
-
-  
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero__title-fix {
-    clip-path: none;
-  }
-
-  .hero__title.is-writing .hero__title-fix,
-  .hero__title.is-writing .hero__caret {
-    animation: none;
-  }
-
-  .hero__caret {
-    display: none;
-  }
-}
-
-/* The floating control's parts (built in JS, styled here so check-site sees
-   them) and its dragged state. */
-.bpfloat__label {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-}
-
-.bpfloat--placed {
-  right: auto;
-  bottom: auto;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bpfloat {
-    transition: none;
-  }
-}
 
 /* The field is loudest in the top-right and cleared away from the copy, so
    it reads as texture rather than competing with the headline. */
@@ -349,6 +249,20 @@ html[data-fixation="off"] span.bp-tail {
   .mark {
     animation: none;
   }
+}
+
+/* ── Off means off ────────────────────────────────────────────────────────
+   Switching the emphasis off removes it from everything the page renders,
+   everywhere it appears: the headline, the samples, the demo, the reader. The
+   text returns to the weight and opacity it would have had anyway. */
+html[data-fixation="off"] .bionic b,
+html[data-fixation="off"] b.bp-head {
+  font-weight: 400;
+}
+
+html[data-fixation="off"] .bionic i,
+html[data-fixation="off"] span.bp-tail {
+  opacity: 1;
 }
 
 /* ── With emphasis off, the headline is a headline ────────────────────────

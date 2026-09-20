@@ -1,14 +1,18 @@
 /*
  * bionic-page — art and interaction.
  *
- * Two canvas pieces and one real control, all offline and all cheap:
+ * Two canvas pieces and the headline, all offline and all cheap:
  *
  *   .art--hero    a dense field of split dashes (a page of words) with an
  *                 emphasis wave travelling through it.
  *   .art--mark    (styled in identity.css) the wordmark split at a travelling
  *                 fixation boundary, over the accent glow.
- *   .bpfloat      the extension's floating control, made real. Drag it, press
- *                 it, and fixation turns off across the whole page.
+ *   .hero__title  the headline, written in: the heads thicken in reading
+ *                 order as the caret crosses.
+ *
+ * The emphasis switch itself is not here — it is a nav control, wired in
+ * demo.js with the rest of the header, because the header is the one part of
+ * the page that client-side navigation never replaces.
  *
  * Everything is colour-read from the design tokens, so light and dark both
  * work, and every animation is disabled under prefers-reduced-motion.
@@ -205,128 +209,6 @@
   }
 
 
-  /* ---- the floating control -------------------------------------------- */
-
-  var KEY_FIX = "bionic-page-fixation";
-  var KEY_POS = "bionic-page-float";
-
-  function store(key, value) {
-    try {
-      if (value === undefined) return window.localStorage.getItem(key);
-      if (value === null) window.localStorage.removeItem(key);
-      else window.localStorage.setItem(key, value);
-    } catch (err) {
-      /* private mode: the control still works, it just will not remember. */
-    }
-    return null;
-  }
-
-  function setFixation(on) {
-    document.documentElement.setAttribute("data-fixation", on ? "on" : "off");
-    store(KEY_FIX, on ? null : "off");
-    var btn = document.querySelector(".bpfloat");
-    if (btn) {
-      btn.setAttribute("aria-pressed", on ? "true" : "false");
-      btn.setAttribute(
-        "aria-label",
-        on ? "Turn bionic emphasis off on this page" : "Turn bionic emphasis on",
-      );
-    }
-  }
-
-  function floatingControl() {
-    if (document.querySelector(".bpfloat")) return;
-
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "bpfloat";
-    btn.setAttribute("aria-pressed", "true");
-    btn.setAttribute("aria-label", "Turn bionic emphasis off on this page");
-
-    var dot = document.createElement("span");
-    dot.className = "bpfloat__dot";
-    dot.setAttribute("aria-hidden", "true");
-
-    var label = document.createElement("span");
-    label.className = "bpfloat__label";
-    label.textContent = "Bp";
-
-    btn.appendChild(dot);
-    btn.appendChild(label);
-    document.body.appendChild(btn);
-
-    var saved = store(KEY_POS);
-    if (saved) {
-      try {
-        var pos = JSON.parse(saved);
-        if (typeof pos.x === "number" && typeof pos.y === "number") {
-          btn.classList.add("bpfloat--placed");
-          btn.style.left = pos.x + "px";
-          btn.style.top = pos.y + "px";
-        }
-      } catch (err) {
-        /* a corrupt entry is not worth anything but a reset. */
-      }
-    }
-
-    var down = null;
-    var moved = false;
-
-    function clamp() {
-      var r = btn.getBoundingClientRect();
-      return {
-        maxX: Math.max(8, window.innerWidth - r.width - 8),
-        maxY: Math.max(8, window.innerHeight - r.height - 8),
-      };
-    }
-
-    btn.addEventListener("pointerdown", function (event) {
-      var rect = btn.getBoundingClientRect();
-      down = { dx: event.clientX - rect.left, dy: event.clientY - rect.top, x: event.clientX, y: event.clientY };
-      moved = false;
-      btn.setPointerCapture(event.pointerId);
-    });
-
-    btn.addEventListener("pointermove", function (event) {
-      if (!down) return;
-      if (Math.abs(event.clientX - down.x) + Math.abs(event.clientY - down.y) > 4) moved = true;
-      if (!moved) return;
-      var limit = clamp();
-      var x = Math.min(limit.maxX, Math.max(8, event.clientX - down.dx));
-      var y = Math.min(limit.maxY, Math.max(8, event.clientY - down.dy));
-      btn.classList.add("bpfloat--placed");
-      btn.style.left = x + "px";
-      btn.style.top = y + "px";
-    });
-
-    function release(event) {
-      if (!down) return;
-      down = null;
-      try {
-        btn.releasePointerCapture(event.pointerId);
-      } catch (err) {
-        /* pointer already released */
-      }
-      if (moved) {
-        var rect = btn.getBoundingClientRect();
-        store(KEY_POS, JSON.stringify({ x: Math.round(rect.left), y: Math.round(rect.top) }));
-      }
-    }
-
-    btn.addEventListener("pointerup", release);
-    btn.addEventListener("pointercancel", release);
-
-    btn.addEventListener("click", function (event) {
-      if (moved) {
-        event.preventDefault();
-        return;
-      }
-      setFixation(document.documentElement.getAttribute("data-fixation") === "off");
-    });
-
-    if (store(KEY_FIX) === "off") setFixation(false);
-  }
-
   /* ---- boot ------------------------------------------------------------- */
 
   function headline() {
@@ -393,7 +275,6 @@
     if (hero) window.__bionicArt.push(mint(hero, field));
 
     headline();
-    floatingControl();
   }
 
   /* Registered so the router can re-initialise the page after a swap. */
