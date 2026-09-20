@@ -13,52 +13,69 @@
   function q(selector, scope) { return (scope || document).querySelector(selector); }
   function qa(selector, scope) { return (scope || document).querySelectorAll(selector); }
 
-  /* ---- Theme: store an explicit choice; otherwise follow the OS. -------- */
+  /* ---- Theme: light, dark, or whatever the system says ---------------- */
   var THEME_KEY = "bionic-page-theme";
-  var themeToggle = $("theme-toggle");
-  var themeText = $("theme-toggle-text");
+  var themePicker = q(".theme-pick");
+  var themeButtons = qa(".theme-pick__btn");
 
   function prefersDark() {
     return typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-color-scheme: dark)").matches;
   }
-  function applyTheme(theme) {
-    if (theme === "dark" || theme === "light") {
-      root.setAttribute("data-theme", theme);
-    } else {
-      root.removeAttribute("data-theme");
-    }
-    if (!themeToggle) return;
-    var isDark = theme === "dark" || (theme == null && prefersDark());
-    themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
-    themeToggle.setAttribute(
-      "aria-label",
-      isDark ? "Switch to light theme" : "Switch to dark theme"
-    );
-    if (themeText) themeText.textContent = isDark ? "Dark" : "Light";
-  }
-  function currentTheme() {
+  function storedTheme() {
     var explicit = root.getAttribute("data-theme");
     if (explicit === "dark" || explicit === "light") return explicit;
     try {
-      return window.localStorage.getItem(THEME_KEY);
+      var saved = window.localStorage.getItem(THEME_KEY);
+      if (saved === "dark" || saved === "light" || saved === "system") return saved;
     } catch (err) {
-      return null;
+      void 0;
     }
+    return "system";
   }
-  if (themeToggle) {
-    themeToggle.addEventListener("click", function () {
-      var isDark = themeToggle.getAttribute("aria-pressed") === "true";
-      var next = isDark ? "light" : "dark";
-      try {
-        window.localStorage.setItem(THEME_KEY, next);
-      } catch (err) {
-        void 0;
-      }
-      applyTheme(next);
+  function applyTheme(choice) {
+    /* "system" means no attribute, so the media query takes over. */
+    if (choice === "dark" || choice === "light") root.setAttribute("data-theme", choice);
+    else root.removeAttribute("data-theme");
+    each(themeButtons, function (button) {
+      button.setAttribute(
+        "aria-checked",
+        String(button.getAttribute("data-theme-choice") === choice),
+      );
+    });
+    /* art.js re-reads its colour tokens off this event. */
+    window.dispatchEvent(new Event("themechange"));
+  }
+  function chooseTheme(choice) {
+    if (!choice) return;
+    try {
+      window.localStorage.setItem(THEME_KEY, choice);
+    } catch (err) {
+      void 0;
+    }
+    applyTheme(choice);
+  }
+  each(themeButtons, function (button) {
+    button.addEventListener("click", function () {
+      chooseTheme(button.getAttribute("data-theme-choice"));
+    });
+  });
+  if (themePicker) {
+    /* A radiogroup should answer the arrow keys. */
+    themePicker.addEventListener("keydown", function (event) {
+      var step = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 }[event.key];
+      if (!step) return;
+      event.preventDefault();
+      var list = Array.prototype.slice.call(themeButtons);
+      var at = list.indexOf(document.activeElement);
+      var next = list[((at === -1 ? 0 : at) + step + list.length) % list.length];
+      if (!next) return;
+      next.focus();
+      chooseTheme(next.getAttribute("data-theme-choice"));
     });
   }
-  applyTheme(currentTheme());
+  applyTheme(storedTheme());
+
 
   /* ---- Navigation ------------------------------------------------------- */
   var navToggle = $("nav-toggle");

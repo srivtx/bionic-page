@@ -383,14 +383,8 @@
 
   /* The theme toggle is a plain attribute flip, so mirror it as an event the
      canvases can listen for instead of polling the computed style. */
-  var themeButton = document.getElementById("theme-toggle");
-  if (themeButton) {
-    themeButton.addEventListener("click", function () {
-      window.setTimeout(function () {
-        window.dispatchEvent(new Event("themechange"));
-      }, 0);
-    });
-  }
+  /* demo.js dispatches "themechange" when the picker changes; the canvases
+     listen for it, so they no longer need to know about the control. */
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);
