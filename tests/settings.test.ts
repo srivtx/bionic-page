@@ -46,6 +46,23 @@ describe("sanitizeSettings", () => {
     expect(sanitizeSettings({ enabled: 1 as never }).enabled).toBe(true);
   });
 
+  test("coerces every boolean field, not just the master switch", () => {
+    const s = sanitizeSettings({
+      skipCommonWords: "yes" as never,
+      respectExistingBold: 0 as never,
+      letterSpacing: "false" as never,
+      processDynamic: null as never,
+      processIframes: 1 as never,
+      showFloatingControl: undefined as never,
+    });
+    expect(s.skipCommonWords).toBe(true);
+    expect(s.respectExistingBold).toBe(false);
+    expect(s.letterSpacing).toBe(true);
+    expect(s.processDynamic).toBe(false);
+    expect(s.processIframes).toBe(true);
+    expect(s.showFloatingControl).toBe(false);
+  });
+
   test("filters malformed site rules and clamps their fields", () => {
     const s = sanitizeSettings({
       sites: [

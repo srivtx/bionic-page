@@ -1,11 +1,18 @@
 import { describe, expect, test } from "bun:test";
 import {
+  describePattern,
   effectiveSettings,
+  hostForUrl,
   isEnabledForUrl,
   matchPattern,
+  normalizePattern,
+  parsePattern,
+  patternForUrl,
   resolveSiteRule,
+  upsertSiteRule,
+  validatePattern,
 } from "../src/shared/site";
-import { DEFAULT_SETTINGS, sanitizeSettings, type Settings } from "../src/shared/types";
+import { DEFAULT_SETTINGS, sanitizeSettings, type Settings, type SiteRule } from "../src/shared/types";
 
 describe("matchPattern", () => {
   test("matches all urls", () => {
@@ -75,5 +82,193 @@ describe("effectiveSettings", () => {
     expect(eff.mode).toBe("dim");
     expect(eff.intensity).toBe(0.8);
     expect(eff.minWordLength).toBe(s.minWordLength);
+  });
+});
+
+describe("normalizePattern", () => {
+  test("turns a bare hostname into a match pattern", () => {
+    expect(normalizePattern("news.ycombinator.com")).toBe("*://news.ycombinator.com/*");
+    expect(normalizePattern("example.com")).toBe("*://example.com/*");
+    expect(normalizePattern("example.com/news")).toBe("*://example.com/news");
+  });
+
+  test("fills in a missing path and lowercases scheme and host", () => {
+    expect(normalizePattern("https://Example.com")).toBe("https://example.com/*");
+    expect(normalizePattern("https://example.com/")).toBe("https://example.com/*");
+    expect(normalizePattern("HTTP://Example.COM/A")).toBe("http://example.com/A");
+  });
+
+  test("leaves a valid pattern alone and trims whitespace", () => {
+    expect(normalizePattern("*://*.example.com/*")).toBe("*://*.example.com/*");
+    expect(normalizePattern("  news.ycombinator.com  ")).toBe("*://news.ycombinator.com/*");
+  });
+
+  test("handles the two special forms", () => {
+    expect(normalizePattern("")).toBe("");
+    expect(normalizePattern("<all_urls>")).toBe("<all_urls>");
+  });
+});
+
+describe("parsePattern", () => {
+  test("splits scheme, host, and path with the path defaulting to /*", () => {
+    expect(parsePattern("https://example.com/a/b?c=1")).toEqual({
+      scheme: "https",
+      host: "example.com",
+      path: "/a/b?c=1",
+    });
+    expect(parsePattern("*://news.ycombinator.com")).toEqual({
+      scheme: "*",
+      host: "news.ycombinator.com",
+      path: "/*",
+    });
+  });
+
+  test("returns null for <all_urls> and for a bare host", () => {
+    expect(parsePattern("<all_urls>")).toBeNull();
+    expect(parsePattern("example.com")).toBeNull();
+  });
+});
+
+describe("validatePattern", () => {
+  test("accepts a bare host and offers the normalised pattern", () => {
+    const check = validatePattern("news.ycombinator.com");
+    expect(check.ok).toBe(true);
+    expect(check.normalized).toBe(true);
+    expect(check.pattern).toBe("*://news.ycombinator.com/*");
+    expect(check.error).toBeUndefined();
+  });
+
+  test("accepts an already-normalised pattern without rewriting it", () => {
+    const check = validatePattern("*://news.ycombinator.com/*");
+    expect(check.ok).toBe(true);
+    expect(check.normalized).toBe(false);
+    expect(check.pattern).toBe("*://news.ycombinator.com/*");
+  });
+
+  test("accepts <all_urls>", () => {
+    expect(validatePattern("<all_urls>").ok).toBe(true);
+  });
+
+  test("rejects an empty pattern with a specific message", () => {
+    const check = validatePattern("   ");
+    expect(check.ok).toBe(false);
+    expect(check.error).toContain("Enter a hostname");
+  });
+
+  test("names the problem for a port", () => {
+    const check = validatePattern("localhost:3000");
+    expect(check.ok).toBe(false);
+    expect(check.error).toContain("port");
+  });
+
+  test("names the problem for a misplaced wildcard", () => {
+    const check = validatePattern("foo.*.com");
+    expect(check.ok).toBe(false);
+    expect(check.error).toContain("*.");
+  });
+
+  test("names the problem for illegal hostname characters", () => {
+    const check = validatePattern("exa mple.com");
+    expect(check.ok).toBe(false);
+    expect(check.error).toContain("hostname");
+  });
+
+  test("rejects an empty label", () => {
+    const check = validatePattern("example..com");
+    expect(check.ok).toBe(false);
+  });
+
+  test("a valid-looking suggestion always re-validates cleanly", () => {
+    for (const input of ["news.ycombinator.com", "https://Example.com", "*.example.com", "example.com/news/*"]) {
+      const first = validatePattern(input);
+      expect(first.ok).toBe(true);
+      const second = validatePattern(first.pattern);
+      expect(second.ok).toBe(true);
+      expect(second.pattern).toBe(first.pattern);
+    }
+  });
+});
+
+describe("describePattern", () => {
+  const patterns = [
+    "*://news.ycombinator.com/*",
+    "https://example.com/news/*",
+    "*://*.example.com/*",
+    "*://*/*",
+    "<all_urls>",
+  ];
+
+  test("preview matches agree with matchPattern", () => {
+    for (const pattern of patterns) {
+      const impact = describePattern(pattern);
+      for (const url of impact.matches) {
+        expect(matchPattern(url, pattern)).toBe(true);
+      }
+      for (const url of impact.misses) {
+        expect(matchPattern(url, pattern)).toBe(false);
+      }
+    }
+  });
+
+  test("offers at least one match for an ordinary pattern", () => {
+    const impact = describePattern("*://news.ycombinator.com/*");
+    expect(impact.matches.length).toBeGreaterThan(0);
+    expect(impact.scope).toContain("news.ycombinator.com");
+  });
+
+  test("shows a scheme mismatch it will not match", () => {
+    const impact = describePattern("https://example.com/news/*");
+    expect(impact.misses.some((url) => url.startsWith("http://"))).toBe(true);
+  });
+
+  test("<all_urls> has no sample URLs", () => {
+    const impact = describePattern("<all_urls>");
+    expect(impact.matches).toEqual([]);
+    expect(impact.misses).toEqual([]);
+  });
+});
+
+describe("hostForUrl and patternForUrl", () => {
+  test("extracts the host and builds a port-free pattern", () => {
+    expect(hostForUrl("https://news.ycombinator.com/item?id=1")).toBe("news.ycombinator.com");
+    expect(patternForUrl("https://news.ycombinator.com/item?id=1")).toBe("*://news.ycombinator.com/*");
+    expect(patternForUrl("http://localhost:3000/x")).toBe("*://localhost/*");
+    expect(matchPattern("http://localhost:3000/x", patternForUrl("http://localhost:3000/x")!)).toBe(true);
+  });
+
+  test("refuses non-web URLs", () => {
+    expect(patternForUrl("chrome://extensions")).toBeUndefined();
+    expect(patternForUrl("about:blank")).toBeUndefined();
+    expect(patternForUrl(undefined)).toBeUndefined();
+    expect(hostForUrl(undefined)).toBeUndefined();
+  });
+
+  test("refuses an IPv6 host it cannot express", () => {
+    expect(patternForUrl("https://[::1]/")).toBeUndefined();
+  });
+});
+
+describe("upsertSiteRule", () => {
+  test("appends a new rule at the end", () => {
+    const sites = upsertSiteRule([], "*://a.example/*", false);
+    expect(sites).toEqual([{ pattern: "*://a.example/*", enabled: false }]);
+  });
+
+  test("updates an existing rule and moves it last", () => {
+    const before: SiteRule[] = [
+      { pattern: "*://a.example/*", enabled: true, mode: "dim" },
+      { pattern: "*://b.example/*", enabled: true },
+    ];
+    const after = upsertSiteRule(before, "*://a.example/*", false);
+    expect(after.map((rule) => rule.pattern)).toEqual(["*://b.example/*", "*://a.example/*"]);
+    expect(after[1]).toEqual({ pattern: "*://a.example/*", enabled: false, mode: "dim" });
+  });
+
+  test("is idempotent and does not mutate its input", () => {
+    const before: SiteRule[] = [{ pattern: "*://a.example/*", enabled: true }];
+    const once = upsertSiteRule(before, "*://a.example/*", false);
+    const twice = upsertSiteRule(once, "*://a.example/*", false);
+    expect(twice).toEqual(once);
+    expect(before).toEqual([{ pattern: "*://a.example/*", enabled: true }]);
   });
 });

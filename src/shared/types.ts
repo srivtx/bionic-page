@@ -135,17 +135,24 @@ export function clamp(value: number, min: number, max: number): number {
 export function sanitizeSettings(input: Partial<Settings> | undefined | null): Settings {
   const base: Settings = { ...DEFAULT_SETTINGS, ...(input ?? {}) };
   const sites = Array.isArray(base.sites) ? base.sites.filter((s) => s && typeof s.pattern === "string") : [];
+  // Rebuilt field by field: unknown keys from stored data or an imported file
+  // are dropped rather than carried along.
   return {
-    ...base,
     version: SETTINGS_VERSION,
     enabled: Boolean(base.enabled),
     mode: MODE_IDS.includes(base.mode) ? base.mode : DEFAULT_SETTINGS.mode,
     intensity: clamp(Number(base.intensity), 0.2, 0.9),
     minWordLength: Math.round(clamp(Number(base.minWordLength), 2, 8)),
+    skipCommonWords: Boolean(base.skipCommonWords),
+    respectExistingBold: Boolean(base.respectExistingBold),
     boldWeight: Math.round(clamp(Number(base.boldWeight), 500, 900)),
     restOpacity: clamp(Number(base.restOpacity), 0.4, 1),
+    letterSpacing: Boolean(base.letterSpacing),
     rule: typeof base.rule === "string" ? base.rule : DEFAULT_SETTINGS.rule,
     customVowels: typeof base.customVowels === "string" ? base.customVowels : "",
+    processDynamic: Boolean(base.processDynamic),
+    processIframes: Boolean(base.processIframes),
+    showFloatingControl: Boolean(base.showFloatingControl),
     sites: sites.map((s) => ({
       pattern: s.pattern,
       enabled: Boolean(s.enabled),

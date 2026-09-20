@@ -8,7 +8,9 @@ import {
   type Settings,
   type SiteRule,
 } from "../shared/types";
+import { describePattern, validatePattern } from "../shared/site";
 import { emphasize, type BionicOptions } from "../core/algorithm";
+import { mergeImportedSettings, type ImportResult } from "./settings-transfer";
 
 const SAMPLE_TEXT =
   "Bionic reading emphasizes the leading letters of each word. Your eyes still read every letter; the emphasis simply gives them a place to land.";
@@ -39,15 +41,34 @@ const customVowelsEl = el<HTMLInputElement>("customVowels");
 const processDynamicEl = el<HTMLInputElement>("processDynamic");
 const processIframesEl = el<HTMLInputElement>("processIframes");
 const showFloatingControlEl = el<HTMLInputElement>("showFloatingControl");
-const sitePatternEl = el<HTMLInputElement>("sitePattern");
-const siteListEl = el<HTMLUListElement>("siteList");
+const rulesListEl = el<HTMLUListElement>("rulesList");
+const addRuleBtnEl = el<HTMLButtonElement>("addRule");
+const siteNoticeEl = el<HTMLParagraphElement>("siteNotice");
 const previewEl = el<HTMLParagraphElement>("preview");
 const exportBtnEl = el<HTMLButtonElement>("exportBtn");
 const resetBtnEl = el<HTMLButtonElement>("resetBtn");
 const importFileEl = el<HTMLInputElement>("importFile");
+const importReportEl = el<HTMLDivElement>("importReport");
 
 let current: Settings = sanitizeSettings(DEFAULT_SETTINGS);
 let saveTimer: number | undefined;
+/** The live editor list; may briefly contain invalid patterns that are not saved. */
+let draftRules: SiteRule[] = [];
+let ruleRows: RuleRow[] = [];
+
+interface RuleRow {
+  rule: SiteRule;
+  element: HTMLLIElement;
+  enabled: HTMLInputElement;
+  pattern: HTMLInputElement;
+  mode: HTMLSelectElement;
+  range: HTMLInputElement;
+  rangeValue: HTMLOutputElement;
+  useGlobal: HTMLInputElement;
+  note: HTMLParagraphElement;
+  preview: HTMLParagraphElement;
+  remove: HTMLButtonElement;
+}
 
 function setStatus(message: string): void {
   statusEl.textContent = message;
@@ -60,6 +81,11 @@ function setStatus(message: string): void {
 
 function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
+}
+
+function globalIntensity(): number {
+  const value = Number(intensityEl.value);
+  return Number.isFinite(value) ? value : current.intensity;
 }
 
 function updateModeDescription(): void {
@@ -106,60 +132,273 @@ function renderPreview(settings: Settings): void {
   }
 }
 
-function renderSiteList(sites: SiteRule[]): void {
-  siteListEl.textContent = "";
-  if (sites.length === 0) {
-    const empty = document.createElement("li");
-    empty.className = "site-list__empty";
-    empty.textContent = "No per-site rules yet. Bionic Page follows the global settings everywhere.";
-    siteListEl.append(empty);
+// ---------------------------------------------------------------------------
+// Per-site rules editor
+// ---------------------------------------------------------------------------
+
+function validRules(): SiteRule[] {
+  const out: SiteRule[] = [];
+  for (const rule of draftRules) {
+    const check = validatePattern(rule.pattern);
+    if (!check.ok) continue;
+    out.push(check.pattern === rule.pattern ? rule : { ...rule, pattern: check.pattern });
+  }
+  return out;
+}
+
+function setRuleIntensity(rule: SiteRule, value: number | undefined): void {
+  if (value === undefined) delete rule.intensity;
+  else rule.intensity = value;
+}
+
+function setRuleMode(rule: SiteRule, value: ModeId | undefined): void {
+  if (value === undefined) delete rule.mode;
+  else rule.mode = value;
+}
+
+function renderSiteNotice(): void {
+  const invalid = draftRules.filter((rule) => rule.pattern.trim() !== "" && !validatePattern(rule.pattern).ok).length;
+  const empty = draftRules.filter((rule) => rule.pattern.trim() === "").length;
+  const parts: string[] = [];
+  if (invalid > 0) parts.push(`${invalid} ${invalid === 1 ? "rule" : "rules"} will not be saved until the pattern is valid`);
+  if (empty > 0) parts.push(`${empty} ${empty === 1 ? "rule still needs" : "rules still need"} a pattern`);
+  siteNoticeEl.textContent = parts.length > 0 ? `${parts.join(". ")}.` : "";
+}
+
+function syncInheritedIntensity(): void {
+  const value = formatPercent(globalIntensity());
+  for (const row of ruleRows) {
+    if (row.useGlobal.checked) row.rangeValue.textContent = value;
+  }
+}
+
+function updateRuleFeedback(row: RuleRow): void {
+  const check = validatePattern(row.pattern.value);
+  const hasText = row.pattern.value.trim() !== "";
+  row.pattern.classList.toggle("control--invalid", hasText && !check.ok);
+  row.pattern.setAttribute("aria-invalid", String(hasText && !check.ok));
+  row.enabled.setAttribute("aria-label", row.rule.pattern ? `Enable rule for ${row.rule.pattern}` : "Enable this rule");
+  row.remove.setAttribute("aria-label", row.rule.pattern ? `Remove rule for ${row.rule.pattern}` : "Remove this rule");
+
+  row.note.textContent = "";
+  row.note.classList.remove("rule__note--error", "rule__note--ok");
+  row.preview.textContent = "";
+  row.preview.hidden = true;
+
+  if (!hasText) {
+    row.note.textContent = "Enter a hostname or match pattern, for example news.ycombinator.com.";
     return;
   }
-
-  sites.forEach((site, index) => {
-    const item = document.createElement("li");
-    item.className = "site-item";
-
-    const toggle = document.createElement("input");
-    toggle.type = "checkbox";
-    toggle.className = "checkbox";
-    toggle.checked = site.enabled;
-    toggle.setAttribute("aria-label", `Enable on ${site.pattern}`);
-    toggle.addEventListener("change", () => {
-      const next = current.sites.slice();
-      const target = next[index];
-      if (!target) return;
-      next[index] = { ...target, enabled: toggle.checked };
-      current = sanitizeSettings({ ...current, sites: next });
-      renderSiteList(current.sites);
-      scheduleSave();
+  if (!check.ok) {
+    row.note.classList.add("rule__note--error");
+    row.note.textContent = check.error ?? "That is not a valid match pattern.";
+    return;
+  }
+  if (check.normalized) {
+    row.note.append(document.createTextNode("Bare hostnames work as match patterns. Use "));
+    const suggestion = document.createElement("button");
+    suggestion.type = "button";
+    suggestion.className = "rule__suggest";
+    suggestion.textContent = check.pattern;
+    suggestion.setAttribute("aria-label", `Use the match pattern ${check.pattern}`);
+    suggestion.addEventListener("click", () => {
+      row.pattern.value = check.pattern;
+      row.rule.pattern = check.pattern;
+      updateRuleFeedback(row);
+      renderSiteNotice();
+      persist();
     });
+    row.note.append(suggestion, document.createTextNode("."));
+  } else {
+    row.note.classList.add("rule__note--ok");
+    row.note.textContent = "Valid match pattern.";
+  }
 
-    const pattern = document.createElement("span");
-    pattern.className = "site-item__pattern";
-    pattern.textContent = site.pattern;
-    pattern.title = site.pattern;
-
-    const state = document.createElement("span");
-    state.className = "site-item__state";
-    state.textContent = site.enabled ? "On" : "Off";
-
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "site-item__remove";
-    remove.textContent = "Remove";
-    remove.setAttribute("aria-label", `Remove ${site.pattern}`);
-    remove.addEventListener("click", () => {
-      const next = current.sites.filter((_, i) => i !== index);
-      current = sanitizeSettings({ ...current, sites: next });
-      renderSiteList(current.sites);
-      scheduleSave();
-    });
-
-    item.append(toggle, pattern, state, remove);
-    siteListEl.append(item);
-  });
+  const impact = describePattern(check.pattern);
+  const lines: string[] = [];
+  if (impact.scope) lines.push(`Scope: ${impact.scope}.`);
+  if (impact.matches.length > 0) lines.push(`Matches ${impact.matches.join(", ")}.`);
+  if (impact.misses.length > 0) lines.push(`Does not match ${impact.misses.join(", ")}.`);
+  if (lines.length > 0) {
+    row.preview.hidden = false;
+    row.preview.textContent = lines.join(" ");
+  }
 }
+
+function buildRuleRow(rule: SiteRule): RuleRow {
+  const element = document.createElement("li");
+  element.className = "rule";
+  element.classList.toggle("rule--off", !rule.enabled);
+
+  const switchLabel = document.createElement("label");
+  switchLabel.className = "switch switch--sm";
+  const enabled = document.createElement("input");
+  enabled.type = "checkbox";
+  enabled.setAttribute("role", "switch");
+  enabled.checked = rule.enabled;
+  const track = document.createElement("span");
+  track.className = "switch__track";
+  track.setAttribute("aria-hidden", "true");
+  const thumb = document.createElement("span");
+  thumb.className = "switch__thumb";
+  track.append(thumb);
+  switchLabel.append(enabled, track);
+
+  const pattern = document.createElement("input");
+  pattern.type = "text";
+  pattern.className = "control rule__pattern";
+  pattern.spellcheck = false;
+  pattern.autocomplete = "off";
+  pattern.placeholder = "news.ycombinator.com";
+  pattern.value = rule.pattern;
+  pattern.setAttribute("aria-label", "Match pattern");
+
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "rule__remove";
+  remove.textContent = "Remove";
+
+  const top = document.createElement("div");
+  top.className = "rule__top";
+  top.append(switchLabel, pattern, remove);
+
+  const mode = document.createElement("select");
+  mode.className = "control rule__mode";
+  mode.setAttribute("aria-label", "Mode for this rule");
+  const inheritMode = document.createElement("option");
+  inheritMode.value = "";
+  inheritMode.textContent = "Use global mode";
+  mode.append(inheritMode);
+  for (const entry of MODES) {
+    const option = document.createElement("option");
+    option.value = entry.id;
+    option.textContent = entry.label;
+    mode.append(option);
+  }
+  mode.value = rule.mode ?? "";
+
+  const modeField = document.createElement("label");
+  modeField.className = "rule__field";
+  const modeLabel = document.createElement("span");
+  modeLabel.className = "rule__label";
+  modeLabel.textContent = "Mode";
+  modeField.append(modeLabel, mode);
+
+  const range = document.createElement("input");
+  range.type = "range";
+  range.className = "control control--range rule__intensity";
+  range.min = "0.2";
+  range.max = "0.9";
+  range.step = "0.05";
+  range.setAttribute("aria-label", "Intensity for this rule");
+
+  const useGlobal = document.createElement("input");
+  useGlobal.type = "checkbox";
+  useGlobal.className = "rule__use-global";
+  useGlobal.checked = rule.intensity === undefined;
+  if (rule.intensity !== undefined) range.value = String(rule.intensity);
+  range.disabled = useGlobal.checked;
+
+  const rangeValue = document.createElement("output");
+  rangeValue.className = "rule__intensity-value";
+  rangeValue.textContent = useGlobal.checked ? formatPercent(globalIntensity()) : formatPercent(Number(range.value));
+
+  const useGlobalLabel = document.createElement("label");
+  useGlobalLabel.className = "rule__inherit";
+  useGlobalLabel.append(useGlobal, document.createTextNode("Use global"));
+
+  const intensityField = document.createElement("div");
+  intensityField.className = "rule__field";
+  const intensityLabel = document.createElement("span");
+  intensityLabel.className = "rule__label";
+  intensityLabel.textContent = "Intensity";
+  const intensityRow = document.createElement("div");
+  intensityRow.className = "rule__intensity-row";
+  intensityRow.append(range, rangeValue, useGlobalLabel);
+  intensityField.append(intensityLabel, intensityRow);
+
+  const controls = document.createElement("div");
+  controls.className = "rule__controls";
+  controls.append(modeField, intensityField);
+
+  const note = document.createElement("p");
+  note.className = "rule__note";
+  const preview = document.createElement("p");
+  preview.className = "rule__preview";
+  preview.hidden = true;
+
+  element.append(top, controls, note, preview);
+
+  const row: RuleRow = { rule, element, enabled, pattern, mode, range, rangeValue, useGlobal, note, preview, remove };
+
+  enabled.addEventListener("change", () => {
+    rule.enabled = enabled.checked;
+    element.classList.toggle("rule--off", !rule.enabled);
+  });
+  pattern.addEventListener("input", () => {
+    rule.pattern = pattern.value;
+    updateRuleFeedback(row);
+    renderSiteNotice();
+  });
+  mode.addEventListener("change", () => {
+    setRuleMode(rule, mode.value ? (mode.value as ModeId) : undefined);
+  });
+  range.addEventListener("input", () => {
+    setRuleIntensity(rule, Number(range.value));
+    rangeValue.textContent = formatPercent(Number(range.value));
+  });
+  useGlobal.addEventListener("change", () => {
+    range.disabled = useGlobal.checked;
+    if (useGlobal.checked) {
+      setRuleIntensity(rule, undefined);
+      rangeValue.textContent = formatPercent(globalIntensity());
+    } else {
+      range.value = String(globalIntensity());
+      setRuleIntensity(rule, Number(range.value));
+      rangeValue.textContent = formatPercent(Number(range.value));
+    }
+  });
+  remove.addEventListener("click", () => {
+    draftRules = draftRules.filter((candidate) => candidate !== rule);
+    renderRules();
+    persist();
+  });
+
+  return row;
+}
+
+function renderRules(): void {
+  rulesListEl.textContent = "";
+  ruleRows = [];
+  if (draftRules.length === 0) {
+    const empty = document.createElement("li");
+    empty.className = "rules__empty";
+    empty.textContent = "No per-site rules yet. Bionic Page follows the global settings everywhere.";
+    rulesListEl.append(empty);
+    renderSiteNotice();
+    return;
+  }
+  for (const rule of draftRules) {
+    const row = buildRuleRow(rule);
+    ruleRows.push(row);
+    rulesListEl.append(row.element);
+    updateRuleFeedback(row);
+  }
+  renderSiteNotice();
+  syncInheritedIntensity();
+}
+
+function addRule(): void {
+  draftRules.push({ pattern: "", enabled: true });
+  renderRules();
+  const last = ruleRows[ruleRows.length - 1];
+  last?.pattern.focus();
+  setStatus("Enter a hostname or match pattern for the new rule.");
+}
+
+// ---------------------------------------------------------------------------
+// Form read/write
+// ---------------------------------------------------------------------------
 
 function readForm(): Settings {
   return sanitizeSettings({
@@ -178,7 +417,7 @@ function readForm(): Settings {
     processDynamic: processDynamicEl.checked,
     processIframes: processIframesEl.checked,
     showFloatingControl: showFloatingControlEl.checked,
-    sites: current.sites,
+    sites: validRules(),
   });
 }
 
@@ -199,7 +438,8 @@ function applySettingsToForm(settings: Settings): void {
   showFloatingControlEl.checked = settings.showFloatingControl;
   updateModeDescription();
   updateOutputs();
-  renderSiteList(settings.sites);
+  draftRules = settings.sites.map((rule) => ({ ...rule }));
+  renderRules();
   renderPreview(settings);
 }
 
@@ -210,6 +450,7 @@ function persist(): void {
   }
   current = readForm();
   updateOutputs();
+  syncInheritedIntensity();
   renderPreview(current);
   void saveSettings(current);
   void broadcast({ type: "settings-changed", settings: current });
@@ -222,6 +463,7 @@ function scheduleSave(): void {
 
 formEl.addEventListener("input", () => {
   updateOutputs();
+  syncInheritedIntensity();
   renderPreview(readForm());
   scheduleSave();
 });
@@ -229,30 +471,48 @@ formEl.addEventListener("input", () => {
 formEl.addEventListener("change", () => {
   updateModeDescription();
   updateOutputs();
+  syncInheritedIntensity();
   persist();
 });
 
 formEl.addEventListener("submit", (event) => {
+  // Enter in any text field commits the form; adding a rule is explicit.
   event.preventDefault();
-  const pattern = sitePatternEl.value.trim();
-  if (!pattern) {
-    setStatus("Enter a match pattern such as https://example.com/*.");
-    return;
-  }
-  if (current.sites.some((site) => site.pattern === pattern)) {
-    setStatus("That site pattern is already in the list.");
-    return;
-  }
-  current = sanitizeSettings({
-    ...current,
-    sites: [...current.sites, { pattern, enabled: true }],
-  });
-  sitePatternEl.value = "";
-  renderSiteList(current.sites);
   persist();
 });
 
+addRuleBtnEl.addEventListener("click", () => {
+  addRule();
+});
+
+// ---------------------------------------------------------------------------
+// Import / export
+// ---------------------------------------------------------------------------
+
+function renderImportReport(result: ImportResult): void {
+  importReportEl.textContent = "";
+  importReportEl.hidden = false;
+  importReportEl.classList.toggle("report--error", !result.valid);
+
+  const headline = document.createElement("p");
+  headline.className = "report__headline";
+  headline.textContent = result.valid ? result.headline : "Import failed. Your settings are unchanged.";
+  importReportEl.append(headline);
+
+  const items = [...result.changes, ...result.warnings];
+  if (items.length === 0) return;
+  const list = document.createElement("ul");
+  list.className = "report__list";
+  for (const item of items) {
+    const entry = document.createElement("li");
+    entry.textContent = item;
+    list.append(entry);
+  }
+  importReportEl.append(list);
+}
+
 exportBtnEl.addEventListener("click", () => {
+  current = readForm();
   const data = JSON.stringify(current, null, 2);
   const blob = new Blob([data], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -268,6 +528,8 @@ exportBtnEl.addEventListener("click", () => {
 resetBtnEl.addEventListener("click", () => {
   current = sanitizeSettings(DEFAULT_SETTINGS);
   applySettingsToForm(current);
+  importReportEl.hidden = true;
+  importReportEl.textContent = "";
   persist();
   setStatus("Reset to defaults.");
 });
@@ -277,20 +539,39 @@ importFileEl.addEventListener("change", () => {
   if (!file) return;
   const reader = new FileReader();
   reader.addEventListener("load", () => {
+    let result: ImportResult | undefined;
     try {
-      const parsed = JSON.parse(String(reader.result ?? "")) as Partial<Settings>;
-      current = sanitizeSettings(parsed);
-      applySettingsToForm(current);
-      persist();
-      setStatus("Settings imported.");
+      const parsed: unknown = JSON.parse(String(reader.result ?? ""));
+      result = mergeImportedSettings(current, parsed);
     } catch {
-      setStatus("Could not read that file. Choose a JSON export from Bionic Page.");
-    } finally {
-      importFileEl.value = "";
+      result = undefined;
     }
+    importFileEl.value = "";
+    if (!result) {
+      renderImportReport({
+        settings: current,
+        valid: false,
+        headline: "Nothing imported.",
+        changes: ["That file is not valid JSON."],
+        warnings: [],
+        counts: { rulesAdded: 0, rulesRemoved: 0, rulesChanged: 0, rulesSkipped: 0, fieldsChanged: 0 },
+      });
+      setStatus("Could not read that file as JSON. Your settings are unchanged.");
+      return;
+    }
+    if (!result.valid) {
+      renderImportReport(result);
+      setStatus("Import failed. Your settings are unchanged.");
+      return;
+    }
+    current = result.settings;
+    applySettingsToForm(current);
+    renderImportReport(result);
+    persist();
+    setStatus(result.changes.length > 0 ? "Settings imported." : "Imported settings match the current settings.");
   });
   reader.addEventListener("error", () => {
-    setStatus("Could not read that file.");
+    setStatus("Could not read that file. Your settings are unchanged.");
     importFileEl.value = "";
   });
   reader.readAsText(file);

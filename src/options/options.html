@@ -129,15 +129,14 @@
         <section class="card">
           <fieldset class="fieldset">
             <legend class="legend">Sites</legend>
-            <p class="hint">Add match patterns to turn Bionic Page on or off per site, e.g. "https://news.ycombinator.com/*". The last matching rule wins.</p>
+            <p class="hint">Turn Bionic Page on or off per site. Each rule has a match pattern, an on/off switch, and an optional mode and intensity. The last matching rule wins. A bare hostname such as <code>news.ycombinator.com</code> becomes <code>*://news.ycombinator.com/*</code>.</p>
 
-            <div class="site-add">
-              <label class="sr-only" for="sitePattern">Match pattern</label>
-              <input type="text" id="sitePattern" class="control" placeholder="https://example.com/*" spellcheck="false" autocomplete="off" />
-              <button type="submit" id="addSite" class="button">Add site</button>
+            <ul id="rulesList" class="rules" aria-label="Per-site rules"></ul>
+
+            <div class="actions">
+              <button type="button" id="addRule" class="button button--quiet">Add site rule</button>
             </div>
-
-            <ul id="siteList" class="site-list" aria-label="Configured sites"></ul>
+            <p id="siteNotice" class="notice" role="status" aria-live="polite"></p>
           </fieldset>
         </section>
 
@@ -160,7 +159,8 @@
             <div class="field">
               <label class="field__label" for="importFile">Import settings</label>
               <input type="file" id="importFile" class="control control--file" accept="application/json,.json" />
-              <p class="hint">Choose a JSON file exported from Bionic Page.</p>
+              <p class="hint">Choose a JSON file exported from Bionic Page. Unknown fields are ignored and every value is clamped to its valid range.</p>
+              <div id="importReport" class="report" role="status" aria-live="polite" hidden></div>
             </div>
           </fieldset>
         </section>

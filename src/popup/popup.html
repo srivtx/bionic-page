@@ -53,19 +53,22 @@
         />
       </div>
 
-      <div class="field field--row">
-        <label class="field__label" for="siteEnabled">This site</label>
-        <label class="switch">
-          <input
-            type="checkbox"
-            id="siteEnabled"
-            role="switch"
-            aria-label="Enable Bionic Page on this site"
-          />
-          <span class="switch__track" aria-hidden="true">
-            <span class="switch__thumb"></span>
-          </span>
-        </label>
+      <div class="field">
+        <div class="field__row">
+          <label class="field__label" for="siteEnabled">This site</label>
+          <label class="switch">
+            <input
+              type="checkbox"
+              id="siteEnabled"
+              role="switch"
+              aria-label="Enable Bionic Page on this site"
+            />
+            <span class="switch__track" aria-hidden="true">
+              <span class="switch__thumb"></span>
+            </span>
+          </label>
+        </div>
+        <p id="siteHost" class="hint site__host"></p>
       </div>
 
       <div class="field field--row">

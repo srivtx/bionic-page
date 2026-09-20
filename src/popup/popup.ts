@@ -1,6 +1,6 @@
 import { api, call } from "../shared/browser";
 import { broadcast, sendToActiveTab } from "../shared/messaging";
-import { resolveSiteRule } from "../shared/site";
+import { hostForUrl, patternForUrl, resolveSiteRule, upsertSiteRule } from "../shared/site";
 import { loadSettings, saveSettings } from "../shared/storage";
 import {
   DEFAULT_SETTINGS,
@@ -23,6 +23,7 @@ const modeDescriptionEl = el<HTMLParagraphElement>("modeDescription");
 const intensityEl = el<HTMLInputElement>("intensity");
 const intensityValueEl = el<HTMLOutputElement>("intensityValue");
 const siteEnabledEl = el<HTMLInputElement>("siteEnabled");
+const siteHostEl = el<HTMLParagraphElement>("siteHost");
 const minWordLengthEl = el<HTMLInputElement>("minWordLength");
 const statusEl = el<HTMLParagraphElement>("status");
 const openOptionsEl = el<HTMLButtonElement>("openOptions");
@@ -42,18 +43,6 @@ function activeTabUrl(): Promise<string | undefined> {
   })
     .then((tabs) => tabs?.[0]?.url)
     .catch(() => undefined);
-}
-
-/** Build the match pattern for the active page, e.g. "https://example.com/*". */
-function sitePattern(url: string | undefined): string | undefined {
-  if (!url) return undefined;
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return undefined;
-    return `${parsed.protocol}//${parsed.host}/*`;
-  } catch {
-    return undefined;
-  }
 }
 
 function applySettingsToForm(settings: Settings): void {
@@ -143,17 +132,9 @@ minWordLengthEl.addEventListener("change", () => {
 });
 
 siteEnabledEl.addEventListener("change", () => {
-  const pattern = sitePattern(pageUrl);
+  const pattern = patternForUrl(pageUrl);
   if (!pattern) return;
-  const enabled = siteEnabledEl.checked;
-  const sites = current.sites.slice();
-  const index = sites.findIndex((site) => site.pattern === pattern);
-  const existing = index >= 0 ? sites[index] : undefined;
-  if (existing) {
-    sites[index] = { ...existing, enabled };
-  } else {
-    sites.push({ pattern, enabled });
-  }
+  const sites = upsertSiteRule(current.sites, pattern, siteEnabledEl.checked);
   current = sanitizeSettings({ ...current, sites });
   void saveSettings(current);
   void broadcast({ type: "settings-changed", settings: current });
@@ -185,10 +166,13 @@ async function init(): Promise<void> {
   applySettingsToForm(current);
 
   pageUrl = await activeTabUrl();
-  const pattern = sitePattern(pageUrl);
+  const host = hostForUrl(pageUrl);
+  const pattern = patternForUrl(pageUrl);
   const siteRule = resolveSiteRule(pageUrl ?? "", current.sites);
   siteEnabledEl.checked = siteRule ? siteRule.enabled : current.enabled;
   siteEnabledEl.disabled = !pattern;
+  siteHostEl.textContent = host && pattern ? host : "Not available on this page.";
+  if (host && pattern) siteHostEl.title = pattern;
 
   const rawState = await sendToActiveTab({ type: "get-state" });
   renderStatus(currentPageState(rawState));

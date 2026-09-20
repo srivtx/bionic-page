@@ -10,7 +10,7 @@ function cssFor(settings: Settings): string {
   const weight = Math.round(settings.boldWeight);
   const opacity = settings.restOpacity;
   return [
-    `b.${"bp-head"}{font-weight:${weight};font-synthesis-weight:none;}`,
+    `b.${"bp-head"}{font-weight:${weight};}`,
     `html.${SPACING_CLASS} b.bp-head{letter-spacing:.012em;margin-right:.02em;}`,
     `html.${DIM_CLASS} span.bp-tail{opacity:${opacity};}`,
     `@media (prefers-reduced-motion:reduce){b.bp-head{transition:none!important;}}`,
