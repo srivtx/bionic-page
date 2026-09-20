@@ -126,12 +126,7 @@
   height: 100%;
 }
 
-.art--footer {
-  height: clamp(132px, 17vw, 188px);
-  border-top: 1px solid var(--hairline);
-  border-bottom: 1px solid var(--hairline);
-  background: var(--surface);
-}
+
 
 /* ── Swash ────────────────────────────────────────────────────────────────
    A half-height highlight behind a phrase, the way a reader marks a line. */
@@ -208,9 +203,7 @@ html[data-fixation="off"] span.bp-tail {
     padding: 8px 12px;
   }
 
-  .art--footer {
-    height: 112px;
-  }
+  
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -253,8 +246,8 @@ html[data-fixation="off"] span.bp-tail {
   -webkit-mask-image: radial-gradient(
     122% 104% at 86% 8%,
     #000 0%,
-    rgba(0, 0, 0, 0.42) 44%,
-    transparent 76%
+    rgba(0, 0, 0, 0.62) 52%,
+    transparent 88%
   );
   mask-image: radial-gradient(
     122% 104% at 86% 8%,
@@ -308,4 +301,91 @@ html[data-fixation="off"] span.bp-tail {
 .hero__title i {
   opacity: 0.45;
   -webkit-text-stroke: 0;
+}
+
+/* ── Terminal state of the wipe ───────────────────────────────────────────
+   The retract animation only lives while .is-writing, so the moment it is
+   replaced by .is-written the plain layer loses its clip and comes back at
+   full opacity underneath the fixation layer. Every faded tail then sits on
+   an opaque copy of the same glyph, which reads as a shadow behind the text.
+   Hold the clip in the finished state; clip-path keeps the layout box, so
+   the headline still occupies its height. */
+.hero__title.is-written .hero__title-plain {
+  clip-path: inset(0 0 0 100%);
+}
+
+/* ── Footer art: the word, split ──────────────────────────────────────────
+   The product as one image. The wordmark is drawn twice — a muted copy and a
+   fixation copy — and the split point travels the way the intensity slider
+   does, with the caret riding the boundary. */
+@property --split {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 42%;
+}
+
+.art--mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: clamp(152px, 21vw, 236px);
+  overflow: hidden;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  background:
+    radial-gradient(58% 118% at 50% 118%, var(--accent-soft), transparent 72%),
+    var(--surface);
+}
+
+.mark {
+  position: relative;
+  display: inline-block;
+  animation: mark-split 9s var(--ease) infinite;
+}
+
+.mark__off,
+.mark__on {
+  display: block;
+  font-size: clamp(84px, 17vw, 200px);
+  font-weight: 700;
+  letter-spacing: -0.055em;
+  line-height: 0.94;
+}
+
+.mark__off {
+  color: var(--hairline-strong);
+}
+
+.mark__on {
+  position: absolute;
+  inset: 0;
+  color: var(--ink);
+  clip-path: inset(0 calc(100% - var(--split)) 0 0);
+}
+
+.mark__caret {
+  position: absolute;
+  top: 8%;
+  left: var(--split);
+  width: 3px;
+  height: 84%;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+@keyframes mark-split {
+  0%,
+  100% {
+    --split: 30%;
+  }
+  50% {
+    --split: 62%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mark {
+    animation: none;
+  }
 }

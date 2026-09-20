@@ -5,8 +5,8 @@
  *
  *   .art--hero    a dense field of split dashes (a page of words) with an
  *                 emphasis wave travelling through it.
- *   .art--footer  one endless paragraph with a caret reading across it; the
- *                 words behind the caret are fixed, the words ahead are not.
+ *   .art--mark    (styled in identity.css) the wordmark split at a travelling
+ *                 fixation boundary, over the accent glow.
  *   .bpfloat      the extension's floating control, made real. Drag it, press
  *                 it, and fixation turns off across the whole page.
  *
@@ -177,9 +177,9 @@
 
         /* Deliberately quiet: this sits behind a headline, so it reads as
            paper texture with a pulse in it, never as content to look at. */
-        var accent = pulse > 0.93 && r2 > 0.78;
-        var headAlpha = 0.05 + 0.2 * Math.max(0, pulse);
-        var tailAlpha = 0.022 + 0.05 * (1 - pulse);
+        var accent = pulse > 0.9 && r2 > 0.7;
+        var headAlpha = 0.09 + 0.31 * Math.max(0, pulse);
+        var tailAlpha = 0.035 + 0.075 * (1 - pulse);
 
         ctx.fillStyle = rgba(accent ? p.swash : p.ink, tailAlpha);
         ctx.fillRect(x + head, y, Math.max(1, len - head), 2);
@@ -190,56 +190,6 @@
     }
   }
 
-  /* ---- footer: one endless paragraph, read by a caret ------------------ */
-
-  function prose(ctx, w, h, t, p) {
-    ctx.clearRect(0, 0, w, h);
-
-    var pad = 18;
-    var lineH = 17;
-    var gap = 7;
-    var rows = Math.max(1, Math.floor((h - pad * 2) / lineH));
-    var maxW = w - pad * 2;
-
-    /* One pass of the caret takes about six seconds. */
-    var cycle = 6.4;
-    var phase = (t % cycle) / cycle;
-    var sweep = pad + maxW * phase;
-
-    for (var row = 0; row < rows; row++) {
-      var y = pad + row * lineH;
-      var x = pad + (row % 3 === 1 ? 10 : 0);
-      var n = 0;
-      while (x < pad + maxW) {
-        var i = row * 131 + n;
-        var r = hash(i * 3 + 7);
-        var wordW = 10 + r * 26;
-        if (x + wordW > pad + maxW) break;
-
-        var mid = x + wordW / 2;
-        var fixed = mid < sweep;
-        var head = wordW * (0.34 + hash(i * 5 + 11) * 0.26);
-
-        if (fixed) {
-          ctx.fillStyle = rgba(p.ink, 0.5);
-          ctx.fillRect(x + head, y, Math.max(1, wordW - head), 2);
-          ctx.fillStyle = rgba(p.ink, 0.92);
-          ctx.fillRect(x, y, Math.max(1, head), 2);
-        } else {
-          ctx.fillStyle = rgba(p.mute, 0.2);
-          ctx.fillRect(x, y, wordW, 2);
-        }
-
-        x += wordW + gap;
-        n++;
-      }
-    }
-
-    /* The caret itself, fading at the turn of each pass. */
-    var edge = Math.min(1, Math.min(phase, 1 - phase) * 14);
-    ctx.fillStyle = rgba(p.accent, 0.85 * edge);
-    ctx.fillRect(Math.round(sweep), pad - 6, 2, h - pad * 2 + 12);
-  }
 
   /* ---- the floating control -------------------------------------------- */
 
@@ -392,8 +342,6 @@
   function boot() {
     var hero = document.querySelector(".art--hero");
     if (hero) mint(hero, field);
-    var footer = document.querySelector(".art--footer");
-    if (footer) mint(footer, prose);
     headline();
     floatingControl();
   }

@@ -167,17 +167,16 @@
   if (src) src.addEventListener("input", render);
   render();
 
-  /* ---- Compare slider: divider width and knob position are the only
-     runtime inline styles. Pointer drag, plus arrow keys for keyboards. --- */
+  /* ---- Compare slider ---------------------------------------------------
+     One custom property drives the clip, the divider and the handle, so a
+     drag is a single style write and nothing re-lays-out. Pointer drag, plus
+     arrow keys for keyboards. */
   var compare = $("compare");
-  var compareTop = compare ? q(".compare__top", compare) : null;
-  var knob = compare ? q(".compare__knob", compare) : null;
-  if (compare && compareTop && knob) {
+  if (compare) {
     var dragging = false;
     var split = 0.5;
     function paintSplit() {
-      compareTop.style.width = split * 100 + "%";
-      knob.style.left = split * 100 + "%";
+      compare.style.setProperty("--p", split * 100 + "%");
       compare.setAttribute("aria-valuenow", String(Math.round(split * 100)));
     }
     function fromClientX(clientX) {
