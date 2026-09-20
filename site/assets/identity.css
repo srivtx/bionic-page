@@ -336,7 +336,7 @@ html[data-fixation="off"] span.bp-tail {
   position: relative;
   display: grid;
   place-items: center;
-  height: clamp(140px, 19vw, 216px);
+  height: clamp(152px, 20vw, 232px);
   overflow: hidden;
 }
 
