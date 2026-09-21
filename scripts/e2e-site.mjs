@@ -284,7 +284,11 @@ for (const page of pages) {
      write has finished. Wait for it to settle rather than sampling the wave. */
   await waitFor(`(function(){
     var b=document.querySelector(".hero__title b.bp-head");
-    return !!b && Math.round(getComputedStyle(b).fontWeight)>=600;
+    if(!b || Math.round(getComputedStyle(b).fontWeight)<600) return false;
+    /* The write is an animation, so wait for it to finish rather than
+       sampling a frame of it. */
+    var running = b.getAnimations ? b.getAnimations().filter(function(a){return a.playState==="running"}) : [];
+    return running.length === 0;
   })()`);
 
   /* The hero headline must genuinely emphasise, and at the real weight. */
