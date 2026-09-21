@@ -25,94 +25,41 @@
     return Object.assign({}, Core.DEFAULT_SETTINGS, { mode: mode, intensity: intensity });
   }
 
-  /* ---- Theme: light, dark, or whatever the system says ---------------- */
+  /* ---- Theme: dark, light ------------------------------------------------
+     The attribute is always present, light by default, so the toggle is the
+     only thing that decides. The stored value is applied before first paint by
+     the inline script in the head. */
   var THEME_KEY = "bionic-page-theme";
-  var themePicker = q(".theme-pick");
-  var themeButtons = qa(".theme-pick__btn");
+  var themeToggle = $("theme-toggle");
+  var themeToggleText = $("theme-toggle-text");
 
-  function storedTheme() {
-    var explicit = root.getAttribute("data-theme");
-    if (explicit === "dark" || explicit === "light") return explicit;
-    try {
-      var saved = window.localStorage.getItem(THEME_KEY);
-      if (saved === "dark" || saved === "light" || saved === "system") return saved;
-    } catch (err) {
-      void 0;
-    }
-    return "system";
+  function currentTheme() {
+    var attribute = root.getAttribute("data-theme");
+    if (attribute) return attribute;
+    return typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
   }
-  function applyTheme(choice) {
-    /* "system" means no attribute, so the media query takes over. */
-    if (choice === "dark" || choice === "light") root.setAttribute("data-theme", choice);
-    else root.removeAttribute("data-theme");
-    each(themeButtons, function (button) {
-      button.setAttribute(
-        "aria-checked",
-        String(button.getAttribute("data-theme-choice") === choice),
-      );
-    });
+  function syncThemeButton() {
+    if (!themeToggle) return;
+    var dark = currentTheme() === "dark";
+    themeToggle.setAttribute("aria-pressed", String(dark));
+    if (themeToggleText) themeToggleText.textContent = dark ? "Light" : "Dark";
   }
-  function chooseTheme(choice) {
-    if (!choice) return;
-    try {
-      window.localStorage.setItem(THEME_KEY, choice);
-    } catch (err) {
-      void 0;
-    }
-    applyTheme(choice);
-  }
-  each(themeButtons, function (button) {
-    button.addEventListener("click", function () {
-      chooseTheme(button.getAttribute("data-theme-choice"));
-    });
-  });
-  if (themePicker) {
-    /* A radiogroup should answer the arrow keys. */
-    themePicker.addEventListener("keydown", function (event) {
-      var step = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 }[event.key];
-      if (!step) return;
-      event.preventDefault();
-      var list = Array.prototype.slice.call(themeButtons);
-      var at = list.indexOf(document.activeElement);
-      var next = list[((at === -1 ? 0 : at) + step + list.length) % list.length];
-      if (!next) return;
-      next.focus();
-      chooseTheme(next.getAttribute("data-theme-choice"));
-    });
-  }
-  applyTheme(storedTheme());
-
-  /* ---- Emphasis switch --------------------------------------------------
-     Off means no treatment at all: every run goes back to the weight it would
-     have had anyway. The attribute only exists when it is off, so the plain
-     page is the default and a missing attribute is not a special case. */
-  var KEY_FIX = "bionic-page-fixation";
-  var fixSwitch = $("fixation");
-
-  function applyFixation(state) {
-    var on = state !== "off";
-    if (on) root.removeAttribute("data-fixation");
-    else root.setAttribute("data-fixation", "off");
-    if (!fixSwitch) return;
-    fixSwitch.setAttribute("aria-checked", on ? "true" : "false");
-    fixSwitch.setAttribute(
-      "aria-label",
-      on ? "Bionic emphasis is on. Turn it off." : "Bionic emphasis is off. Turn it on.",
-    );
-  }
-  if (fixSwitch) {
-    fixSwitch.addEventListener("click", function () {
-      var next = fixSwitch.getAttribute("aria-checked") === "true" ? "off" : "on";
+  if (themeToggle) {
+    themeToggle.addEventListener("click", function () {
+      var next = currentTheme() === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
       try {
-        if (next === "off") window.localStorage.setItem(KEY_FIX, "off");
-        else window.localStorage.removeItem(KEY_FIX);
+        window.localStorage.setItem(THEME_KEY, next);
       } catch (err) {
         void 0;
       }
-      applyFixation(next);
+      syncThemeButton();
     });
   }
-  applyFixation(root.getAttribute("data-fixation") === "off" ? "off" : "on");
+  syncThemeButton();
 
   /* ---- Navigation ------------------------------------------------------- */
   var navToggle = $("nav-toggle");
@@ -159,10 +106,15 @@
      Each head carries its index so the wave can be staggered in CSS. The tail
      is not dimmed here: the hero shows full-strength text with heavy anchors,
      which is the point of the effect. */
-  var heroTitle = q(".hero__title");
-  var heroFix = $("hero-title-fix");
-  if (heroTitle && heroFix) {
-    paintSample(heroFix, "half");
+  var heroTitle = $("hero-title");
+  if (heroTitle) {
+    /* The design's headline carries its caret in the markup; painting the run
+       replaces the element's children, so the caret is put back after it. */
+    var caret = document.createElement("span");
+    caret.className = "hero__caret";
+    caret.setAttribute("aria-hidden", "true");
+    Core.paint(heroTitle, heroTitle.textContent, options("half", Core.DEFAULT_SETTINGS.intensity));
+    heroTitle.appendChild(caret);
     /* The entrance that reveals it is set up below, once the card is painted. */
     heroTitle.classList.add("is-written");
   }
@@ -285,9 +237,9 @@
   /* Wrap the bare text nodes of the headline in spans, so a run that the
      algorithm left as plain text can be dimmed and lit with the rest. */
   function beamTargets() {
-    if (reduceMotion || !heroEl || !heroFix) return;
+    if (reduceMotion || !heroEl || !heroTitle) return;
     var cur = null;
-    each(Array.prototype.slice.call(heroFix.childNodes), function (node) {
+    each(Array.prototype.slice.call(heroTitle.childNodes), function (node) {
       if (node.nodeType === 1 && node.classList.contains("bp-head")) {
         cur = [node];
         pairs.push(cur);
@@ -313,7 +265,7 @@
         return node.nodeType === 3 ? wrap(node) : node;
       });
     });
-    each(Array.prototype.slice.call(heroFix.childNodes), function (node) {
+    each(Array.prototype.slice.call(heroTitle.childNodes), function (node) {
       if (node.nodeType !== 1) return;
       if (node.classList.contains("hero__caret")) return;
       if (node.classList.contains("hero__highlight")) return;
