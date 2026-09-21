@@ -1,59 +1,12 @@
 /*
  * bionic-page — identity.
  *
- * The shared system lives in theme.css and lens.css. This file is the part
- * that is specifically bionic-page: the caret at the end of the headline, and
- * the footer wordmark set the way the algorithm sets a word.
+ * Deliberately almost empty. This page *is* the design: theme.css and lens.css
+ * are the design's own stylesheet, rule for rule, and the page needs no ink of
+ * its own. The sibling page (bionic-docs) carries its identity here instead —
+ * the same shared sheets, one different accent and one different hero gesture.
  *
- * The headline itself is revealed by the beam in demo.js — each anchor
- * brightens and takes a sheen as the beam reaches it — so the anchor weight is
- * a plain declaration, not an animation that would collide with it.
+ * The headline weight arrives from the design (`.hero__title .w` at 750) and
+ * from the shared `.bionic .w` rule; the compiled extension names those two
+ * `.bp-head` / `.bp-tail`, and theme.css and lens.css style both names.
  */
-
-.hero__title .bp-head {
-  font-weight: var(--fx-hero);
-}
-/* The painted run. The caret is a sibling so it can sit after the last word
-   without being wrapped by the algorithm. */
-.hero__title-fix {
-  display: inline;
-}
-.hero__title b,
-.hero__title .bp-head {
-  color: var(--bp-ink);
-}
-.hero__title .bp-tail,
-.hero__title i {
-  opacity: 1;
-}
-
-.hero__caret {
-  display: inline-block;
-  width: 3px;
-  height: 0.85em;
-  background: var(--bp-accent);
-  vertical-align: -0.06em;
-  margin-left: 4px;
-  border-radius: 2px;
-}
-/* The footer wordmark is the same word, split the way the algorithm splits
-   one: the anchor solid, the remainder quiet. */
-.footer__mark b,
-.footer__mark .bp-head {
-  font-weight: 800;
-  color: var(--bp-ink);
-}
-.footer__mark .bp-tail,
-.footer__mark i {
-  font-weight: 800;
-  color: var(--bp-hairline);
-}
-[data-theme="dark"] .footer__mark .bp-tail,
-[data-theme="dark"] .footer__mark i {
-  color: #262b35;
-}
-
-/* The mode tiles sweep their intensity on hover. */
-.tile__sample {
-  transition: opacity var(--ease);
-}

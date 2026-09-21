@@ -17,7 +17,7 @@ colors:
   ink-dark: "#F4F5F7"
   body: "#3F4550"
   body-dark: "#C3C9D4"
-  mute: "#656B76"
+  mute: "#6B7280"
   mute-dark: "#878FA0"
   canvas: "#FBFBF9"
   canvas-dark: "#0B0D11"
@@ -25,7 +25,7 @@ colors:
   canvas-soft-dark: "#13161C"
   hairline: "#E6E6DF"
   hairline-dark: "#222734"
-  success: "#047857"
+  success: "#0D9488"
   success-dark: "#34D399"
   term-bg: "#0D1117"
   term-bar: "#161B22"
@@ -436,13 +436,13 @@ declared in `theme.css` and overridden by the sibling.
   and the metric numerals.
 - **`--bp-accent-soft` — `#EDEFFF`, `#1C2034` in dark:** the current-section
   wash behind a nav link, and the icon-tile fill.
-- **`--bp-ink` / `--bp-body` / `--bp-mute` — `#14161A` / `#3F4550` / `#656B76`:**
+- **`--bp-ink` / `--bp-body` / `--bp-mute` — `#14161A` / `#3F4550` / `#6B7280`:**
   the text ramp: headlines, prose, and secondary copy.
 - **`--bp-canvas` / `--bp-canvas-soft` — `#FBFBF9` / `#F4F4F0`:** page, and the
   raised bands (rail band, metrics band, footer, demo chrome).
 - **`--bp-hairline` — `#E6E6DF`:** every border and divider, and the quiet half
   of the footer wordmark. A border-and-fill token, not a text color.
-- **`--bp-success` — `#047857`, `#34D399` in dark:** the live dot on the demo
+- **`--bp-success` — `#0D9488`, `#34D399` in dark:** the live dot on the demo
   panel only.
 - **Shadows:** three steps, `--shadow-sm`, `--shadow-md`, `--shadow-lg`, used for
   cards, panels and the terminal respectively.
