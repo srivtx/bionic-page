@@ -92,7 +92,7 @@ Packaged builds are attached to each
    or updates that host's rule. Edit the full rule list in **Options**.
 4. Press `Ctrl`/`Cmd`+`Shift`+`Y` to toggle, or use the floating **Bp** control.
 
-A full walkthrough with screenshots lives in [`site/how-to.html`](site/how-to.html).
+The walkthrough, with screenshots, is the [How it works and Controls sections](https://srivtx.github.io/bionic-page/#how) of the site.
 
 <p align="center">
   <img src="store/screenshots/02-transformed-page.png" alt="A page transformed by Bionic Page" width="620" />
@@ -157,7 +157,7 @@ active did not revert the previous pass, so the change never took effect.
 Bionic Page makes **no network requests**, has **no analytics**, and stores only
 your settings in the browser's own storage. The `<all_urls>` host permission is
 required to read page text locally; nothing is uploaded. See
-[`site/privacy.html`](site/privacy.html).
+the [`#privacy` section](https://srivtx.github.io/bionic-page/#privacy) of the site.
 
 ## FAQ
 

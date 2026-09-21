@@ -1,78 +1,36 @@
-/* bionic-page — identity.
-   The shared bionic system (fixation text, demo panel, reader, tiles) lives in
-   theme.css. This file is what makes *this* site itself and not its sibling:
-   an indigo accent, a headline that is written into place by a caret, a field
-   of emphasis breathing behind it, and a floating control that really does
-   switch the effect off. bionic-docs uses teal, a descending highlight and
-   paper — no element is shared between the two identities. */
-
-:root {
-  --accent: #4f46e5;
-  --accent-ink: #ffffff;
-  /* Used only by .swash, so the pair never reads as the same tool. */
-  --swash: #c026d3;
-}
-
-[data-theme="dark"] {
-  --accent: #818cf8;
-  --accent-ink: #0a0a0a;
-  --swash: #e879f9;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --accent: #818cf8;
-    --accent-ink: #0a0a0a;
-    --swash: #e879f9;
-  }
-}
-
-/* ── Hero: the headline is written, then it is fixed ──────────────────────
-   Two stacked copies of the same sentence. The lower one is the page before
-   the extension runs (muted, no emphasis). The upper one is the painted
-   fixation layer, revealed left to right by a wipe with a caret riding its
-   edge — the effect happening rather than described. */
-.hero--page .hero__glow {
-  background:
-    radial-gradient(52% 62% at 6% 4%, var(--accent-soft), transparent 66%),
-    radial-gradient(40% 40% at 88% 76%, color-mix(in srgb, var(--swash) 9%, transparent), transparent 70%);
-}
-
-/* ── Hero headline: the emphasis is written in ────────────────────────────
-   This used to be two stacked copies revealed by a clip, which forced them to
-   share metrics — and the only way to emphasise a head without changing its
-   advance width is an outline. A 1px outline at headline size is invisible, so
-   the animation read as a colour sweep and you could not see the emphasis
-   arrive at all.
-
-   There is one copy now. The head is genuinely heavier, so the shape changes
-   as the wave passes and the line takes its final measure as it goes.
-
-   The emphasis is drawn on 400, not on the h1's own 600. Two reasons. The head
-   has to be heavier than what is around it, and 600 against 600 is not heavier
-   — the wave would pass over the line without the shape changing. And "off"
-   has to mean off: on a 600 base, switching the emphasis off would restore
-   600 and make the headline HEAVIER than leaving it on. */
-.hero__title {
-  position: relative;
-  display: block;
-  font-weight: 400;
-}
-
-.hero__title-fix {
-  display: block;
-}
+/*
+ * bionic-page — identity.
+ *
+ * The shared system lives in theme.css and lens.css. This file is the part
+ * that is specifically bionic-page: the headline is written into place one
+ * anchor at a time, with a caret at the end of the line.
+ */
 
 .hero__title .bp-head {
   font-weight: var(--fx-hero);
 }
-
-/* The head starts thin and thickens in reading order, one step per head. */
-.hero__title.is-writing .bp-head {
-  animation: bp-weight 420ms var(--ease) both;
-  animation-delay: calc(var(--i, 0) * 55ms);
+/* The painted run. The caret is a sibling so it can sit after the last word
+   without being wrapped by the algorithm. */
+.hero__title-fix {
+  display: inline;
+}
+.hero__title b,
+.hero__title .bp-head {
+  color: var(--bp-ink);
+}
+.hero__title .bp-tail,
+.hero__title i {
+  opacity: 1;
 }
 
+/* The write. Each head rises to its anchor weight in turn; the delay is the
+   head's index, handed over as --i. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero__title.is-writing .bp-head {
+    animation: bp-weight var(--write, 1.6s) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+}
 @keyframes bp-weight {
   from {
     font-weight: 400;
@@ -81,218 +39,81 @@
     font-weight: var(--fx-hero);
   }
 }
-
 .hero__title.is-written .bp-head {
   font-weight: var(--fx-hero);
 }
 
-/* Rides the wave. Travel distance is measured in JS (--caret-w) and the
-   duration is set by JS to exactly cover the last head's delay. */
 .hero__caret {
-  position: absolute;
-  top: 0.08em;
-  bottom: 0.08em;
-  left: 0;
-  width: 2px;
-  border-radius: 1px;
-  background: var(--swash);
-  opacity: 0;
-}
-
-.hero__title.is-writing .hero__caret {
-  animation: bp-caret var(--write, 2.4s) var(--ease) both,
-    bp-blink 0.9s steps(1) 4;
-}
-
-.hero__title.is-written .hero__caret {
-  display: none;
-}
-
-@keyframes bp-caret {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(var(--caret-w, 100%));
-    opacity: 1;
-  }
-}
-
-@keyframes bp-blink {
-  50% {
-    opacity: 0.15;
-  }
-}
-
-/* ── Generative art ───────────────────────────────────────────────────────
-   Canvas layers drawn by assets/art.js. The hero field is a dense grid of
-   split dashes under a travelling emphasis wave; the footer is one endless
-   paragraph with a caret reading it. */
-.art {
-  display: block;
-  width: 100%;
-}
-
-.art--hero {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  height: 100%;
-}
-
-
-
-/* ── Swash ────────────────────────────────────────────────────────────────
-   A half-height highlight behind a phrase, the way a reader marks a line. */
-.swash {
-  background-image: linear-gradient(
-    transparent 62%,
-    color-mix(in srgb, var(--swash) 26%, transparent) 62%
-  );
-  padding-inline: 0.08em;
-}
-
-
-
-/* The field is loudest in the top-right and cleared away from the copy, so
-   it reads as texture rather than competing with the headline. */
-.art--hero {
-  -webkit-mask-image: radial-gradient(
-    122% 104% at 86% 8%,
-    #000 0%,
-    rgba(0, 0, 0, 0.62) 52%,
-    transparent 88%
-  );
-  mask-image: radial-gradient(
-    122% 104% at 86% 8%,
-    #000 0%,
-    rgba(0, 0, 0, 0.42) 44%,
-    transparent 76%
-  );
-}
-
-/* The faded remainder is what makes the emphasis legible as emphasis, rather
-   than as an ordinary bold sentence. */
-.hero__title .bp-tail,
-.hero__title i {
-  opacity: 0.45;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* No wave: the heads are simply already heavy. */
-  .hero__title.is-writing .bp-head {
-    animation: none;
-  }
-}
-
-
-/* ── Footer art: the word, split ──────────────────────────────────────────
-   The product as one image. The wordmark is drawn twice — a muted copy and a
-   fixation copy — and the split point travels the way the intensity slider
-   does, with the caret riding the boundary. */
-@property --split {
-  syntax: "<percentage>";
-  inherits: true;
-  initial-value: 42%;
-}
-
-.art--mark {
-  position: relative;
-  display: grid;
-  place-items: center;
-  height: clamp(152px, 20vw, 232px);
-  overflow: hidden;
-}
-
-.mark {
-  position: relative;
   display: inline-block;
-  animation: mark-split 9s var(--ease) infinite;
-}
-
-.mark__off,
-.mark__on {
-  display: block;
-  font-size: clamp(84px, 17vw, 200px);
-  font-weight: 700;
-  letter-spacing: -0.055em;
-  line-height: 0.94;
-}
-
-.mark__off {
-  color: var(--hairline-strong);
-}
-
-.mark__on {
-  position: absolute;
-  inset: 0;
-  color: var(--ink);
-  clip-path: inset(0 calc(100% - var(--split)) 0 0);
-}
-
-.mark__caret {
-  position: absolute;
-  top: 8%;
-  left: var(--split);
   width: 3px;
-  height: 84%;
-  transform: translateX(-50%);
+  height: 0.82em;
+  background: var(--bp-accent);
+  vertical-align: -0.06em;
+  margin-left: 5px;
   border-radius: 2px;
-  background: var(--accent);
 }
-
-@keyframes mark-split {
-  0%,
-  100% {
-    --split: 30%;
+@media (prefers-reduced-motion: no-preference) {
+  .hero__title.is-written .hero__caret {
+    animation: bp-caret 1.1s steps(2) infinite;
   }
+}
+@keyframes bp-caret {
   50% {
-    --split: 62%;
+    opacity: 0;
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
-  .mark {
-    animation: none;
+  .hero__caret {
+    background: var(--bp-hairline);
   }
 }
 
-/* ── Off means off ────────────────────────────────────────────────────────
-   Switching the emphasis off removes it from everything the page renders,
-   everywhere it appears: the headline, the samples, the demo, the reader. The
-   text returns to the weight and opacity it would have had anyway — which is
-   `inherit`, not 400.
-
-   That difference is the whole point of this rule. Splitting a word needs at
-   least two letters, so a one-letter word is never wrapped: `a` and `I` stay
-   bare text nodes. In the hero the bare word sits inside the `h1`, whose own
-   weight is 600, so resetting only the wrapped runs to 400 left that one word
-   as the heaviest thing in the line — the emphasis switched off everywhere
-   except the letter `a`. Inheriting makes the whole run uniform again, at the
-   weight the element actually has: 600 in a heading, 400 in a paragraph. */
-html[data-fixation="off"] .bionic b,
-html[data-fixation="off"] b.bp-head {
-  font-weight: inherit;
+/* The footer wordmark is the same word, split the way the algorithm splits
+   one: the anchor solid, the remainder quiet. */
+.footer__mark b,
+.footer__mark .bp-head {
+  font-weight: 800;
+  color: var(--bp-ink);
+}
+.footer__mark .bp-tail,
+.footer__mark i {
+  font-weight: 800;
+  color: var(--bp-hairline);
+}
+[data-theme="dark"] .footer__mark .bp-tail,
+[data-theme="dark"] .footer__mark i {
+  color: #262b35;
 }
 
-html[data-fixation="off"] .bionic i,
-html[data-fixation="off"] span.bp-tail {
-  font-weight: inherit;
-  opacity: 1;
+/* The mode tiles sweep their intensity on hover. */
+.tile__sample {
+  transition: opacity var(--ease);
 }
 
-/* ── With emphasis off, the headline is a headline ────────────────────────
-   The nav switch can switch the emphasis off, and that has to include the
-   wave: an animation outranks a plain declaration, so it is cancelled rather
-   than countered. */
+/*
+ * Emphasis off. These have to outrank the more specific rules above, so they
+ * are written at the same depth as the thing they are switching off: an
+ * animation outranks a plain declaration, so it is cancelled rather than
+ * countered.
+ */
+html[data-fixation="off"] .hero__title .bp-head,
 html[data-fixation="off"] .hero__title.is-writing .bp-head,
-html[data-fixation="off"] .hero__title .bp-head {
+html[data-fixation="off"] .hero__title .bp-tail,
+html[data-fixation="off"] .hero__title i {
   animation: none;
   font-weight: inherit;
+  color: inherit;
+  opacity: 1;
 }
-
-html[data-fixation="off"] .hero__title .bp-tail {
+html[data-fixation="off"] .hero__caret {
+  animation: none;
+  background: var(--bp-hairline);
+}
+html[data-fixation="off"] .footer__mark .bp-head,
+html[data-fixation="off"] .footer__mark b,
+html[data-fixation="off"] .footer__mark .bp-tail,
+html[data-fixation="off"] .footer__mark i {
   font-weight: inherit;
+  color: inherit;
   opacity: 1;
 }

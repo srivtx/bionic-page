@@ -1,27 +1,35 @@
-/* bionic-page — site behaviour: the live demo, the fixation samples, the
-   compare slider, and the shared theme and navigation toggles. No network.
-   If assets/core.js did not load, plain text stays and the demo controls are
-   hidden instead of throwing. */
+/* bionic-page — site behaviour.
+ *
+ * One page, one script. It paints the fixation samples with the extension's own
+ * compiled algorithm, runs the live demo and the compare divider, and wires the
+ * chrome around them: theme, navigation, the emphasis switch, the reading card,
+ * the rails, the FAQ, and the small pieces of scroll behaviour.
+ *
+ * No network. If assets/core.js did not load, plain text stays and the demo
+ * controls are hidden instead of throwing.
+ */
 (function () {
   "use strict";
 
   var root = document.documentElement;
   var Core = window.BionicCore;
+  var reduceMotion =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function each(list, fn) { Array.prototype.forEach.call(list, fn); }
   function $(id) { return document.getElementById(id); }
   function q(selector, scope) { return (scope || document).querySelector(selector); }
   function qa(selector, scope) { return (scope || document).querySelectorAll(selector); }
+  function options(mode, intensity) {
+    return Object.assign({}, Core.DEFAULT_SETTINGS, { mode: mode, intensity: intensity });
+  }
 
   /* ---- Theme: light, dark, or whatever the system says ---------------- */
   var THEME_KEY = "bionic-page-theme";
   var themePicker = q(".theme-pick");
   var themeButtons = qa(".theme-pick__btn");
 
-  function prefersDark() {
-    return typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-  }
   function storedTheme() {
     var explicit = root.getAttribute("data-theme");
     if (explicit === "dark" || explicit === "light") return explicit;
@@ -43,8 +51,6 @@
         String(button.getAttribute("data-theme-choice") === choice),
       );
     });
-    /* art.js re-reads its colour tokens off this event. */
-    window.dispatchEvent(new Event("themechange"));
   }
   function chooseTheme(choice) {
     if (!choice) return;
@@ -76,25 +82,15 @@
   }
   applyTheme(storedTheme());
 
-  /* ----- Emphasis switch -------------------------------------------------
-     Lives in the nav, so it is bound here with the rest of the header: that
-     markup is the same on every page and is never replaced by a client-side
-     navigation, so it must not be bound twice. */
+  /* ---- Emphasis switch --------------------------------------------------
+     Off means no treatment at all: every run goes back to the weight it would
+     have had anyway. The attribute only exists when it is off, so the plain
+     page is the default and a missing attribute is not a special case. */
   var KEY_FIX = "bionic-page-fixation";
-  var fixSwitch = q("#fixation");
-
-  function readFixation() {
-    try {
-      return window.localStorage.getItem(KEY_FIX) === "off" ? "off" : "on";
-    } catch (err) {
-      return "on";
-    }
-  }
+  var fixSwitch = $("fixation");
 
   function applyFixation(state) {
     var on = state !== "off";
-    /* The attribute only ever exists when the emphasis is off, so the plain
-       page is the default and a missing attribute is not a special case. */
     if (on) root.removeAttribute("data-fixation");
     else root.setAttribute("data-fixation", "off");
     if (!fixSwitch) return;
@@ -104,7 +100,6 @@
       on ? "Bionic emphasis is on. Turn it off." : "Bionic emphasis is off. Turn it on.",
     );
   }
-
   if (fixSwitch) {
     fixSwitch.addEventListener("click", function () {
       var next = fixSwitch.getAttribute("aria-checked") === "true" ? "off" : "on";
@@ -117,10 +112,7 @@
       applyFixation(next);
     });
   }
-
-  applyFixation(readFixation());
-
-
+  applyFixation(root.getAttribute("data-fixation") === "off" ? "off" : "on");
 
   /* ---- Navigation ------------------------------------------------------- */
   var navToggle = $("nav-toggle");
@@ -144,156 +136,392 @@
     });
   }
 
-  function options(mode, intensity) {
-    return Object.assign({}, Core.DEFAULT_SETTINGS, { mode: mode, intensity: intensity });
+  /* ---- Page wiring ------------------------------------------------------
+     The samples are painted with the real algorithm, so what the page shows is
+     what the extension injects. */
+  function paintSample(el, mode, intensity) {
+    Core.paint(el, el.textContent, options(mode, intensity || Core.DEFAULT_SETTINGS.intensity));
   }
 
-  /* ---- Page wiring ------------------------------------------------------
-     Everything below is page content, and client-side navigation replaces
-     page content. It lives in a function so it can be run again against the
-     new document. The header wiring above is deliberately outside it: that
-     markup never changes, so it must never be bound a second time. */
-  function wirePage() {
-    /* Fail soft: no core, no demo. Hide the controls, keep plain text. */
-    if (!Core || typeof Core.paint !== "function") {
-      each(qa(".bdemo__tools"), function (el) {
-        el.hidden = true;
-      });
-      return;
-    }
-
-    /* ---- Fixation samples (mode tiles and the compare panel) -------------- */
-    each(qa("[data-bionic-sample]"), function (el) {
-      var mode = el.getAttribute("data-bionic-sample");
-      Core.paint(el, el.textContent, options(mode, Core.DEFAULT_SETTINGS.intensity));
+  /* Fail soft: no core, no demo. Hide the controls, keep plain text. */
+  if (!Core || typeof Core.paint !== "function") {
+    each(qa(".bdemo__tools, .readcard__ctrl"), function (el) {
+      el.hidden = true;
     });
+    return;
+  }
 
-    /* ---- Hero ------------------------------------------------------------- */
-    var hero = $("hero-title-fix");
-    if (hero) {
-      /* "dim" is the mode that wraps the remainder in span.bp-tail, so the
-         fixation head and the faded tail are both visible at poster size.
-         The live demo below starts on the extension's real default (half). */
-      Core.paint(hero, hero.textContent, options("dim", Core.DEFAULT_SETTINGS.intensity));
+  each(qa("[data-bionic-sample]"), function (el) {
+    paintSample(el, el.getAttribute("data-bionic-sample"));
+  });
+
+  /* ---- The headline, written into place ---------------------------------
+     Each head carries its index so the wave can be staggered in CSS. The tail
+     is not dimmed here: the hero shows full-strength text with heavy anchors,
+     which is the point of the effect. */
+  var heroTitle = q(".hero__title");
+  var heroFix = $("hero-title-fix");
+  if (heroTitle && heroFix) {
+    paintSample(heroFix, "half");
+    var heroHeads = qa("b.bp-head", heroFix);
+    each(heroHeads, function (head, i) {
+      head.style.setProperty("--i", String(i));
+    });
+    if (reduceMotion || heroHeads.length === 0) {
+      heroTitle.classList.add("is-written");
+    } else {
+      var write = Math.min(2, 0.55 + heroHeads.length * 0.055);
+      heroTitle.style.setProperty("--write", write.toFixed(2) + "s");
+      heroTitle.classList.add("is-writing");
+      window.setTimeout(function () {
+        heroTitle.classList.remove("is-writing");
+        heroTitle.classList.add("is-written");
+      }, write * 1000 + heroHeads.length * 55 + 80);
     }
+  }
 
-    /* ---- Live demo -------------------------------------------------------- */
-    var state = { mode: "half", intensity: Core.DEFAULT_SETTINGS.intensity };
-    var src = $("demo-src");
-    var out = $("demo-out");
-    var chips = $("demo-modes");
-    var range = $("intensity");
-    var rangeOut = q('output[for="intensity"]');
-    var statWords = $("stat-words");
-    var statChars = $("stat-chars");
-    var statMode = $("stat-mode");
-
-    function render() {
-      if (!out) return;
-      var text = src ? src.value : "";
-      Core.paint(out, text, options(state.mode, state.intensity));
-      var chars = 0;
-      each(qa("b.bp-head", out), function (head) {
-        chars += head.textContent.length;
-      });
-      if (statWords) statWords.innerHTML = "<b>" + Core.countWords(text) + "</b> words";
-      if (statChars) {
-        statChars.innerHTML = "<b>" + chars + "</b> characters emphasized";
+  /* ---- The reading card -------------------------------------------------
+     The slider repaints the card so the effect is visible while you drag. */
+  var readcardBody = $("readcard-body");
+  var heroRange = $("hero-intensity");
+  var heroRangeOut = $("hero-intensity-out");
+  if (readcardBody && heroRange) {
+    var cardState = { mode: "half", intensity: Core.DEFAULT_SETTINGS.intensity };
+    function paintCard() {
+      Core.paint(
+        readcardBody,
+        readcardBody.textContent,
+        options(cardState.mode, cardState.intensity),
+      );
+      if (heroRangeOut) {
+        heroRangeOut.textContent = cardState.intensity.toFixed(2) + " · " + cardState.mode;
       }
-      if (statMode) statMode.innerHTML = "mode: <b>" + state.mode + "</b>";
     }
-    function setMode(mode) {
-      state.mode = mode;
-      each(qa(".mchip", chips), function (chip) {
-        chip.setAttribute("aria-pressed", String(chip.getAttribute("data-mode") === mode));
+    heroRange.addEventListener("input", function () {
+      cardState.intensity = Number(heroRange.value) / 100;
+      paintCard();
+    });
+    paintCard();
+  }
+
+  /* ---- Hero word chips -------------------------------------------------- */
+  var heroWords = $("hero-words");
+  if (heroWords) {
+    ["anchoring", "fixation", "reversible", "offline", "rhythm", "predictable"].forEach(
+      function (word) {
+        var chip = document.createElement("span");
+        chip.className = "wchip";
+        chip.textContent = word;
+        Core.paint(chip, word, options("dim", 0.5));
+        heroWords.appendChild(chip);
+      },
+    );
+  }
+
+  /* ---- Rails: duplicate each track so the loop has no seam -------------- */
+  each(qa(".rail__track"), function (track) {
+    each(Array.prototype.slice.call(track.children), function (child) {
+      var copy = child.cloneNode(true);
+      copy.setAttribute("aria-hidden", "true");
+      /* The browser logos are referenced by id from the originals; a duplicate
+         id would be two elements claiming the same name. */
+      each(qa("[id]", copy), function (node) {
+        node.removeAttribute("id");
       });
-      render();
-    }
-    if (chips && Core.MODES) {
-      each(Core.MODES, function (mode) {
-        var li = document.createElement("li");
-        var button = document.createElement("button");
-        button.type = "button";
-        button.className = "mchip";
-        button.textContent = mode.label;
-        button.setAttribute("data-mode", mode.id);
-        button.setAttribute("aria-pressed", String(mode.id === state.mode));
-        button.addEventListener("click", function () {
-          setMode(mode.id);
-        });
-        li.appendChild(button);
-        chips.appendChild(li);
-      });
-    }
-    if (range) {
-      range.addEventListener("input", function () {
-        state.intensity = Number(range.value) / 100;
-        if (rangeOut) rangeOut.textContent = state.intensity.toFixed(1);
-        render();
-      });
-      if (rangeOut) rangeOut.textContent = state.intensity.toFixed(1);
-    }
-    if (src) src.addEventListener("input", render);
+      track.appendChild(copy);
+    });
+  });
+
+  /* ---- Live demo -------------------------------------------------------- */
+  var state = { mode: "half", intensity: Core.DEFAULT_SETTINGS.intensity };
+  var src = $("demo-src");
+  var out = $("demo-out");
+  var chips = $("demo-modes");
+  var range = $("intensity");
+  var rangeOut = $("intensity-out");
+  var statWords = $("stat-words");
+  var statChars = $("stat-chars");
+  var statMode = $("stat-mode");
+
+  function render() {
+    if (!out) return;
+    var text = src ? src.value : "";
+    Core.paint(out, text, options(state.mode, state.intensity));
+    var chars = 0;
+    each(qa("b.bp-head", out), function (head) {
+      chars += head.textContent.length;
+    });
+    /* The labels around these numbers are markup now, so only the value is
+       written here. */
+    if (statWords) statWords.textContent = String(Core.countWords(text));
+    if (statChars) statChars.textContent = String(chars);
+    if (statMode) statMode.textContent = state.mode;
+  }
+  function setMode(mode) {
+    state.mode = mode;
+    each(qa(".mchip", chips), function (chip) {
+      chip.setAttribute("aria-pressed", String(chip.getAttribute("data-mode") === mode));
+    });
     render();
+  }
+  if (chips && Core.MODES) {
+    each(Core.MODES, function (mode) {
+      var li = document.createElement("li");
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "mchip";
+      button.textContent = mode.label;
+      button.setAttribute("data-mode", mode.id);
+      button.setAttribute("aria-pressed", String(mode.id === state.mode));
+      button.addEventListener("click", function () {
+        setMode(mode.id);
+      });
+      li.appendChild(button);
+      chips.appendChild(li);
+    });
+  }
+  if (range) {
+    range.addEventListener("input", function () {
+      state.intensity = Number(range.value) / 100;
+      if (rangeOut) rangeOut.textContent = state.intensity.toFixed(2);
+      render();
+    });
+    if (rangeOut) rangeOut.textContent = state.intensity.toFixed(2);
+  }
+  if (src) src.addEventListener("input", render);
+  render();
 
-    /* ---- Compare slider ---------------------------------------------------
-       One custom property drives the clip, the divider and the handle, so a
-       drag is a single style write and nothing re-lays-out. Pointer drag, plus
-       arrow keys for keyboards. */
-    var compare = $("compare");
-    if (compare) {
-      var dragging = false;
-      var split = 0.5;
-      function paintSplit() {
-        var pct = Math.round(split * 100);
-        compare.style.setProperty("--p", pct + "%");
-        compare.setAttribute("aria-valuenow", String(pct));
-        /* Screen readers get the same reading the labels give the eye. */
-        compare.setAttribute("aria-valuetext", pct + "% bionic, " + (100 - pct) + "% as written");
+  var shuffle = $("demo-shuffle");
+  if (shuffle && src) {
+    var PASSAGES = [
+      "Reading is a sequence of small jumps. The eye lands on a word, takes in enough to recognise it, then moves on. A fixation point at the start of a word gives that landing a predictable place.",
+      "Most reading advice is about speed. The more useful question is where your eye comes to rest. A consistent anchor at the start of each word removes one decision from every single word.",
+      "Long documents are where the effect shows up. A short paragraph can be read in one glance regardless; the tenth screen of an article is where an anchor per word either helps you or does not.",
+      "Typography has always done this. A bold or small-caps opening, a coloured initial, a heavier stem on the left of a letter — the eye is given somewhere to land, and the rest follows.",
+      "Nothing is decided for the reader. Intensity, mode, minimum word length and the fade are all yours, per site if you want, and the original text nodes come back untouched the moment you switch it off.",
+    ];
+    var next = 0;
+    shuffle.addEventListener("click", function () {
+      src.value = PASSAGES[next % PASSAGES.length];
+      next++;
+      render();
+    });
+  }
+
+  /* ---- Mode tiles: hover sweeps the intensity --------------------------- */
+  if (Core.MODES) {
+    each(qa(".tile"), function (tile) {
+      var sample = q(".tile__sample", tile);
+      if (!sample) return;
+      var mode = sample.getAttribute("data-bionic-sample") || "half";
+      var raf = 0;
+      var t0 = 0;
+      function sweep(now) {
+        if (!t0) t0 = now;
+        var phase = ((now - t0) % 2200) / 2200;
+        /* Up and back, so the card breathes rather than jumping. */
+        var wave = Math.sin(phase * Math.PI * 2);
+        var intensity = Math.max(0.2, Math.min(0.9, 0.5 + wave * 0.22));
+        Core.paint(sample, sample.textContent, options(mode, intensity));
+        raf = window.requestAnimationFrame(sweep);
       }
-      function fromClientX(clientX) {
-        var rect = compare.getBoundingClientRect();
-        if (rect.width <= 0) return;
-        split = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
-        paintSplit();
+      function stop() {
+        if (raf) window.cancelAnimationFrame(raf);
+        raf = 0;
+        t0 = 0;
+        Core.paint(sample, sample.textContent, options(mode, Core.DEFAULT_SETTINGS.intensity));
       }
-      compare.addEventListener("pointerdown", function (event) {
-        dragging = true;
-        compare.classList.add("is-dragging");
-        if (compare.setPointerCapture) {
-          try {
-            compare.setPointerCapture(event.pointerId);
-          } catch (err) {
-            void 0;
-          }
-        }
-        fromClientX(event.clientX);
-      });
-      compare.addEventListener("pointermove", function (event) {
-        if (dragging) fromClientX(event.clientX);
-      });
-      function endDrag() {
-        dragging = false;
-        compare.classList.remove("is-dragging");
+      if (!reduceMotion) {
+        tile.addEventListener("pointerenter", function () {
+          if (!raf) raf = window.requestAnimationFrame(sweep);
+        });
+        tile.addEventListener("pointerleave", stop);
+        tile.addEventListener("focusin", function () {
+          if (!raf) raf = window.requestAnimationFrame(sweep);
+        });
+        tile.addEventListener("focusout", stop);
       }
-      compare.addEventListener("pointerup", endDrag);
-      compare.addEventListener("pointercancel", endDrag);
-      compare.addEventListener("keydown", function (event) {
-        var step = event.shiftKey ? 0.1 : 0.02;
-        if (event.key === "ArrowLeft") split -= step;
-        else if (event.key === "ArrowRight") split += step;
-        else if (event.key === "Home") split = 0;
-        else if (event.key === "End") split = 1;
-        else return;
-        event.preventDefault();
-        split = Math.min(1, Math.max(0, split));
-        paintSplit();
-      });
+    });
+  }
+
+  /* ---- Compare divider --------------------------------------------------
+     One custom property drives the clip, the divider and the handle, so a drag
+     is a single style write and nothing re-lays-out. Pointer drag, arrow keys
+     for keyboards, and one slow sweep to show what it is for. */
+  var compare = $("compare");
+  if (compare) {
+    var dragging = false;
+    var touched = false;
+    var split = 0.5;
+    var pct = $("compare-pct");
+    function paintSplit() {
+      var value = Math.round(split * 100);
+      compare.style.setProperty("--p", value + "%");
+      compare.setAttribute("aria-valuenow", String(value));
+      compare.setAttribute("aria-valuetext", value + "% bionic, " + (100 - value) + "% as written");
+      if (pct) pct.textContent = value + "%";
+    }
+    function fromClientX(clientX) {
+      var rect = compare.getBoundingClientRect();
+      if (rect.width <= 0) return;
+      split = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
       paintSplit();
     }
+    compare.addEventListener("pointerdown", function (event) {
+      dragging = true;
+      touched = true;
+      compare.classList.add("is-dragging");
+      if (compare.setPointerCapture) {
+        try {
+          compare.setPointerCapture(event.pointerId);
+        } catch (err) {
+          void 0;
+        }
+      }
+      fromClientX(event.clientX);
+    });
+    compare.addEventListener("pointermove", function (event) {
+      if (dragging) fromClientX(event.clientX);
+    });
+    function endDrag() {
+      dragging = false;
+      compare.classList.remove("is-dragging");
+    }
+    compare.addEventListener("pointerup", endDrag);
+    compare.addEventListener("pointercancel", endDrag);
+    compare.addEventListener("keydown", function (event) {
+      var step = event.shiftKey ? 0.1 : 0.02;
+      if (event.key === "ArrowLeft") split -= step;
+      else if (event.key === "ArrowRight") split += step;
+      else if (event.key === "Home") split = 0;
+      else if (event.key === "End") split = 1;
+      else return;
+      event.preventDefault();
+      touched = true;
+      split = Math.min(1, Math.max(0, split));
+      paintSplit();
+    });
+    paintSplit();
+
+    if (!reduceMotion && "IntersectionObserver" in window) {
+      var seen = new IntersectionObserver(function (entries) {
+        each(entries, function (entry) {
+          if (!entry.isIntersecting) return;
+          seen.disconnect();
+          if (touched) return;
+          var started = 0;
+          function step(now) {
+            if (touched) return;
+            if (!started) started = now;
+            var t = Math.min(1, (now - started) / 1700);
+            /* Out and back, easing both ends. */
+            split = 0.5 + Math.sin(t * Math.PI) * 0.2;
+            paintSplit();
+            if (t < 1) window.requestAnimationFrame(step);
+          }
+          window.requestAnimationFrame(step);
+        });
+      }, { threshold: 0.4 });
+      seen.observe(compare);
+    }
   }
 
-  wirePage();
-  window.BionicSite = window.BionicSite || { init: [] };
-  window.BionicSite.init.push(wirePage);
+  /* ---- FAQ -------------------------------------------------------------- */
+  each(qa(".faq__item"), function (item) {
+    var button = q(".faq__q", item);
+    var panel = q(".faq__a", item);
+    if (!button || !panel) return;
+    button.addEventListener("click", function () {
+      var open = item.classList.toggle("open");
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+      panel.style.maxHeight = open ? panel.scrollHeight + "px" : "";
+    });
+  });
+
+  /* ---- Copy the install commands ---------------------------------------- */
+  var copy = $("term-copy");
+  var termBody = $("term-body");
+  if (copy && termBody && navigator.clipboard) {
+    copy.addEventListener("click", function () {
+      var lines = [];
+      each(qa(".term__line", termBody), function (line) {
+        lines.push(line.textContent.replace(/\s+/g, " ").trim());
+      });
+      navigator.clipboard.writeText(lines.join("\n")).then(
+        function () {
+          copy.textContent = "Copied";
+          window.setTimeout(function () {
+            copy.textContent = "Copy all";
+          }, 1600);
+        },
+        function () {
+          void 0;
+        },
+      );
+    });
+  }
+
+  /* ---- Scroll behaviour: progress, nav, reveals, spy, back to top ------- */
+  var progress = $("progress");
+  var header = $("nav");
+  var totop = $("totop");
+
+  function onScroll() {
+    var y = window.pageYOffset || root.scrollTop || 0;
+    var max = root.scrollHeight - window.innerHeight;
+    if (progress) progress.style.width = (max > 0 ? (y / max) * 100 : 0) + "%";
+    if (header) header.classList.toggle("scrolled", y > 8);
+    if (totop) totop.classList.toggle("show", y > 640);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  if (totop) {
+    totop.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    });
+  }
+
+  /* Reveals are added here rather than in the markup, so a visitor without
+     JavaScript sees the whole page instead of a blank one. */
+  if (!reduceMotion && "IntersectionObserver" in window) {
+    var reveals = qa(
+      ".section__head, .bdemo, .compare, .tile, .step, .panel, .card, .metric, .term, .faq__item, .prose",
+    );
+    var revealObserver = new IntersectionObserver(
+      function (entries) {
+        each(entries, function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("rv", "in");
+          revealObserver.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -8% 0px" },
+    );
+    each(reveals, function (el) {
+      el.classList.add("rv");
+      revealObserver.observe(el);
+    });
+  }
+
+  /* Which section you are reading. */
+  if ("IntersectionObserver" in window && nav) {
+    var links = qa("a[href^='#']", nav);
+    var spy = new IntersectionObserver(
+      function (entries) {
+        each(entries, function (entry) {
+          if (!entry.isIntersecting) return;
+          var id = entry.target.getAttribute("id");
+          each(links, function (link) {
+            if (link.getAttribute("href") === "#" + id) link.setAttribute("aria-current", "true");
+            else link.removeAttribute("aria-current");
+          });
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    each(qa("section[id]"), function (section) {
+      spy.observe(section);
+    });
+  }
 })();

@@ -327,7 +327,13 @@ for (const page of pages) {
   const hasCompare = await ev(`document.querySelector(".compare") ? 1 : 0`);
   if (hasCompare) {
     await ev(`document.querySelector(".compare").scrollIntoView({block:"center"})`);
-    await sleep(250);
+    /* Scrolling is smooth, so the element is still travelling when we first
+       look: wait until it has arrived instead of measuring it mid-flight. */
+    await waitFor(`(function(){
+      var r=document.querySelector(".compare").getBoundingClientRect();
+      return r.top>12 && r.bottom<window.innerHeight-12;
+    })()`);
+    await sleep(120);
     const rect = JSON.parse(
       await ev(`(function(){var r=document.querySelector('.compare').getBoundingClientRect();return JSON.stringify({x:r.x,y:r.y,w:r.width,h:r.height})})()`),
     );

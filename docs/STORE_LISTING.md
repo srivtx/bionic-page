@@ -11,7 +11,7 @@ options).
 - **Summary (Firefox, ≤250 chars):** Turn any web page into a bionic reading page. Emphasize the leading letters of each word with five configurable modes, per-site control, a floating on/off control, and full reversibility. Runs locally; no network requests and no analytics.
 - **Category:** Accessibility (Chrome) / Reading & News (AMO alt: Accessibility)
 - **Language:** English
-- **Homepage / privacy policy:** `site/index.html`, `site/privacy.html` (host these and paste the URLs).
+- **Homepage / privacy policy:** the one page, `site/index.html` — the policy is the `#privacy` section (paste `https://srivtx.github.io/bionic-page/#privacy`).
 
 ## Detailed description
 

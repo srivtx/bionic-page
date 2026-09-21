@@ -1,28 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://srivtx.github.io/bionic-page/index.html</loc>
+    <loc>https://srivtx.github.io/bionic-page/</loc>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://srivtx.github.io/bionic-page/faq.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://srivtx.github.io/bionic-page/how-to.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://srivtx.github.io/bionic-page/modes.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://srivtx.github.io/bionic-page/privacy.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
 </urlset>

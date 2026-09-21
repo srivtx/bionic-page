@@ -510,16 +510,22 @@ It shares the **Lens suite** base system (`site/assets/lens.css`,
 `site/assets/theme.css`) with its sibling, and differs only in identity
 (`site/assets/identity.css`).
 
-The personality is **engineered and quiet**: a 4px rhythm, 1120px container,
-hairline borders, no heavy shadows, and exactly one accent. The page should read
-like a precise instrument that explains itself — measured numbers, reversible
-behaviour, and a live demo that runs the extension's own algorithm offline.
+The personality is **engineered and quiet**: a 1120px container, hairline
+borders, layered soft shadows, 12/20/pill radii, and exactly one accent. The page
+should read like a precise instrument that explains itself — measured numbers,
+reversible behaviour, and a live demo that runs the extension's own algorithm
+offline.
 
-This identity is **indigo**, and its signature is a headline that is *written
-into place* by a caret, over a canvas field of emphasis that breathes behind the
-copy (drawn by `assets/art.js`). The sibling uses teal, a descending highlight
-and paper; the two identities share no element. Every rule here is a **soft
-rule** that fades out at the margins — no line runs edge to edge.
+The page is one document: a fixed nav, a hero with a live reading card, a band of
+scrolling rails, then numbered sections, then a footer whose wordmark is set the
+way the algorithm sets a word. This identity is **indigo**, and its signature is
+a headline that is *written into place* one anchor at a time, with a caret at the
+end of the line. The sibling uses teal and a different signature; the two share
+the same base system and no identity.
+
+UI type is Geist and Geist Mono, self-hosted. Reading text — the demo, the
+compare panel, the mode samples — is set in a serif, because that is the kind of
+text the extension is for.
 
 ## Colors
 
