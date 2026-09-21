@@ -108,13 +108,10 @@
      which is the point of the effect. */
   var heroTitle = $("hero-title");
   if (heroTitle) {
-    /* The design's headline carries its caret in the markup; painting the run
-       replaces the element's children, so the caret is put back after it. */
-    var caret = document.createElement("span");
-    caret.className = "hero__caret";
-    caret.setAttribute("aria-hidden", "true");
+    /* Painting the run replaces the element's children, which is what the
+       design does too — its caret span in the markup does not survive the
+       render, so there is no cursor next to the headline. */
     Core.paint(heroTitle, heroTitle.textContent, options("half", Core.DEFAULT_SETTINGS.intensity));
-    heroTitle.appendChild(caret);
     /* The entrance that reveals it is set up below, once the card is painted. */
     heroTitle.classList.add("is-written");
   }
