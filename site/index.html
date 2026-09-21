@@ -3,28 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>bionic-page — turn any web page into a bionic reading page</title>
+<title>Bionic Page — turn any web page into a bionic reading page</title>
 <meta name="description" content="bionic-page is a Manifest V3 extension for Chrome and Firefox that rewrites the readable text of a page so the leading part of each word carries more weight. Five modes, per-site control, fully reversible, no network.">
 <meta name="theme-color" content="#fbfbf9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
-<meta property="og:title" content="bionic-page — turn any web page into a bionic reading page">
+<meta property="og:title" content="Bionic Page — turn any web page into a bionic reading page">
 <meta property="og:description" content="A Chrome and Firefox extension that emphasizes the leading part of each word. Five modes, per-site control, fully reversible, no network.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://srivtx.github.io/bionic-page/index.html">
 <meta property="og:image" content="https://srivtx.github.io/bionic-page/assets/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="bionic-page — a word with a solid head and a faded tail">
+<meta property="og:image:alt" content="Bionic Page — a word with a solid head and a faded tail">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="bionic-page — turn any web page into a bionic reading page">
+<meta name="twitter:title" content="Bionic Page — turn any web page into a bionic reading page">
 <meta name="twitter:description" content="A Chrome and Firefox extension that emphasizes the leading part of each word. Five modes, per-site control, fully reversible, no network.">
 <meta name="twitter:image" content="https://srivtx.github.io/bionic-page/assets/og.png">
 <link rel="canonical" href="https://srivtx.github.io/bionic-page/index.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%277%27%20fill%3D%27%234f46e5%27%2F%3E%3Cg%20transform%3D%27translate(4%204)%27%20fill%3D%27none%27%20stroke%3D%27%23ffffff%27%20stroke-width%3D%272.4%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20x%3D%223.2%22%20y%3D%223.2%22%20width%3D%2217.6%22%20height%3D%2217.6%22%20rx%3D%223.6%22%3E%3C%2Frect%3E%20%3Cpath%20d%3D%22M7.4%2012h4.6%22%3E%3C%2Fpath%3E%20%3Cpath%20d%3D%22M12%2012h4.6%22%20stroke-opacity%3D%22.4%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fsvg%3E">
-<link rel="stylesheet" href="assets/theme.css?v=823269383d">
-<link rel="stylesheet" href="assets/lens.css?v=823269383d">
-<link rel="stylesheet" href="assets/identity.css?v=823269383d">
+<link rel="stylesheet" href="assets/theme.css?v=3b8703130f">
+<link rel="stylesheet" href="assets/lens.css?v=3b8703130f">
+<link rel="stylesheet" href="assets/identity.css?v=3b8703130f">
 <script>
 (function () {
   try {
@@ -54,11 +54,11 @@
 
 <header class="nav" id="nav">
   <div class="nav__inner">
-    <a class="brand" href="#top" aria-label="bionic-page home">
+    <a class="brand" href="#top" aria-label="Bionic Page home">
       <span class="brand__mark" aria-hidden="true">
         <svg class="icon" viewBox="0 0 24 24" focusable="false"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect> <path d="M7.4 12h4.6"></path> <path d="M12 12h4.6" stroke-opacity=".4"></path></svg>
       </span>
-      <span class="brand__name">bionic-page</span>
+      <span class="brand__name">Bionic Page</span>
       <span class="brand__tag">by svx</span>
     </a>
     <nav class="nav__links" id="site-nav" aria-label="Sections">
@@ -554,27 +554,21 @@
 </main>
 
 <footer class="footer">
-  <p class="footer__mark bionic" data-bionic-sample="dim" aria-label="bionic-page">bionic-page</p>
+  <!-- The wordmark is the product name set the way the algorithm sets a word:
+       the anchor solid, the remainder quiet. The real algorithm only wraps the
+       remainder in dim mode, so that is the mode it is painted with. -->
+  <p class="footer__mark bionic" data-bionic-sample="dim" aria-label="Bionic Page">Bionic Page</p>
   <div class="container">
     <div class="footer__inner">
       <div class="footer__brand">
-        <span class="brand__mark" aria-hidden="true">
-          <svg class="icon" viewBox="0 0 24 24" focusable="false"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect> <path d="M7.4 12h4.6"></path> <path d="M12 12h4.6" stroke-opacity=".4"></path></svg>
-        </span>
-        <p>bionic-page<span>Five modes, per-site rules, one reversible pass. No network.</span></p>
+      <span class="brand__mark" aria-hidden="true">
+        <svg class="icon" viewBox="0 0 24 24" focusable="false"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect> <path d="M7.4 12h4.6"></path> <path d="M12 12h4.6" stroke-opacity=".4"></path></svg>
+      </span>
+        <div>
+          <p>Bionic Page</p>
+          <p class="muted footer__tagline">Five modes, per-site rules, one reversible pass. No network.</p>
+        </div>
       </div>
-
-      <nav aria-label="Sections">
-        <h2>Sections</h2>
-        <ul>
-          <li><a href="#demo">Live demo</a></li>
-          <li><a href="#modes">Modes</a></li>
-          <li><a href="#how">How it works</a></li>
-          <li><a href="#control">Controls</a></li>
-          <li><a href="#faq">FAQ</a></li>
-        </ul>
-      </nav>
-
       <nav aria-label="Project">
         <h2>Project</h2>
         <ul>
@@ -584,7 +578,14 @@
           <li><a href="https://github.com/srivtx/bionic-page/blob/main/LICENSE">MIT license</a></li>
         </ul>
       </nav>
-
+      <nav aria-label="Docs">
+        <h2>Docs</h2>
+        <ul>
+          <li><a href="https://github.com/srivtx/bionic-page/blob/main/docs/CONTRACTS.md">Contracts</a></li>
+          <li><a href="https://github.com/srivtx/bionic-page/blob/main/docs/BRAND.md">Brand</a></li>
+          <li><a href="https://github.com/srivtx/bionic-page/blob/main/docs/PERFORMANCE.md">Performance</a></li>
+        </ul>
+      </nav>
       <div>
         <h2>Build</h2>
         <ul>
@@ -595,10 +596,9 @@
         </ul>
       </div>
     </div>
-
     <div class="footer__meta">
       <p>by svx · MIT licensed · not affiliated with Bionic Reading GmbH</p>
-      <p>© 2026 bionic-page</p>
+      <p>© 2026 Bionic Page</p>
     </div>
   </div>
 </footer>
@@ -607,7 +607,7 @@
   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 19V5M6 11l6-6 6 6"></path></svg>
 </button>
 
-<script src="assets/core.js?v=823269383d"></script>
-<script src="assets/demo.js?v=823269383d"></script>
+<script src="assets/core.js?v=3b8703130f"></script>
+<script src="assets/demo.js?v=3b8703130f"></script>
 </body>
 </html>
