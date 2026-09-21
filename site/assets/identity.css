@@ -46,10 +46,17 @@
    arrive at all.
 
    There is one copy now. The head is genuinely heavier, so the shape changes
-   as the wave passes and the line takes its final measure as it goes. */
+   as the wave passes and the line takes its final measure as it goes.
+
+   The emphasis is drawn on 400, not on the h1's own 600. Two reasons. The head
+   has to be heavier than what is around it, and 600 against 600 is not heavier
+   — the wave would pass over the line without the shape changing. And "off"
+   has to mean off: on a 600 base, switching the emphasis off would restore
+   600 and make the headline HEAVIER than leaving it on. */
 .hero__title {
   position: relative;
   display: block;
+  font-weight: 400;
 }
 
 .hero__title-fix {
@@ -254,27 +261,38 @@
 /* ── Off means off ────────────────────────────────────────────────────────
    Switching the emphasis off removes it from everything the page renders,
    everywhere it appears: the headline, the samples, the demo, the reader. The
-   text returns to the weight and opacity it would have had anyway. */
+   text returns to the weight and opacity it would have had anyway — which is
+   `inherit`, not 400.
+
+   That difference is the whole point of this rule. Splitting a word needs at
+   least two letters, so a one-letter word is never wrapped: `a` and `I` stay
+   bare text nodes. In the hero the bare word sits inside the `h1`, whose own
+   weight is 600, so resetting only the wrapped runs to 400 left that one word
+   as the heaviest thing in the line — the emphasis switched off everywhere
+   except the letter `a`. Inheriting makes the whole run uniform again, at the
+   weight the element actually has: 600 in a heading, 400 in a paragraph. */
 html[data-fixation="off"] .bionic b,
 html[data-fixation="off"] b.bp-head {
-  font-weight: 400;
+  font-weight: inherit;
 }
 
 html[data-fixation="off"] .bionic i,
 html[data-fixation="off"] span.bp-tail {
+  font-weight: inherit;
   opacity: 1;
 }
 
 /* ── With emphasis off, the headline is a headline ────────────────────────
-   The floating control can switch the emphasis off, and that has to include
-   the wave: an animation outranks a plain declaration, so it is cancelled
-   rather than countered. */
+   The nav switch can switch the emphasis off, and that has to include the
+   wave: an animation outranks a plain declaration, so it is cancelled rather
+   than countered. */
 html[data-fixation="off"] .hero__title.is-writing .bp-head,
 html[data-fixation="off"] .hero__title .bp-head {
   animation: none;
-  font-weight: 400;
+  font-weight: inherit;
 }
 
 html[data-fixation="off"] .hero__title .bp-tail {
+  font-weight: inherit;
   opacity: 1;
 }
