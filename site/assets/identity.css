@@ -2,8 +2,12 @@
  * bionic-page — identity.
  *
  * The shared system lives in theme.css and lens.css. This file is the part
- * that is specifically bionic-page: the headline is written into place one
- * anchor at a time, with a caret at the end of the line.
+ * that is specifically bionic-page: the caret at the end of the headline, and
+ * the footer wordmark set the way the algorithm sets a word.
+ *
+ * The headline itself is revealed by the beam in demo.js — each anchor
+ * brightens and takes a sheen as the beam reaches it — so the anchor weight is
+ * a plain declaration, not an animation that would collide with it.
  */
 
 .hero__title .bp-head {
@@ -21,26 +25,6 @@
 .hero__title .bp-tail,
 .hero__title i {
   opacity: 1;
-}
-
-/* The write. Each head rises to its anchor weight in turn; the delay is the
-   head's index, handed over as --i. */
-@media (prefers-reduced-motion: no-preference) {
-  .hero__title.is-writing .bp-head {
-    animation: bp-weight var(--write, 1.6s) var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * 55ms);
-  }
-}
-@keyframes bp-weight {
-  from {
-    font-weight: 400;
-  }
-  to {
-    font-weight: var(--fx-hero);
-  }
-}
-.hero__title.is-written .bp-head {
-  font-weight: var(--fx-hero);
 }
 
 .hero__caret {
@@ -94,16 +78,23 @@
  * Emphasis off. These have to outrank the more specific rules above, so they
  * are written at the same depth as the thing they are switching off: an
  * animation outranks a plain declaration, so it is cancelled rather than
- * countered.
+ * countered. The sheen is part of the emphasis, so it goes too — a gradient
+ * anchor would be just as loud as a heavy one.
  */
 html[data-fixation="off"] .hero__title .bp-head,
-html[data-fixation="off"] .hero__title.is-writing .bp-head,
 html[data-fixation="off"] .hero__title .bp-tail,
-html[data-fixation="off"] .hero__title i {
+html[data-fixation="off"] .hero__title i,
+html[data-fixation="off"] .hero__title .lit,
+html[data-fixation="off"] .lit {
   animation: none;
   font-weight: inherit;
   color: inherit;
   opacity: 1;
+  background: none;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+  filter: none;
 }
 html[data-fixation="off"] .hero__caret {
   animation: none;
