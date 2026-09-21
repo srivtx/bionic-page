@@ -30,28 +30,12 @@
 .hero__caret {
   display: inline-block;
   width: 3px;
-  height: 0.82em;
+  height: 0.85em;
   background: var(--bp-accent);
   vertical-align: -0.06em;
-  margin-left: 5px;
+  margin-left: 4px;
   border-radius: 2px;
 }
-@media (prefers-reduced-motion: no-preference) {
-  .hero__title.is-written .hero__caret {
-    animation: bp-caret 1.1s steps(2) infinite;
-  }
-}
-@keyframes bp-caret {
-  50% {
-    opacity: 0;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero__caret {
-    background: var(--bp-hairline);
-  }
-}
-
 /* The footer wordmark is the same word, split the way the algorithm splits
    one: the anchor solid, the remainder quiet. */
 .footer__mark b,
@@ -72,39 +56,4 @@
 /* The mode tiles sweep their intensity on hover. */
 .tile__sample {
   transition: opacity var(--ease);
-}
-
-/*
- * Emphasis off. These have to outrank the more specific rules above, so they
- * are written at the same depth as the thing they are switching off: an
- * animation outranks a plain declaration, so it is cancelled rather than
- * countered. The sheen is part of the emphasis, so it goes too — a gradient
- * anchor would be just as loud as a heavy one.
- */
-html[data-fixation="off"] .hero__title .bp-head,
-html[data-fixation="off"] .hero__title .bp-tail,
-html[data-fixation="off"] .hero__title i,
-html[data-fixation="off"] .hero__title .lit,
-html[data-fixation="off"] .lit {
-  animation: none;
-  font-weight: inherit;
-  color: inherit;
-  opacity: 1;
-  background: none;
-  background-clip: border-box;
-  -webkit-background-clip: border-box;
-  -webkit-text-fill-color: currentColor;
-  filter: none;
-}
-html[data-fixation="off"] .hero__caret {
-  animation: none;
-  background: var(--bp-hairline);
-}
-html[data-fixation="off"] .footer__mark .bp-head,
-html[data-fixation="off"] .footer__mark b,
-html[data-fixation="off"] .footer__mark .bp-tail,
-html[data-fixation="off"] .footer__mark i {
-  font-weight: inherit;
-  color: inherit;
-  opacity: 1;
 }
