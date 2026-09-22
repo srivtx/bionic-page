@@ -1,12 +1,20 @@
-/*
- * bionic-page — identity.
- *
- * Deliberately almost empty. This page *is* the design: theme.css and lens.css
- * are the design's own stylesheet, rule for rule, and the page needs no ink of
- * its own. The sibling page (bionic-docs) carries its identity here instead —
- * the same shared sheets, one different accent and one different hero gesture.
- *
- * The headline weight arrives from the design (`.hero__title .w` at 750) and
- * from the shared `.bionic .w` rule; the compiled extension names those two
- * `.bp-head` / `.bp-tail`, and theme.css and lens.css style both names.
- */
+/* ============================================================================
+   Bionic Page — identity layer
+   The site's ink is the theme's default violet; this file carries only what
+   makes Bionic Page itself: the centred, masthead-style hero with the live
+   specimen galley beneath it.
+   ========================================================================== */
+
+/* ------------------------------------------------------------- page hero */
+.hero__inner { text-align: center; }
+.hero__kicker { justify-content: center; }
+.hero__title { max-width: 17ch; margin-inline: auto; }
+.hero__lede { max-width: 57ch; margin: 28px auto 36px; }
+.hero .btn-row { justify-content: center; }
+.hero .flagline { justify-content: center; margin-top: 30px; }
+.hero .galley { margin-top: 72px; text-align: left; }
+
+@media (max-width: 640px) {
+  .hero { padding-top: 64px; }
+  .hero .galley { margin-top: 52px; }
+}

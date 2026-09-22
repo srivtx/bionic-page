@@ -6,9 +6,12 @@
 <title>Bionic Page — turn any web page into a bionic reading page</title>
 <meta name="description" content="Bionic Page is a Manifest V3 extension for Chrome and Firefox that rewrites the readable text of a page so the leading part of each word carries more weight. Five modes, per-site control, fully reversible, no network.">
 <meta name="color-scheme" content="light dark">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cg transform='translate(4 4)' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.2' y='3.2' width='17.6' height='17.6' rx='3.6'/%3E%3Cpath d='M7.4 12h4.6'/%3E%3Cpath d='M12 12h4.6' stroke-opacity='.4'/%3E%3C/g%3E%3C/svg%3E">
-<meta name="theme-color" content="#fbfbf9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)">
+<script>
+try{var t=localStorage.getItem("bionic-page-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234238c4'/%3E%3Cg transform='translate(4 4)' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.2' y='3.2' width='17.6' height='17.6' rx='3.6'/%3E%3Cpath d='M7.4 12h4.6'/%3E%3Cpath d='M12 12h4.6' stroke-opacity='.4'/%3E%3C/g%3E%3C/svg%3E">
+<meta name="theme-color" content="#f8f6f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130d" media="(prefers-color-scheme: dark)">
 <meta property="og:title" content="Bionic Page — turn any web page into a bionic reading page">
 <meta property="og:description" content="A Chrome and Firefox extension that emphasizes the leading part of each word. Five modes, per-site control, fully reversible, no network.">
 <meta property="og:type" content="website">
@@ -22,288 +25,237 @@
 <meta name="twitter:description" content="A Chrome and Firefox extension that emphasizes the leading part of each word. Five modes, per-site control, fully reversible, no network.">
 <meta name="twitter:image" content="https://srivtx.github.io/bionic-page/assets/og.png">
 <link rel="canonical" href="https://srivtx.github.io/bionic-page/index.html">
-<link rel="stylesheet" href="assets/theme.css?v=07a53103b7">
-<link rel="stylesheet" href="assets/lens.css?v=07a53103b7">
-<link rel="stylesheet" href="assets/identity.css?v=07a53103b7">
+<link rel="stylesheet" href="assets/theme.css?v=790aac69ad">
+<link rel="stylesheet" href="assets/lens.css?v=790aac69ad">
+<link rel="stylesheet" href="assets/identity.css?v=790aac69ad">
 </head>
 <body>
-<script>
-try{var t=localStorage.getItem("bionic-page-theme"); if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}
-</script>
-<div class="loader" id="loader" aria-hidden="true">
-  <div class="loader__inner">
-    <svg class="loader__mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect><path d="M7.4 12h4.6"></path><path d="M12 12h4.6" stroke-opacity=".4"></path></svg>
-    <span class="loader__word">Bionic</span>
-    <span class="loader__bar"><i></i></span>
-  </div>
-</div>
-<span class="progress" id="progress" aria-hidden="true"></span>
 <a class="skip-link" href="#main">Skip to content</a>
+<div class="grain" aria-hidden="true"></div>
 
-<header class="nav" id="nav">
-  <div class="nav__inner">
+<header class="masthead">
+  <div class="masthead__inner">
     <a class="brand" href="#top" aria-label="Bionic Page home">
       <span class="brand__mark" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect><path d="M7.4 12h4.6"></path><path d="M12 12h4.6" stroke-opacity=".4"></path></svg></span>
       Bionic&nbsp;Page <span class="brand__tag">by svx</span>
     </a>
-    <nav class="nav__links" id="site-nav" aria-label="Sections">
-      <a href="#demo">Live demo</a>
+    <nav class="masthead__links" aria-label="Sections">
+      <a href="#demo">Demo</a>
       <a href="#modes">Modes</a>
       <a href="#how">How it works</a>
       <a href="#control">Controls</a>
-      <a href="#safe">Safety</a>
       <a href="#install">Install</a>
       <a href="#faq">FAQ</a>
     </nav>
-    <div class="nav__actions">
-      <a class="nav__gh" href="https://github.com/srivtx/bionic-page" aria-label="GitHub repository">
-        <svg class="icon nav__gh-mark" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.15c0 .3.21.67.8.55A10.52 10.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+    <div class="masthead__actions">
+      <a class="masthead__gh" href="https://github.com/srivtx/bionic-page" aria-label="GitHub repository">
+        <svg class="icon icon--fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.15c0 .3.21.67.8.55A10.52 10.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
         <span>GitHub</span>
       </a>
-      <button type="button" class="btn btn--ghost nav__toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false">
+        <svg class="icon theme-toggle__sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        <svg class="icon theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+        <span id="theme-toggle-text">Dark</span>
       </button>
-      <button type="button" class="btn btn--ghost" id="theme-toggle" aria-pressed="false">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
-        <span id="theme-toggle-text">Theme</span>
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open navigation">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
       </button>
     </div>
   </div>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Sections">
+    <a href="#demo">Demo</a>
+    <a href="#modes">Modes</a>
+    <a href="#how">How it works</a>
+    <a href="#control">Controls</a>
+    <a href="#install">Install</a>
+    <a href="#faq">FAQ</a>
+  </nav>
 </header>
 
 <main id="main">
 
-  <!-- ============ hero ============ -->
+  <!-- ================= hero ================= -->
   <section class="hero" id="top" aria-labelledby="hero-title">
-    <span class="hero__glow" aria-hidden="true"></span>
-    <span class="hero__grid" aria-hidden="true"></span>
     <div class="container">
       <div class="hero__inner">
-        <div>
-          <div class="metabar" data-hero-fade>
-            <span class="metabar__item metabar__item--accent"><svg class="icon" viewBox="0 0 24 24"><rect x="3.4" y="5" width="17.2" height="14" rx="2.4"></rect><path d="M3.4 9.6h17.2"></path></svg>Manifest V3</span>
-            <span class="metabar__sep" aria-hidden="true"></span>
-            <span class="metabar__item">Chrome + Firefox</span>
-            <span class="metabar__sep" aria-hidden="true"></span>
-            <span class="metabar__item">No network</span>
-          </div>
-          <h1 id="hero-title" class="bionic hero__title" data-bionic-sample="half">Turn any web page into a bionic reading page.</h1>
-          <p class="hero__lede" data-hero-fade>The extension rewrites the readable text of the page you are on so the leading part of each word carries more weight, giving the eye a fixed anchor per word. Configurable visual anchoring — not a speed-reading claim; peer-reviewed results on bionic emphasis are mixed.</p>
-          <div class="btn-row" data-hero-fade>
-            <a class="btn btn--accent" href="#demo" data-magnet>Try the live demo <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"></path></svg></a>
-            <a class="btn btn--outline" href="#install" data-magnet>Get the extension</a>
-          </div>
-          <ul class="flagline" data-hero-fade>
-            <li class="chip">No network</li>
-            <li class="chip">No account</li>
-            <li class="chip">Fully reversible</li>
-            <li class="chip">172 tests</li>
-          </ul>
+        <p class="hero__kicker" data-reveal><span class="hero__kicker-rule" aria-hidden="true"></span>A reading instrument for the web<span class="hero__kicker-rule" aria-hidden="true"></span></p>
+        <h1 id="hero-title" class="bionic hero__title" data-bionic-sample="half">Turn any web page into a bionic reading page.</h1>
+        <p class="hero__lede" data-reveal>The extension rewrites the readable text of the page you are on so the leading part of each word carries more weight, giving the eye a fixed anchor per word. Configurable visual anchoring — not a speed-reading claim; peer-reviewed results on bionic emphasis are mixed.</p>
+        <div class="btn-row" data-reveal>
+          <a class="btn btn--accent" href="#demo">Try the live demo <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"></path></svg></a>
+          <a class="btn btn--outline" href="#install">Get the extension</a>
         </div>
-
-        <div class="hero__visual" data-hero-fade>
-          <div class="readcard" id="readcard">
-            <div class="readcard__bar">
-              <span class="readcard__dot"></span><span class="readcard__dot"></span><span class="readcard__dot"></span>
-              <span class="readcard__url">https://example.com/longform-article</span>
-            </div>
-            <div class="readcard__body bionic" id="readcard-body" data-bionic-sample="half">
-              <p>Reading is a sequence of small jumps. The eye lands on a word, takes in enough to recognise it, then moves on.</p>
-              <p>When the leading letters carry more weight, the rest of the word is easier to infer, and the line keeps its rhythm.</p>
-            </div>
-            <div class="readcard__ctrl">
-              <span class="readcard__ctrl-label">intensity</span>
-              <input type="range" id="hero-intensity" min="20" max="90" value="50" aria-label="Preview intensity">
-              <output id="hero-intensity-out" for="hero-intensity">0.50 · half</output>
-            </div>
-          </div>
-          <div class="hero__words" id="hero-words" aria-hidden="true"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ brand rails ============ -->
-  <section class="railband" aria-label="Supported browsers and engineering guarantees">
-    <p class="railband__caption">Runs where you read <b>&#183;</b> engineered like it matters</p>
-    <div class="railband__tilt" id="railband-tilt">
-      <div class="rail rail--brands" aria-hidden="true">
-        <ul class="rail__track">
-
-          <li class="rcard">
-            <span class="rcard__tile rcard__tile--chrome" role="img" aria-label="Google Chrome logo"></span>
-            <span class="rcard__txt"><b>Google Chrome</b><i>Chromium 116+</i></span>
-          </li>
-          <li class="rcard">
-            <span class="rcard__tile" role="img" aria-label="Mozilla Firefox logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.6" fill="#4d7cf3"/><path fill="#ff8c42" d="M7 4.6c-.8-1.5-.5-2.6.3-3 .8-.4 1.8.1 2.5 1.1.9-.3 1.9-.3 2.8 0 .7-1 1.7-1.5 2.5-1.1.8.4 1.1 1.5.3 3 .6 1 .9 2 .9 3.2 0 3.4-2.8 6.1-6.2 6.1S7.1 11.2 7.1 7.8c0-1.2.3-2.2.9-3.2z"/></svg></span>
-            <span class="rcard__txt"><b>Mozilla Firefox</b><i>Firefox 140+</i></span>
-          </li>
-          <li class="rcard">
-            <span class="rcard__tile" role="img" aria-label="Microsoft Edge logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="edgeg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#12b5cb"/><stop offset="1" stop-color="#0a63e0"/></linearGradient></defs><circle cx="12" cy="12" r="10.6" fill="url(#edgeg)"/><path d="M4.6 13.6c2.6-3.7 5.4-3.7 7.9 0 2.5 3.7 5.3 3.7 7.9 0" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/></svg></span>
-            <span class="rcard__txt"><b>Microsoft Edge</b><i>Chromium builds</i></span>
-          </li>
-          <li class="rcard">
-            <span class="rcard__tile" role="img" aria-label="Apple Safari logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.6" fill="#f4f5f7"/><circle cx="12" cy="12" r="10.6" fill="none" stroke="#d7dae0" stroke-width="1"/><g stroke="#c9cdd4" stroke-width="1.1" stroke-linecap="round"><path d="M12 3.6v1.8M12 18.6v1.8M3.6 12h1.8M18.6 12h1.8M6 6l1.3 1.3M16.7 16.7L18 18M6 18l1.3-1.3M16.7 7.3L18 6"/></g><path d="M15.7 8.3 13.1 13.1 11 11z" fill="#ff5a52"/><path d="M8.3 15.7 13.1 13.1 11 11z" fill="#e8eaee"/><circle cx="12" cy="12" r="1" fill="#8f96a3"/></svg></span>
-            <span class="rcard__txt"><b>Apple Safari</b><i>WebKit trunk</i></span>
-          </li>
-          <li class="rcard">
-            <span class="rcard__tile" role="img" aria-label="Opera logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.6" fill="#ffffff"/><circle cx="12" cy="12" r="6.7" fill="none" stroke="#ff1b2d" stroke-width="3.1"/></svg></span>
-            <span class="rcard__txt"><b>Opera</b><i>Chromium builds</i></span>
-          </li>
-          <li class="rcard">
-            <span class="rcard__tile" role="img" aria-label="Arc logo"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="arcg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#ff7854"/><stop offset="1" stop-color="#ff2e9a"/></linearGradient></defs><circle cx="12" cy="12" r="10.6" fill="#16181d"/><path d="M6.6 17.4a7.9 7.9 0 1 1 10.8 0" fill="none" stroke="url(#arcg)" stroke-width="2.6" stroke-linecap="round"/></svg></span>
-            <span class="rcard__txt"><b>Arc</b><i>Chromium builds</i></span>
-          </li>
+        <ul class="flagline" data-reveal>
+          <li>No network</li>
+          <li>No account</li>
+          <li>Fully reversible</li>
+          <li>172 tests</li>
         </ul>
-      </div>
-      <div class="rail rail--caps" aria-hidden="true">
-        <ul class="rail__track">
-          <li class="ccard"><span class="ccard__ico" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M10 3.5h4v2a1.7 1.7 0 1 0 3.4 0v-2H21a1 1 0 0 1 1 1V10h-2a1.7 1.7 0 1 0 0 3.4h2V20a1 1 0 0 1-1 1h-5.5v-2a1.7 1.7 0 1 0-3.4 0v2H4a1 1 0 0 1-1-1v-5.5h2a1.7 1.7 0 1 0 0-3.4H3V4.5a1 1 0 0 1 1-1z"/></svg></span><span class="ccard__txt"><b>Manifest V3</b><i>service-worker architecture</i></span></li>
-<li class="ccard"><span class="ccard__ico" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M2.5 2.5l19 19"/><path d="M5.5 12.8a10.5 10.5 0 0 1 4.3-2.6"/><path d="M12 7.9c3.2 0 6.2 1.2 8.5 3.4"/><path d="M8.6 16.1a6.5 6.5 0 0 1 5-1.4"/><path d="M12 19.3h.01"/></svg></span><span class="ccard__txt"><b>Zero network</b><i>nothing leaves the tab</i></span></li>
-<li class="ccard"><span class="ccard__ico" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3.2l8.8 4.8L12 12.8 3.2 8z"/><path d="M3.4 12.9L12 17.5l8.6-4.6"/><path d="M3.4 16.7L12 21.3l8.6-4.6"/></svg></span><span class="ccard__txt"><b>Shadow DOM</b><i>open roots traversed</i></span></li>
-<li class="ccard"><span class="ccard__ico" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M8.6 15.6c-2 0-3.6-1.6-3.6-3.6s1.6-3.6 3.6-3.6c3.4 0 3.4 7.2 6.8 7.2 2 0 3.6-1.6 3.6-3.6s-1.6-3.6-3.6-3.6c-3.4 0-3.4 7.2-6.8 7.2z"/></svg></span><span class="ccard__txt"><b>SPA & infinite scroll</b><i>MutationObserver wired</i></span></li>
-<li class="ccard"><span class="ccard__ico" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M8 6.5h8"/></svg></span><span class="ccard__txt"><b>MIT licensed</b><i>source on GitHub</i></span></li>
-<li class="ccard"><span class="ccard__ico" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span><span class="ccard__txt"><b>172 tests</b><i>10/10 e2e in Chrome</i></span></li>
-        </ul>
-      </div>
-    </div>
-    <p class="railband__sr">Supported browsers: Google Chrome, Mozilla Firefox, Microsoft Edge, Apple Safari, Opera, Arc. Guarantees: Manifest V3, zero network requests, Shadow DOM support, single-page-app and infinite-scroll support, MIT license, 127 passing tests.</p>
-  </section>
 
-  <!-- ============ live demo ============ -->
-  <section class="section" id="demo" aria-labelledby="demo-title">
-    <div class="container">
-      <p class="eyebrow"><b>01</b> Live demo</p>
-      <div class="section__head">
-        <h2 id="demo-title">Run the algorithm, right here</h2>
-        <p>This is the extension's own transform, compiled into the page. Everything runs offline in your browser.</p>
-      </div>
-      <div class="bdemo">
-        <div class="bdemo__head">
-          <p class="bdemo__title">extension algorithm · offline</p>
-          <div class="bdemo__tools">
-            <ul class="mchips" id="demo-modes" aria-label="Reading mode"></ul>
-            <label class="rx">
-              <span class="rx__name">intensity</span>
-              <input type="range" id="intensity" min="20" max="90" value="50" aria-label="Intensity">
-              <output for="intensity" id="intensity-out">0.50</output>
+        <div class="galley" data-reveal>
+          <div class="galley__head">
+            <p class="galley__label">Live specimen · <b>painted by the extension&#8217;s own algorithm</b></p>
+            <label class="slider">
+              <span class="slider__name">Intensity</span>
+              <input type="range" id="galley-intensity" min="20" max="90" value="50" aria-label="Specimen intensity">
+              <output for="galley-intensity" id="galley-intensity-out">0.50</output>
             </label>
           </div>
-        </div>
-        <div class="bdemo__body">
-          <div class="bdemo__pane">
-            <label class="bdemo__label" for="demo-src">Source <button type="button" class="mini-btn" id="demo-shuffle">shuffle text</button></label>
-            <textarea class="input" id="demo-src" spellcheck="false">Reading is a sequence of small jumps. The eye lands on a word, takes in enough to recognise it, then moves on. A fixation point at the start of a word gives that landing a predictable place. When the leading letters carry more weight, the rest of the word is easier to infer, and the line keeps its rhythm.</textarea>
+          <div class="galley__body bionic" id="galley-body">
+            <p data-bionic-sample="half">Reading is a sequence of small jumps. The eye lands on a word, takes in enough to recognise it, then moves on. A fixation point at the start of a word gives that landing a predictable place.</p>
+            <p data-bionic-sample="half">When the leading letters carry more weight, the rest of the word is easier to infer, and the line keeps its rhythm. The paragraph stops being a wall of identical shapes and becomes a row of anchored ones.</p>
+            <p data-bionic-sample="half">This specimen is not a picture of the effect. It is the effect — the same compiled transform the extension ships, run over these words as the page loaded, and repainted whenever you move the intensity above.</p>
           </div>
-          <div class="bdemo__pane">
-            <p class="bdemo__label">Bionic</p>
-            <p class="bdemo__out bionic" id="demo-out"></p>
+          <div class="galley__foot">
+            <div class="stats">
+              <span><b id="galley-words">0</b> words</span>
+              <span><b id="galley-heads">0</b> characters emphasized</span>
+              <span>mode · half</span>
+              <span>nothing is sent anywhere</span>
+            </div>
           </div>
-        </div>
-        <div class="bdemo__foot">
-          <span class="bdemo__stat"><b id="stat-words">0</b> words</span>
-          <span class="bdemo__stat"><b id="stat-chars">0</b> characters emphasized</span>
-          <span class="bdemo__stat">mode: <b id="stat-mode">half</b></span>
-          <span class="bdemo__stat">nothing is sent anywhere</span>
         </div>
       </div>
     </div>
   </section>
 
-  <div class="container"><hr class="fxrule"></div>
+  <!-- ================= dateline ================= -->
+  <div class="dateline" data-reveal>
+    <div class="container">
+      <p><b>Chrome 116+</b> · <b>Firefox 140+</b> · <b>Microsoft Edge</b> · <b>Opera</b> · <b>Arc</b></p>
+      <p>Manifest V3 · Zero network · Shadow DOM · SPA &amp; infinite scroll · MIT licensed · 172 tests across 14 files</p>
+    </div>
+  </div>
 
-  <!-- ============ compare ============ -->
+  <!-- ================= 01 live demo ================= -->
+  <section class="section" id="demo" aria-labelledby="demo-title">
+    <div class="container">
+      <div class="section__head" data-reveal>
+        <p class="folio"><span class="folio__no">01</span><span class="folio__name">Live demo</span><span class="folio__rule" aria-hidden="true"></span></p>
+        <h2 id="demo-title">Run the algorithm, right here</h2>
+        <p class="section__stand">This is the extension&#8217;s own transform, compiled into the page. Everything runs offline in your browser — edit the source, switch the mode, move the intensity.</p>
+      </div>
+      <div class="lab" data-reveal>
+        <div class="lab__head">
+          <div class="seg" id="demo-modes" role="group" aria-label="Reading mode"></div>
+          <label class="slider">
+            <span class="slider__name">Intensity</span>
+            <input type="range" id="intensity" min="20" max="90" value="50" aria-label="Intensity">
+            <output for="intensity" id="intensity-out">0.50</output>
+          </label>
+        </div>
+        <div class="lab__body">
+          <div class="lab__pane">
+            <p class="lab__pane-label"><label for="demo-src">Source</label> <button type="button" class="mini-btn" id="demo-shuffle">Shuffle text</button></p>
+            <textarea class="input" id="demo-src" spellcheck="false">Reading is a sequence of small jumps. The eye lands on a word, takes in enough to recognise it, then moves on. A fixation point at the start of a word gives that landing a predictable place. When the leading letters carry more weight, the rest of the word is easier to infer, and the line keeps its rhythm.</textarea>
+          </div>
+          <div class="lab__pane">
+            <p class="lab__pane-label">Bionic</p>
+            <p class="lab__out bionic" id="demo-out"></p>
+          </div>
+        </div>
+        <div class="lab__foot">
+          <div class="stats">
+            <span><b id="stat-words">0</b> words</span>
+            <span><b id="stat-chars">0</b> characters emphasized</span>
+            <span>mode · <b id="stat-mode">half</b></span>
+            <span>nothing is sent anywhere</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 02 compare ================= -->
   <section class="section" id="compare-section" aria-labelledby="compare-title">
     <div class="container">
-      <p class="eyebrow"><b>02</b> Before / after</p>
-      <div class="section__head">
+      <div class="section__head" data-reveal>
+        <p class="folio"><span class="folio__no">02</span><span class="folio__name">Before / after</span><span class="folio__rule" aria-hidden="true"></span></p>
         <h2 id="compare-title">The same paragraph, switched on</h2>
-        <p>Drag the divider — or focus it and use the arrow keys — to sweep between the two versions.</p>
+        <p class="section__stand">Drag the divider — or focus it and use the arrow keys — to sweep between the two versions.</p>
       </div>
-      <div class="compare" id="compare" role="slider" tabindex="0" aria-label="Reveal the bionic version of the paragraph" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50% bionic, 50% as written" aria-orientation="horizontal">
-        <p class="compare__text">The eye lands on a word, takes in enough to recognise it, then moves on to the next one in the line.</p>
-        <div class="compare__top" id="compare-top">
-          <p class="compare__text bionic" data-bionic-sample="half">The eye lands on a word, takes in enough to recognise it, then moves on to the next one in the line.</p>
+      <div class="compare" id="compare" role="slider" tabindex="0" aria-label="Reveal the bionic version of the paragraph" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50% bionic, 50% as written" aria-orientation="horizontal" data-reveal>
+        <div class="compare__layer">
+          <p class="compare__text">The eye lands on a word, takes in enough to recognise it, then moves on to the next one in the line. Give every word a firm opening letter and the whole line quietens down.</p>
+        </div>
+        <div class="compare__top" id="compare-top" aria-hidden="true">
+          <div class="compare__layer">
+            <p class="compare__text bionic" data-bionic-sample="half">The eye lands on a word, takes in enough to recognise it, then moves on to the next one in the line. Give every word a firm opening letter and the whole line quietens down.</p>
+          </div>
         </div>
         <span class="compare__tag compare__tag--on" aria-hidden="true">bionic</span>
         <span class="compare__tag compare__tag--off" aria-hidden="true">as written</span>
-        <span class="compare__knob" id="compare-knob" aria-hidden="true"></span>
-        <span class="compare__grip" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"></path></svg></span>
-        <span class="compare__pct" id="compare-pct">50%</span>
+        <span class="compare__rule" id="compare-rule" aria-hidden="true"></span>
+        <span class="compare__handle" id="compare-handle" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"></path></svg></span>
+        <span class="compare__pct" id="compare-pct" aria-hidden="true">50%</span>
       </div>
     </div>
   </section>
 
-  <div class="container"><hr class="fxrule"></div>
-  <!-- ============ modes ============ -->
+  <!-- ================= 03 modes ================= -->
   <section class="section" id="modes" aria-labelledby="modes-title">
     <div class="container">
-      <p class="eyebrow"><b>03</b> Five reading modes</p>
-      <div class="section__head">
+      <div class="section__head" data-reveal>
+        <p class="folio"><span class="folio__no">03</span><span class="folio__name">Five reading modes</span><span class="folio__rule" aria-hidden="true"></span></p>
         <h2 id="modes-title">Each mode anchors a different part of the word</h2>
-        <p>The effect is individual, which is why there is more than one. Hover a card to sweep its intensity. Every sample is rendered live by the same algorithm the extension ships.</p>
+        <p class="section__stand">The effect is individual, which is why there is more than one. Every sample below is rendered live by the same algorithm the extension ships.</p>
       </div>
-      <ul class="tiles">
-        <li class="tile" data-tile-mode="classic">
-          <span class="tile__hint">hover</span>
-          <p class="tile__name"><span class="tile__dot" aria-hidden="true"></span>Classic</p>
-          <p class="tile__sample bionic" data-bionic-sample="classic" data-bionic-intensity="0.5">Fixation anchors the eye at the start of each word.</p>
-          <p class="tile__note">Bold a leading share of each word; intensity controls how much.</p>
-        </li>
-        <li class="tile" data-tile-mode="half">
-          <span class="tile__hint">hover</span>
-          <p class="tile__name"><span class="tile__dot" aria-hidden="true"></span>Half</p>
-          <p class="tile__sample bionic" data-bionic-sample="half">Fixation anchors the eye at the start of each word.</p>
-          <p class="tile__note">Bold the first half of each word, the familiar default.</p>
-        </li>
-        <li class="tile" data-tile-mode="vowel">
-          <span class="tile__hint">hover</span>
-          <p class="tile__name"><span class="tile__dot" aria-hidden="true"></span>Vowel anchor</p>
-          <p class="tile__sample bionic" data-bionic-sample="vowel">Fixation anchors the eye at the start of each word.</p>
-          <p class="tile__note">Bold up to the first vowel group; suited to many languages.</p>
-        </li>
-        <li class="tile" data-tile-mode="dim">
-          <span class="tile__hint">hover</span>
-          <p class="tile__name"><span class="tile__dot" aria-hidden="true"></span>Low distraction</p>
-          <p class="tile__sample bionic bionic--dim" data-bionic-sample="dim">Fixation anchors the eye at the start of each word.</p>
-          <p class="tile__note">Bold the prefix and fade the remainder of the word.</p>
-        </li>
-        <li class="tile" data-tile-mode="rules">
-          <span class="tile__hint">hover</span>
-          <p class="tile__name"><span class="tile__dot" aria-hidden="true"></span>Custom rule</p>
-          <p class="tile__sample bionic" data-bionic-sample="rules">Fixation anchors the eye at the start of each word.</p>
-          <p class="tile__note">Per-length character counts plus a fraction for longer words.</p>
-        </li>
-      </ul>
+      <div class="specimen" data-reveal>
+        <div class="specimen__row">
+          <span class="specimen__no">M1</span>
+          <span class="specimen__name">Classic</span>
+          <p class="specimen__sample bionic" data-bionic-sample="classic" data-bionic-intensity="0.5">Fixation anchors the eye at the start of each word.</p>
+          <p class="specimen__note">Bold a leading share of each word; intensity controls how much.</p>
+        </div>
+        <div class="specimen__row">
+          <span class="specimen__no">M2</span>
+          <span class="specimen__name">Half</span>
+          <p class="specimen__sample bionic" data-bionic-sample="half">Fixation anchors the eye at the start of each word.</p>
+          <p class="specimen__note">Bold the first half of each word, the familiar default.</p>
+        </div>
+        <div class="specimen__row">
+          <span class="specimen__no">M3</span>
+          <span class="specimen__name">Vowel anchor</span>
+          <p class="specimen__sample bionic" data-bionic-sample="vowel">Fixation anchors the eye at the start of each word.</p>
+          <p class="specimen__note">Bold up to the first vowel group; suited to many languages.</p>
+        </div>
+        <div class="specimen__row">
+          <span class="specimen__no">M4</span>
+          <span class="specimen__name">Low distraction</span>
+          <p class="specimen__sample bionic" data-bionic-sample="dim">Fixation anchors the eye at the start of each word.</p>
+          <p class="specimen__note">Bold the prefix and fade the remainder of the word.</p>
+        </div>
+        <div class="specimen__row">
+          <span class="specimen__no">M5</span>
+          <span class="specimen__name">Custom rule</span>
+          <p class="specimen__sample bionic" data-bionic-sample="rules">Fixation anchors the eye at the start of each word.</p>
+          <p class="specimen__note">Per-length character counts plus a fraction for longer words.</p>
+        </div>
+      </div>
     </div>
   </section>
 
-  <div class="container"><hr class="fxrule"></div>
-
-  <!-- ============ how it works ============ -->
-  <section class="section section--tight" id="how" aria-labelledby="how-title">
+  <!-- ================= 04 how it works ================= -->
+  <section class="section" id="how" aria-labelledby="how-title">
     <div class="container">
-      <p class="eyebrow"><b>04</b> How it works</p>
-      <div class="section__head">
+      <div class="section__head" data-reveal>
+        <p class="folio"><span class="folio__no">04</span><span class="folio__name">How it works</span><span class="folio__rule" aria-hidden="true"></span></p>
         <h2 id="how-title">One reversible pass, three moves</h2>
-        <p>No servers, no accounts, no permanent changes. The extension reads your page locally and puts every word back exactly as it found it.</p>
+        <p class="section__stand">No servers, no accounts, no permanent changes. The extension reads your page locally and puts every word back exactly as it found it.</p>
       </div>
       <div class="steps">
-        <article class="step">
-          <span class="step__num" aria-hidden="true">01</span>
-          <span class="step__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg></span>
+        <article class="step" data-reveal>
+          <span class="step__no" aria-hidden="true">1.</span>
           <h3>Scan</h3>
           <p>Walks the visible text nodes of the page, skipping scripts, inputs, code, and anything marked off-limits.</p>
         </article>
-        <article class="step">
-          <span class="step__num" aria-hidden="true">02</span>
-          <span class="step__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.2 2.2M16.2 16.2l2.2 2.2M5.6 18.4l2.2-2.2M16.2 7.8l2.2-2.2"></path></svg></span>
+        <article class="step" data-reveal>
+          <span class="step__no" aria-hidden="true">2.</span>
           <h3>Anchor</h3>
           <p>For every word, the chosen mode bolds its leading letters — a predictable fixation point your eye can land on.</p>
         </article>
-        <article class="step">
-          <span class="step__num" aria-hidden="true">03</span>
-          <span class="step__icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg></span>
+        <article class="step" data-reveal>
+          <span class="step__no" aria-hidden="true">3.</span>
           <h3>Restore</h3>
           <p>Toggle off and the original text nodes come back byte-for-byte. A test literally diffs the DOM before and after.</p>
         </article>
@@ -311,55 +263,53 @@ try{var t=localStorage.getItem("bionic-page-theme"); if(t==="dark"||t==="light")
     </div>
   </section>
 
-  <div class="container"><hr class="fxrule"></div>
-
-  <!-- ============ controls ============ -->
+  <!-- ================= 05 controls ================= -->
   <section class="section" id="control" aria-labelledby="control-title">
     <div class="container">
-      <p class="eyebrow"><b>05</b> Controls</p>
-      <div class="section__head">
+      <div class="section__head" data-reveal>
+        <p class="folio"><span class="folio__no">05</span><span class="folio__name">Controls</span><span class="folio__rule" aria-hidden="true"></span></p>
         <h2 id="control-title">Three ways to switch it, one rulebook per site</h2>
-        <p>A shortcut for your hands, a popup for setup, a floating control for the page — and per-site rules so long-form sites get anchoring while everything else stays untouched.</p>
+        <p class="section__stand">A shortcut for your hands, a popup for setup, a floating control for the page — and per-site rules so long-form sites get anchoring while everything else stays untouched.</p>
       </div>
-      <div class="controls">
-        <article class="panel">
-          <h3><svg class="icon" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.4"></rect><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M7 14h10"></svg>Command it</h3>
+      <div class="duo">
+        <article class="panel" data-reveal>
+          <h3><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2.4"></rect><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M7 14h10"></path></svg>Command it</h3>
           <p class="panel__sub">One keystroke toggles the current page. Everything else is a click away.</p>
           <div class="keys" aria-label="Keyboard shortcut">
             <span class="key">Ctrl</span><span class="keys__plus">+</span>
             <span class="key">Shift</span><span class="keys__plus">+</span>
             <span class="key key--accent">Y</span>
           </div>
-          <ul class="ctl-list">
-            <li><svg class="icon" viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"></path></svg><span><b>Shortcut</b> — toggle the page under your cursor, no mouse needed.</span></li>
-            <li><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M3 9.5h18"></path><path d="M6.5 6.8h.01M9.5 6.8h.01"></path></svg><span><b>Popup</b> — pick a mode, set intensity, open the options page.</span></li>
-            <li><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 8.2v3.8l2.6 2.6"></path></svg><span><b>Floating control</b> — a quiet pill on the page for instant tweaks.</span></li>
+          <ul class="list">
+            <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"></path></svg><span><b>Shortcut</b> — toggle the page under your cursor, no mouse needed.</span></li>
+            <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M3 9.5h18"></path><path d="M6.5 6.8h.01M9.5 6.8h.01"></path></svg><span><b>Popup</b> — pick a mode, set intensity, open the options page.</span></li>
+            <li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 8.2v3.8l2.6 2.6"></path></svg><span><b>Floating control</b> — a quiet pill on the page for instant tweaks.</span></li>
           </ul>
         </article>
-        <article class="panel">
-          <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1"></path></svg>Per-site rules</h3>
+        <article class="panel" data-reveal>
+          <h3><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1"></path></svg>Per-site rules</h3>
           <p class="panel__sub">On for the sites you read, off everywhere else. Try the switches — they work.</p>
           <div class="rules">
             <div class="rule">
-              <span class="rule__fav rule__fav--w">W</span>
+              <span class="rule__fav" aria-hidden="true">W</span>
               <span class="rule__host">en.wikipedia.org</span>
               <span class="rule__mode">half · 0.50</span>
               <label class="switch"><input type="checkbox" checked aria-label="Enable on en.wikipedia.org"><span class="switch__track"></span><span class="switch__thumb"></span></label>
             </div>
             <div class="rule">
-              <span class="rule__fav rule__fav--d">D</span>
+              <span class="rule__fav" aria-hidden="true">D</span>
               <span class="rule__host">developer.mozilla.org</span>
               <span class="rule__mode">classic · 0.40</span>
               <label class="switch"><input type="checkbox" checked aria-label="Enable on developer.mozilla.org"><span class="switch__track"></span><span class="switch__thumb"></span></label>
             </div>
             <div class="rule">
-              <span class="rule__fav rule__fav--n">N</span>
+              <span class="rule__fav" aria-hidden="true">N</span>
               <span class="rule__host">news.ycombinator.com</span>
               <span class="rule__mode">vowel</span>
               <label class="switch"><input type="checkbox" aria-label="Enable on news.ycombinator.com"><span class="switch__track"></span><span class="switch__thumb"></span></label>
             </div>
             <div class="rule">
-              <span class="rule__fav rule__fav--g">G</span>
+              <span class="rule__fav" aria-hidden="true">G</span>
               <span class="rule__host">github.com</span>
               <span class="rule__mode">off</span>
               <label class="switch"><input type="checkbox" aria-label="Enable on github.com"><span class="switch__track"></span><span class="switch__thumb"></span></label>
@@ -370,20 +320,18 @@ try{var t=localStorage.getItem("bionic-page-theme"); if(t==="dark"||t==="light")
     </div>
   </section>
 
-  <div class="container"><hr class="fxrule"></div>
-
-  <!-- ============ safe ============ -->
+  <!-- ================= 06 safety ================= -->
   <section class="section" id="safe" aria-labelledby="safe-title">
     <div class="container">
-      <p class="eyebrow"><b>06</b> Safety</p>
-      <div class="section__head">
+      <div class="section__head" data-reveal>
+        <p class="folio"><span class="folio__no">06</span><span class="folio__name">Safety</span><span class="folio__rule" aria-hidden="true"></span></p>
         <h2 id="safe-title">Safe by construction</h2>
-        <p>The rewrite is a local pass over text nodes, gated so it cannot touch the parts of a page that must not change.</p>
+        <p class="section__stand">The rewrite is a local pass over text nodes, gated so it cannot touch the parts of a page that must not change.</p>
       </div>
-      <div class="grid--2">
-        <article class="card card--never">
-          <h3><svg class="icon icon--mute" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M5.8 5.8l12.4 12.4"></path></svg>What it never touches</h3>
-          <ul>
+      <div class="duo">
+        <article class="panel panel--recessed" data-reveal>
+          <h3><svg class="icon icon--mute" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M5.8 5.8l12.4 12.4"></path></svg>What it never touches</h3>
+          <ul class="ticks">
             <li><code>script</code>, <code>style</code>, <code>code</code>, and <code>pre</code></li>
             <li>Form fields, <code>contenteditable</code>, and math</li>
             <li>SVG, navigation, buttons, and toolbar or menu roles</li>
@@ -391,9 +339,9 @@ try{var t=localStorage.getItem("bionic-page-theme"); if(t==="dark"||t==="light")
           </ul>
           <p>It also skips URLs, email addresses, and long unbroken runs.</p>
         </article>
-        <article class="card">
-          <h3><svg class="icon icon--success" viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"></path><path d="M9 12l2 2 4-4"></path></svg>What it does handle</h3>
-          <ul>
+        <article class="panel" data-reveal>
+          <h3><svg class="icon icon--good" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"></path><path d="M9 12l2 2 4-4"></path></svg>What it does handle</h3>
+          <ul class="ticks">
             <li>Single-page apps and infinite scroll, through a <code>MutationObserver</code></li>
             <li>Text a framework replaces inside an existing paragraph</li>
             <li>Text inside open shadow roots (web components)</li>
@@ -404,44 +352,46 @@ try{var t=localStorage.getItem("bionic-page-theme"); if(t==="dark"||t==="light")
     </div>
   </section>
 
-  <!-- ============ numbers ============ -->
-  <section class="metrics-band section" id="numbers" aria-labelledby="numbers-title">
+  <!-- ================= 07 numbers ================= -->
+  <section class="section" id="numbers" aria-labelledby="numbers-title">
     <div class="container">
-      <p class="eyebrow"><b>07</b> Measured, not estimated</p>
-      <div class="section__head">
+      <div class="section__head" data-reveal>
+        <p class="folio"><span class="folio__no">07</span><span class="folio__name">Measured, not estimated</span><span class="folio__rule" aria-hidden="true"></span></p>
         <h2 id="numbers-title">Numbers from the repository</h2>
-        <p>Everything here is counted or measured in the project itself.</p>
+        <p class="section__stand">Everything here is counted or measured in the project itself — a check fails the build if the site stops agreeing with the suite.</p>
       </div>
-      <ul class="metrics">
-        <li class="metric"><span class="metric__n" data-count="127">0</span><span class="metric__k">tests across 13 files</span></li>
+      <ul class="metrics" data-reveal>
+        <li class="metric"><span class="metric__n" data-count="172">0</span><span class="metric__k">tests across 14 files</span></li>
         <li class="metric"><span class="metric__n" data-count="10" data-suffix="/10">0</span><span class="metric__k">e2e checks in real Chrome</span></li>
-        <li class="metric"><span class="metric__n" data-count="0">0</span><span class="metric__k">web-ext lint errors and warnings</span></li>
-        <li class="metric"><span class="metric__n" data-count="230" data-suffix="k">0</span><span class="metric__k">words per second, peak throughput</span></li>
+        <li class="metric"><span class="metric__n" data-count="200" data-suffix="k">0</span><span class="metric__k">words per second, peak benchmark</span></li>
         <li class="metric"><span class="metric__n" data-count="5">0</span><span class="metric__k">reading modes</span></li>
+        <li class="metric"><span class="metric__n" data-count="0">0</span><span class="metric__k">network requests, enforced by test</span></li>
       </ul>
     </div>
   </section>
 
-  <!-- ============ privacy ============ -->
+  <!-- ================= 08 privacy ================= -->
   <section class="section" id="privacy" aria-labelledby="privacy-title">
     <div class="container">
-      <p class="eyebrow"><b>08</b> Privacy</p>
-      <div class="section__head"><h2 id="privacy-title">No network. No analytics. No accounts.</h2></div>
-      <div class="prose">
-        <p>Bionic Page makes no network requests and has no analytics, accounts, or telemetry. Your settings are the only thing stored, and they stay in the browser's own storage. The rewrite runs entirely on your machine; the <code>&lt;all_urls&gt;</code> host permission exists so page text can be read locally, and nothing is ever uploaded. Removing the extension removes the settings.</p>
+      <div class="section__head" data-reveal>
+        <p class="folio"><span class="folio__no">08</span><span class="folio__name">Privacy</span><span class="folio__rule" aria-hidden="true"></span></p>
+        <h2 id="privacy-title">No network. No analytics. No accounts.</h2>
+      </div>
+      <div class="prose" data-reveal>
+        <p>Bionic Page makes no network requests and has no analytics, accounts, or telemetry. Your settings are the only thing stored, and they stay in the browser&#8217;s own storage. The rewrite runs entirely on your machine; the <code>&lt;all_urls&gt;</code> host permission exists so page text can be read locally, and nothing is ever uploaded. Removing the extension removes the settings.</p>
       </div>
     </div>
   </section>
 
-  <!-- ============ install ============ -->
-  <section class="section section--flush" id="install" aria-labelledby="install-title">
+  <!-- ================= 09 install ================= -->
+  <section class="section" id="install" aria-labelledby="install-title">
     <div class="container">
-      <p class="eyebrow"><b>09</b> Install</p>
-      <div class="section__head">
+      <div class="section__head" data-reveal>
+        <p class="folio"><span class="folio__no">09</span><span class="folio__name">Install</span><span class="folio__rule" aria-hidden="true"></span></p>
         <h2 id="install-title">Build it from source</h2>
-        <p>Store listings are pending publication. Both targets build from one source tree.</p>
+        <p class="section__stand">Store listings are pending publication. Both targets build from one source tree.</p>
       </div>
-      <div class="term">
+      <div class="term" data-reveal>
         <div class="term__bar">
           <span class="term__dot"></span><span class="term__dot"></span><span class="term__dot"></span>
           <span class="term__title">terminal — bionic-page</span>
@@ -451,41 +401,61 @@ try{var t=localStorage.getItem("bionic-page-theme"); if(t==="dark"||t==="light")
           <div class="term__line"><span class="prompt">$</span><span><span class="cmd">git</span> clone https://github.com/srivtx/bionic-page</span></div>
           <div class="term__line"><span class="prompt">$</span><span><span class="cmd">cd</span> bionic-page <span class="flag">&amp;&amp;</span> <span class="cmd">bun</span> install</span></div>
           <div class="term__line"><span class="prompt">$</span><span><span class="cmd">bun</span> run build</span></div>
-          <div class="term__line"><span class="prompt">#</span><span class="c">Chrome/Edge: chrome://extensions → Developer mode → Load unpacked → dist/chrome</span></div>
-          <div class="term__line"><span class="prompt">#</span><span class="c">Firefox: about:debugging → This Firefox → Load Temporary Add-on → dist/firefox/manifest.json</span></div>
+          <div class="term__line c"><span class="prompt">#</span><span>Chrome/Edge: chrome://extensions → Developer mode → Load unpacked → dist/chrome</span></div>
+          <div class="term__line c"><span class="prompt">#</span><span>Firefox: about:debugging → This Firefox → Load Temporary Add-on → dist/firefox/manifest.json</span></div>
         </div>
       </div>
-      <p class="install__note">Toggle the page you are on with <kbd class="keycap">Ctrl/Cmd + Shift + Y</kbd>, the popup, or the floating control.</p>
+      <p class="note" data-reveal>Toggle the page you are on with <kbd class="keycap">Ctrl/Cmd + Shift + Y</kbd>, the popup, or the floating control. Requires Chrome 116 or newer, or Firefox 140 or newer.</p>
     </div>
   </section>
 
-  <!-- ============ faq ============ -->
-  <section class="section section--flush" id="faq" aria-labelledby="faq-title">
+  <!-- ================= 10 faq ================= -->
+  <section class="section" id="faq" aria-labelledby="faq-title">
     <div class="container">
-      <p class="eyebrow"><b>10</b> FAQ</p>
-      <div class="section__head">
+      <div class="section__head" data-reveal>
+        <p class="folio"><span class="folio__no">10</span><span class="folio__name">FAQ</span><span class="folio__rule" aria-hidden="true"></span></p>
         <h2 id="faq-title">Honest answers</h2>
       </div>
-      <div class="faq" id="faq-list">
-        <div class="faq__item">
-          <button class="faq__q" aria-expanded="false">Does bionic reading actually make me faster?<svg class="icon faq__chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></button>
-          <div class="faq__a"><p>The honest answer: the research is mixed. Some studies report small gains for some readers; others find no effect. That is exactly why Bionic Page is framed as configurable visual anchoring — a comfortable, predictable fixation point — rather than a speed-reading promise. Try it, tune the intensity, keep it only if it feels better.</p></div>
+      <div class="qa" id="faq-list" data-reveal>
+        <div class="qa__item">
+          <button type="button" class="qa__q" aria-expanded="false">
+            <span class="qa__no" aria-hidden="true">Q1</span>
+            <span class="qa__q-text">Does bionic reading actually make me faster?</span>
+            <span class="qa__x" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>
+          </button>
+          <div class="qa__a"><p class="qa__a-inner">The honest answer: the research is mixed. Some studies report small gains for some readers; others find no effect. That is exactly why Bionic Page is framed as configurable visual anchoring — a comfortable, predictable fixation point — rather than a speed-reading promise. Try it, tune the intensity, keep it only if it feels better.</p></div>
         </div>
-        <div class="faq__item">
-          <button class="faq__q" aria-expanded="false">Does any of my reading leave my browser?<svg class="icon faq__chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></button>
-          <div class="faq__a"><p>No. The extension makes zero network requests and includes no analytics or telemetry. The <code>&lt;all_urls&gt;</code> permission lets it read page text locally so the transform can run; nothing is uploaded, logged, or shared. Your settings live in browser storage and vanish when you uninstall.</p></div>
+        <div class="qa__item">
+          <button type="button" class="qa__q" aria-expanded="false">
+            <span class="qa__no" aria-hidden="true">Q2</span>
+            <span class="qa__q-text">Does any of my reading leave my browser?</span>
+            <span class="qa__x" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>
+          </button>
+          <div class="qa__a"><p class="qa__a-inner">No. The extension makes zero network requests and includes no analytics or telemetry. The <code>&lt;all_urls&gt;</code> permission lets it read page text locally so the transform can run; nothing is uploaded, logged, or shared. Your settings live in browser storage and vanish when you uninstall.</p></div>
         </div>
-        <div class="faq__item">
-          <button class="faq__q" aria-expanded="false">Will it break sites with dynamic content?<svg class="icon faq__chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></button>
-          <div class="faq__a"><p>It is built for them. A <code>MutationObserver</code> picks up content added by single-page apps and infinite scroll, a sentinel handles text swapped inside existing paragraphs, and open shadow roots are traversed so web components work too. Interactive elements, forms, and code are explicitly skipped.</p></div>
+        <div class="qa__item">
+          <button type="button" class="qa__q" aria-expanded="false">
+            <span class="qa__no" aria-hidden="true">Q3</span>
+            <span class="qa__q-text">Will it break sites with dynamic content?</span>
+            <span class="qa__x" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>
+          </button>
+          <div class="qa__a"><p class="qa__a-inner">It is built for them. A <code>MutationObserver</code> picks up content added by single-page apps and infinite scroll, a sentinel handles text swapped inside existing paragraphs, and open shadow roots are traversed so web components work too. Interactive elements, forms, and code are explicitly skipped.</p></div>
         </div>
-        <div class="faq__item">
-          <button class="faq__q" aria-expanded="false">How do I turn it off — per site or everywhere?<svg class="icon faq__chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></button>
-          <div class="faq__a"><p>Three ways: the <kbd class="keycap">Ctrl/Cmd + Shift + Y</kbd> shortcut, the extension popup, or the floating control on the page itself. Per-site rules let you keep it on for long-form reading and off everywhere else. Disabling restores the page's original text exactly.</p></div>
+        <div class="qa__item">
+          <button type="button" class="qa__q" aria-expanded="false">
+            <span class="qa__no" aria-hidden="true">Q4</span>
+            <span class="qa__q-text">How do I turn it off — per site or everywhere?</span>
+            <span class="qa__x" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>
+          </button>
+          <div class="qa__a"><p class="qa__a-inner">Three ways: the <kbd class="keycap">Ctrl/Cmd + Shift + Y</kbd> shortcut, the extension popup, or the floating control on the page itself. Per-site rules let you keep it on for long-form reading and off everywhere else. Disabling restores the page&#8217;s original text exactly.</p></div>
         </div>
-        <div class="faq__item">
-          <button class="faq__q" aria-expanded="false">Is this affiliated with Bionic Reading GmbH?<svg class="icon faq__chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></button>
-          <div class="faq__a"><p>No. Bionic Page is an independent, MIT-licensed open-source project by svx. It implements the well-known "bold the leading letters" idea with its own algorithm, five modes, and a safety-first rewrite that leaves pages untouched when switched off.</p></div>
+        <div class="qa__item">
+          <button type="button" class="qa__q" aria-expanded="false">
+            <span class="qa__no" aria-hidden="true">Q5</span>
+            <span class="qa__q-text">Is this affiliated with Bionic Reading GmbH?</span>
+            <span class="qa__x" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>
+          </button>
+          <div class="qa__a"><p class="qa__a-inner">No. Bionic Page is an independent, MIT-licensed open-source project by svx. It implements the well-known &#8220;bold the leading letters&#8221; idea with its own algorithm, five modes, and a safety-first rewrite that leaves pages untouched when switched off.</p></div>
         </div>
       </div>
     </div>
@@ -493,20 +463,14 @@ try{var t=localStorage.getItem("bionic-page-theme"); if(t==="dark"||t==="light")
 
 </main>
 
-<button class="totop" id="totop" aria-label="Back to top">
-  <svg class="icon" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"></path></svg>
-</button>
-
 <footer class="footer">
-  <p class="footer__mark bionic" data-bionic-sample="half" aria-label="Bionic Page">Bionic Page</p>
   <div class="container">
-    <div class="footer__inner">
+    <hr class="footer__rule">
+    <p class="footer__mark bionic" data-bionic-sample="dim" aria-label="Bionic Page">Bionic Page</p>
+    <div class="footer__cols">
       <div class="footer__brand">
-        <span class="brand__mark" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.6"></rect><path d="M7.4 12h4.6"></path><path d="M12 12h4.6" stroke-opacity=".4"></path></svg></span>
-        <div>
-          <p>Bionic Page</p>
-          <p class="muted footer__tagline">Five modes, per-site rules, one reversible pass. No network.</p>
-        </div>
+        <p>Bionic Page</p>
+        <p class="muted footer__tagline">Five modes, per-site rules, one reversible pass. No network.</p>
       </div>
       <nav aria-label="Project">
         <h2>Project</h2>
@@ -541,7 +505,8 @@ try{var t=localStorage.getItem("bionic-page-theme"); if(t==="dark"||t==="light")
     </div>
   </div>
 </footer>
-<script src="assets/core.js?v=07a53103b7"></script>
-<script src="assets/demo.js?v=07a53103b7"></script>
+
+<script src="assets/core.js?v=790aac69ad"></script>
+<script src="assets/demo.js?v=790aac69ad"></script>
 </body>
 </html>
