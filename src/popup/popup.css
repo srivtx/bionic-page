@@ -344,6 +344,77 @@ body {
   font-weight: 400;
 }
 
+/* The settings sit on one card on the warm page, rows split by hairlines,
+   like the options page. */
+body {
+  background: var(--bp-canvas-soft);
+}
+
+.popup {
+  padding: 14px 14px 16px;
+}
+
+.popup__header {
+  padding: 0 2px;
+}
+
+.status {
+  background: var(--bp-canvas);
+}
+
+.panel {
+  padding: 2px 14px;
+  border: 1px solid var(--bp-hairline);
+  border-radius: 14px;
+  background: var(--bp-canvas);
+  box-shadow: var(--bp-shadow);
+}
+
+.panel > .field {
+  margin: 0;
+  padding: 12px 0;
+}
+
+.panel > .field + .field {
+  border-top: 1px solid var(--bp-hairline);
+}
+
+.panel > .field--row {
+  min-height: 0;
+}
+
+.panel .field__row {
+  align-items: center;
+}
+
+.panel .switch {
+  min-height: 30px;
+}
+
+.panel .control--range {
+  display: block;
+  min-height: 20px;
+  margin: 4px 0 0;
+}
+
+.panel .site__host {
+  margin-top: 0;
+}
+
+.popup__footer {
+  margin-top: 12px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.popup__footer .button {
+  background: var(--bp-canvas);
+}
+
+.wordmark__gap {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

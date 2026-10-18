@@ -705,6 +705,130 @@ body {
   color: var(--bp-accent);
 }
 
+/* Cards. A fieldset draws its legend over its own top edge, outside its
+   padding, so the card holds the padding and the legend is floated into the
+   flow as the card's header. Settings inside a card read as one list, with a
+   hairline between rows. */
+.page {
+  max-width: 720px;
+  padding: 40px 24px 64px;
+}
+
+.page__header {
+  margin-bottom: 24px;
+}
+
+.form {
+  gap: 18px;
+}
+
+.card {
+  padding: 22px 26px 24px;
+}
+
+.fieldset {
+  min-width: 0;
+  padding: 0;
+}
+
+.legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--bp-hairline);
+  font-size: 16px;
+  letter-spacing: -0.005em;
+}
+
+.legend + * {
+  clear: both;
+}
+
+.fieldset > .field,
+.fieldset > .field:first-of-type {
+  margin: 0;
+  padding: 16px 0;
+}
+
+.fieldset > .field + .field,
+.fieldset > .actions + .field {
+  border-top: 1px solid var(--bp-hairline);
+}
+
+.fieldset > .field:last-child {
+  padding-bottom: 0;
+}
+
+.fieldset > .field--row {
+  min-height: 0;
+  padding: 14px 0;
+}
+
+.fieldset > .field--row:last-child {
+  padding-bottom: 0;
+}
+
+/* Clearance swallows the top margin of whatever follows the floated legend,
+   so the gap under the header is the legend's own margin. */
+.fieldset > .legend + .field {
+  padding-top: 0;
+}
+
+.fieldset > .legend + .hint,
+.fieldset > .legend + .preview {
+  margin-top: 0;
+}
+
+.fieldset > .actions {
+  margin: 0;
+  padding: 16px 0;
+}
+
+.fieldset > .legend + .actions {
+  padding-top: 0;
+}
+
+.fieldset > .actions:last-child {
+  padding-bottom: 0;
+}
+
+.fieldset > .rules {
+  margin-top: 16px;
+}
+
+.fieldset > .rules + .actions {
+  padding-bottom: 0;
+}
+
+.rule {
+  padding: 14px 16px 16px;
+  border-radius: 12px;
+}
+
+.preview {
+  margin-bottom: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--bp-hairline);
+  border-radius: 12px;
+  background: var(--bp-canvas-soft);
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 24px 14px 48px;
+  }
+
+  .card {
+    padding: 18px 18px 20px;
+  }
+}
+
+/* The wordmark's two words sit one space apart, as in assets/brand/logo.svg. */
+.wordmark__gap {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

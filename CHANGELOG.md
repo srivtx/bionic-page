@@ -16,6 +16,11 @@ versions follow semver.
 - **The options page's on/off settings are switches**, matching the popup.
   The site rules' "Use global" box and the import file picker are drawn in
   the same style. All three are still native inputs.
+- **Roomier cards.** Each options card had its title on the top edge, because
+  a fieldset draws its legend outside its padding. The cards now hold the
+  padding, each title sits above a hairline, and the settings read as one
+  list with a hairline between rows. The popup's settings sit on one card in
+  the same style.
 - **The wordmark carries the mark.** The popup, options and welcome pages show
   the toolbar icon's glyph beside the name.
 - **Smoother icon.** `scripts/make-icons.mjs` now averages 6×6 samples per
