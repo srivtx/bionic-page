@@ -5,7 +5,8 @@
  * Draws the brand mark directly into RGBA pixel buffers and encodes them as
  * PNG (zlib + CRC32 are in the Node standard library). The motif is three
  * "words" where the leading part is bold white and the rest is the accent
- * colour — the product's idea rendered as an icon.
+ * colour — the product's idea rendered as an icon. Each pixel is averaged
+ * from 6×6 samples, so the tile corners and the rounded line ends are smooth.
  */
 import { deflateSync } from "node:zlib";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -15,10 +16,9 @@ import { fileURLToPath } from "node:url";
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const OUT = join(ROOT, "..", "assets", "icons");
 
-const INK = [0x14, 0x16, 0x1a, 0xff];
-const HEAD = [0xff, 0xff, 0xff, 0xff];
-const TAIL = [0x8b, 0x8c, 0xf7, 0xff];
-const CLEAR = [0x00, 0x00, 0x00, 0x00];
+const INK = [0x14, 0x16, 0x1a];
+const HEAD = [0xff, 0xff, 0xff];
+const TAIL = [0x8b, 0x8c, 0xf7];
 
 const crcTable = (() => {
   const table = new Uint32Array(256);
@@ -69,51 +69,79 @@ function encodePng(width, height, rgba) {
   ]);
 }
 
-function set(rgba, size, x, y, color) {
-  if (x < 0 || y < 0 || x >= size || y >= size) return;
-  const i = (y * size + x) * 4;
-  rgba[i] = color[0];
-  rgba[i + 1] = color[1];
-  rgba[i + 2] = color[2];
-  rgba[i + 3] = color[3];
+// The mark on a 24-unit tile, shared with the wordmark's inline SVG in the
+// popup, options and welcome pages: three lines of text, each a faded indigo
+// capsule with its leading part in white on top.
+const GRID = 24;
+const TILE_RADIUS = 0.22 * GRID;
+const STROKE = 1.8;
+const ROWS_FULL = [
+  { y: 7.56, head: 9.3, tail: 15.7 },
+  { y: 12, head: 10.5, tail: 18.3 },
+  { y: 16.44, head: 9.3, tail: 15.7 },
+];
+// Below 48px three lines blur together, so the small icons keep two.
+const ROWS_SMALL = [
+  { y: 9.78, head: 10.5, tail: 18.3 },
+  { y: 14.22, head: 9.3, tail: 15.7 },
+];
+const START = 5.7;
+
+function insideTile(px, py) {
+  const r = TILE_RADIUS;
+  const cx = Math.min(Math.max(px, r), GRID - r);
+  const cy = Math.min(Math.max(py, r), GRID - r);
+  return (px - cx) ** 2 + (py - cy) ** 2 <= r * r;
 }
 
-function insideRounded(x, y, size, radius) {
-  const r = radius;
-  const cx = Math.min(Math.max(x, r), size - 1 - r);
-  const cy = Math.min(Math.max(y, r), size - 1 - r);
-  const dx = x - cx;
-  const dy = y - cy;
-  return dx * dx + dy * dy <= r * r + 0.5;
+/** Inside a horizontal capsule from x0 to x1 on line y. */
+function inCapsule(px, py, x0, x1, y, half) {
+  const cx = Math.min(Math.max(px, x0), x1);
+  return (px - cx) ** 2 + (py - y) ** 2 <= half * half;
 }
 
-function fillRect(rgba, size, x0, y0, x1, y1, color) {
-  for (let y = Math.floor(y0); y < Math.ceil(y1); y += 1) {
-    for (let x = Math.floor(x0); x < Math.ceil(x1); x += 1) set(rgba, size, x, y, color);
+/** Colour of one point of the mark, in grid units; null outside the tile. */
+function shade(px, py, rows, half) {
+  if (!insideTile(px, py)) return null;
+  for (const row of rows) {
+    if (inCapsule(px, py, START, row.head, row.y, half)) return HEAD;
   }
+  for (const row of rows) {
+    if (inCapsule(px, py, START, row.tail, row.y, half)) return TAIL;
+  }
+  return INK;
 }
 
 function draw(size) {
   const rgba = Buffer.alloc(size * size * 4);
-  const radius = Math.max(2, Math.round(size * 0.22));
+  const unit = GRID / size;
+  const rows = size >= 48 ? ROWS_FULL : ROWS_SMALL;
+  // Thin strokes vanish at toolbar size, so the smallest icons draw them bolder.
+  const half = (STROKE * (size <= 16 ? 1.35 : size <= 32 ? 1.15 : 1)) / 2;
+  const samples = 6;
   for (let y = 0; y < size; y += 1) {
     for (let x = 0; x < size; x += 1) {
-      if (insideRounded(x, y, size, radius)) set(rgba, size, x, y, INK);
+      let r = 0;
+      let g = 0;
+      let b = 0;
+      let covered = 0;
+      for (let sy = 0; sy < samples; sy += 1) {
+        for (let sx = 0; sx < samples; sx += 1) {
+          const color = shade((x + (sx + 0.5) / samples) * unit, (y + (sy + 0.5) / samples) * unit, rows, half);
+          if (!color) continue;
+          covered += 1;
+          r += color[0];
+          g += color[1];
+          b += color[2];
+        }
+      }
+      if (covered === 0) continue;
+      const i = (y * size + x) * 4;
+      rgba[i] = Math.round(r / covered);
+      rgba[i + 1] = Math.round(g / covered);
+      rgba[i + 2] = Math.round(b / covered);
+      rgba[i + 3] = Math.round((255 * covered) / (samples * samples));
     }
-  }
-  const rows = size >= 48 ? 3 : 2;
-  const marginX = size * 0.2;
-  const usable = size - marginX * 2;
-  const barH = Math.max(1, Math.round(size * 0.075));
-  const gap = Math.max(1, Math.round(size * 0.11));
-  const blockH = rows * barH + (rows - 1) * gap;
-  let y = (size - blockH) / 2;
-  for (let r = 0; r < rows; r += 1) {
-    const full = usable * (r === 1 ? 1 : 0.82);
-    const headW = full * 0.46;
-    fillRect(rgba, size, marginX, y, marginX + headW, y + barH, HEAD);
-    fillRect(rgba, size, marginX + headW, y, marginX + full, y + barH, TAIL);
-    y += barH + gap;
   }
   return rgba;
 }

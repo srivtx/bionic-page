@@ -2,6 +2,7 @@ import { api, call } from "../shared/browser";
 import { broadcast, sendToActiveTab } from "../shared/messaging";
 import { hostForUrl, patternForUrl, resolveSiteRule, upsertSiteRule } from "../shared/site";
 import { loadSettings, saveSettings } from "../shared/storage";
+import { enhanceSelects } from "../shared/select";
 import {
   DEFAULT_SETTINGS,
   MODES,
@@ -161,6 +162,7 @@ async function init(): Promise<void> {
     option.title = mode.description;
     modeEl.append(option);
   }
+  enhanceSelects();
 
   current = await loadSettings();
   applySettingsToForm(current);

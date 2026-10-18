@@ -7,6 +7,7 @@
   --bp-hairline: #e6e6e0;
   --bp-accent: #4f46e5;
   --bp-accent-soft: #eef0ff;
+  --bp-on-accent: #ffffff;
   --bp-success: #0f766e;
   --bp-error: #b91c1c;
   --bp-bold-weight: 700;
@@ -27,6 +28,7 @@
     --bp-hairline: #252a31;
     --bp-accent: #8b8cf7;
     --bp-accent-soft: #1c2033;
+    --bp-on-accent: #0e1013;
     --bp-success: #34d399;
     --bp-error: #f87171;
   }
@@ -81,7 +83,9 @@ body {
 }
 
 .wordmark {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--bp-ink);
   font-size: 24px;
   letter-spacing: 0.01em;
@@ -231,12 +235,45 @@ body {
   border-color: transparent;
 }
 
+/* On/off settings are drawn as the popup's switch; the input stays a native
+   checkbox, so labels, keyboard and form state are unchanged. */
 .checkbox {
-  width: 20px;
-  height: 20px;
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
   flex: 0 0 auto;
-  accent-color: var(--bp-accent);
+  width: 40px;
+  height: 24px;
+  margin: 0;
+  border: 1px solid var(--bp-hairline);
+  border-radius: 999px;
+  background: var(--bp-hairline);
   cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.checkbox::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--bp-hairline);
+  border-radius: 50%;
+  background: var(--bp-canvas);
+  transition: left 140ms ease, background-color 140ms ease;
+}
+
+.checkbox:checked {
+  border-color: var(--bp-accent);
+  background: var(--bp-accent);
+}
+
+.checkbox:checked::before {
+  left: 18px;
+  border-color: transparent;
+  background: #ffffff;
 }
 
 .button {
@@ -245,7 +282,7 @@ body {
   border: 1px solid var(--bp-accent);
   border-radius: var(--bp-radius);
   background: var(--bp-accent);
-  color: #ffffff;
+  color: var(--bp-on-accent);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -392,10 +429,39 @@ body {
 }
 
 .rule__use-global {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
   width: 16px;
   height: 16px;
-  accent-color: var(--bp-accent);
+  margin: 0;
+  border: 1px solid var(--bp-mute);
+  border-radius: 5px;
+  background: var(--bp-canvas);
   cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.rule__use-global::before {
+  content: "";
+  width: 4px;
+  height: 8px;
+  margin-bottom: 2px;
+  border-right: 2px solid var(--bp-on-accent);
+  border-bottom: 2px solid var(--bp-on-accent);
+  transform: rotate(45deg);
+  visibility: hidden;
+}
+
+.rule__use-global:checked {
+  border-color: var(--bp-accent);
+  background: var(--bp-accent);
+}
+
+.rule__use-global:checked::before {
+  visibility: visible;
 }
 
 .rule__note {
@@ -558,6 +624,85 @@ body {
 .preview b {
   color: var(--bp-ink);
   font-weight: var(--bp-bold-weight);
+}
+
+/* The mark beside the wordmark is the toolbar icon (scripts/make-icons.mjs):
+   three lines on the ink tile, each with its leading part in white. */
+.mark {
+  display: block;
+  flex: none;
+  width: 1.4em;
+  height: 1.4em;
+  border-radius: 0.31em;
+  background: #14161a;
+}
+
+.mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.mark__tail {
+  stroke: #8b8cf7;
+}
+
+.mark__head {
+  stroke: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .mark {
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 12%);
+  }
+}
+
+/* The designed mode menu (select.css) fills its field like the other controls. */
+.field .bp-select,
+.rule__field .bp-select {
+  display: block;
+}
+
+.field .bp-select-button,
+.rule__field .bp-select-button {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px 8px 12px;
+  border-radius: var(--bp-radius);
+  color: var(--bp-body);
+  font-size: inherit;
+  font-weight: 400;
+}
+
+/* The file picker's button matches the quiet buttons instead of the
+   browser's grey one. */
+.control--file {
+  padding: 5px;
+  color: var(--bp-mute);
+  cursor: pointer;
+}
+
+.control--file::file-selector-button {
+  margin-right: 12px;
+  min-height: 30px;
+  padding: 5px 14px;
+  border: 1px solid var(--bp-hairline);
+  border-radius: 8px;
+  background: var(--bp-canvas-soft);
+  color: var(--bp-ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease;
+}
+
+.control--file:hover::file-selector-button {
+  border-color: var(--bp-accent);
+  background: var(--bp-accent-soft);
+  color: var(--bp-accent);
 }
 
 @media (prefers-reduced-motion: reduce) {

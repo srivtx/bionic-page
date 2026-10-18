@@ -148,7 +148,11 @@ Options (`options.html` + `options.ts`): full `Settings` form, per-site list
 `saveSettings` and notify tabs via `broadcast({type:"settings-changed",...})`.
 
 Both pages load `../shared/storage.ts` and `../shared/messaging.ts`; the build
-bundles them, so use normal ESM imports.
+bundles them, so use normal ESM imports. Both also draw their mode menus with
+`../shared/select.ts` (`enhanceSelects()` once the options exist, or
+`enhanceSelect(select)` for a select created later, such as a site rule's).
+The native `<select>` stays the source of truth: read and write `value` and
+listen for `change` as before.
 
 ## Build contract (`build.mjs`)
 

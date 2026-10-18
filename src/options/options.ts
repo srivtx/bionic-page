@@ -9,6 +9,7 @@ import {
   type SiteRule,
 } from "../shared/types";
 import { describePattern, validatePattern } from "../shared/site";
+import { enhanceSelect, enhanceSelects } from "../shared/select";
 import { emphasize, type BionicOptions } from "../core/algorithm";
 import { mergeImportedSettings, type ImportResult } from "./settings-transfer";
 
@@ -273,6 +274,7 @@ function buildRuleRow(rule: SiteRule): RuleRow {
     const option = document.createElement("option");
     option.value = entry.id;
     option.textContent = entry.label;
+    option.title = entry.description;
     mode.append(option);
   }
   mode.value = rule.mode ?? "";
@@ -283,6 +285,7 @@ function buildRuleRow(rule: SiteRule): RuleRow {
   modeLabel.className = "rule__label";
   modeLabel.textContent = "Mode";
   modeField.append(modeLabel, mode);
+  enhanceSelect(mode);
 
   const range = document.createElement("input");
   range.type = "range";
@@ -585,6 +588,7 @@ async function init(): Promise<void> {
     option.title = mode.description;
     modeEl.append(option);
   }
+  enhanceSelects();
   current = await loadSettings();
   applySettingsToForm(current);
 }

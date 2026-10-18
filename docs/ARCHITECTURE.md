@@ -14,6 +14,8 @@ src/
     storage.ts     loadSettings / saveSettings / onSettingsChanged
     messaging.ts   sendToTab / sendToActiveTab / broadcast / onMessage
     site.ts        match-pattern matching and per-site resolution (pure)
+    select.ts      designed menu over a native <select> (popup and options pages;
+                   styles in select.css, copied by build.mjs)
   core/          pure algorithm; DOM-free and unit-testable
     algorithm.ts   boldLength / emphasize / bionicText
     rules.ts       parseRule for the custom rule mode

@@ -53,6 +53,7 @@ async function copyStatic(targetDir) {
   await cp(join(SRC, "options/options.css"), join(targetDir, "options.css"));
   await cp(join(SRC, "welcome/welcome.html"), join(targetDir, "welcome.html"));
   await cp(join(SRC, "welcome/welcome.css"), join(targetDir, "welcome.css"));
+  await cp(join(SRC, "shared/select.css"), join(targetDir, "select.css"));
 
   const iconsDir = join(targetDir, "icons");
   await mkdir(iconsDir, { recursive: true });

@@ -3,6 +3,27 @@
 All notable changes to Bionic Page. Format loosely follows Keep a Changelog;
 versions follow semver.
 
+## [Unreleased]
+
+### Changed
+
+- **Mode menus are designed.** The Mode menu in the popup and on the options
+  page, and each site rule's Mode menu, opened the browser's own unstyled
+  popup. `src/shared/select.ts` now draws a list in the extension's style,
+  with each mode's description under its name. Arrow keys, Home/End, Enter,
+  Space, Escape and type-ahead work. The native select stays underneath as
+  the source of truth.
+- **The options page's on/off settings are switches**, matching the popup.
+  The site rules' "Use global" box and the import file picker are drawn in
+  the same style. All three are still native inputs.
+- **The wordmark carries the mark.** The popup, options and welcome pages show
+  the toolbar icon's glyph beside the name.
+- **Smoother icon.** `scripts/make-icons.mjs` now averages 6×6 samples per
+  pixel, so the tile corners and the now-rounded line ends are smooth at
+  every size.
+- In dark mode, primary buttons use dark text on the light indigo accent,
+  for contrast.
+
 ## [0.3.0] — 2026-09-19
 
 Production-readiness release.
