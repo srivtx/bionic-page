@@ -21,7 +21,7 @@ modes, per-site control, a fully reversible transform, and no network.
 
 [Website](https://srivtx.github.io/bionic-page) · [Features](#features) · [Modes](#modes) · [Install](#install) · [Usage](#usage) ·
 [Architecture](#architecture) · [Development](#development) · [Testing](#testing) ·
-[Privacy](#privacy) · [FAQ](#faq)
+[Privacy](#privacy) · [FAQ](#faq) · [Family](#family)
 
 </div>
 
@@ -46,6 +46,10 @@ modes, per-site control, a fully reversible transform, and no network.
   will not match.
 - **Toolbar badge, floating control, keyboard toggle** — see and change the
   state without opening anything (`Ctrl/Cmd+Shift+Y`).
+- **Designed controls** — the popup and options pages draw their own mode
+  menus (arrow keys, Enter, Escape and type-ahead work), switches and cards, in
+  light and dark. The native inputs stay underneath, so labels, keyboard and
+  form state behave as before.
 - **Welcome page** — a short first-run guide opens automatically on install.
 - **No network. No analytics. No accounts.** Settings live in the browser's own
   storage.
@@ -112,7 +116,10 @@ The walkthrough, with screenshots, is the [How it works and Controls sections](h
 ```
 
 - `src/shared/types.ts` is the **single contract** every module imports.
-- `src/core/*` is pure and DOM-free, so it is unit-testable.
+- `src/core/*` is pure and DOM-free, so it is unit-testable. It is the same
+  algorithm [Bionic Docs](https://github.com/srivtx/bionic-docs) ships.
+- `src/shared/select.ts` draws the designed menus over native `<select>`s on
+  the popup and options pages.
 - `src/content/*` owns DOM mutation and is reversible and idempotent.
 - `scripts/manifest.mjs` is the only source of manifest truth.
 - `site/` is the static landing page; it makes no external requests.
@@ -166,8 +173,11 @@ Yes — MIT licensed. "Bionic Reading" is a trademark of Bionic Reading GmbH;
 this project is not affiliated with or endorsed by it.</details>
 
 <details><summary>Does it work on PDFs or canvas apps?</summary>
-No. Those keep text outside the DOM, so there is nothing to transform. The
-popup says so when it detects no readable text.</details>
+Not on its own: those keep text outside the DOM, so there is nothing to
+transform, and the popup says so when it detects no readable text. For PDF and
+EPUB files use the sibling extension,
+<a href="https://srivtx.github.io/bionic-docs/">Bionic Docs</a>, which opens
+them locally and applies the same algorithm.</details>
 
 <details><summary>Will it break websites?</summary>
 It only rewrites text nodes and skips code, editors, forms, math, nav, and
@@ -179,6 +189,16 @@ words/second; see [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md).</details>
 
 <details><summary>Does it read my data?</summary>
 No. There is no server and no network code in the extension.</details>
+
+## Family
+
+| | Reads | Website |
+|---|---|---|
+| **Bionic Page** (this repo) | Any web page, in place | [srivtx.github.io/bionic-page](https://srivtx.github.io/bionic-page) |
+| **[Bionic Docs](https://github.com/srivtx/bionic-docs)** | PDF and EPUB files, with every PDF page kept as printed | [srivtx.github.io/bionic-docs](https://srivtx.github.io/bionic-docs) |
+
+Both share the fixation algorithm in `src/core/`, run entirely on-device, and
+build for Chrome and Firefox from one source tree.
 
 ## Contributing
 
